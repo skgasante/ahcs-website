@@ -1489,6 +1489,7 @@
       const data = vacData ? vacData.slice(0, 3) : null;
 
       if (vacErr || !data || data.length === 0) {
+        vacGrid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#6B7280;padding:24px 0">No open positions at the moment. Check back soon.</p>';
         return;
       }
 
