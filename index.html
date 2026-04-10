@@ -955,48 +955,11 @@
         <a href="openings.html" class="btn btn-primary">View All Openings</a>
       </div>
 
-      <div class="jobs-list">
-        <div class="job-card">
-          <div class="job-left">
-            <div class="job-tags">
-              <span class="job-tag tag-full">Full-Time</span>
-              <span class="job-tag tag-dept">Teaching</span>
-            </div>
-            <h3>Class Teacher – Upper Primary (Year 4–6)</h3>
-            <p>We are seeking an enthusiastic, experienced teacher to lead our Upper Primary class with confidence and creativity.</p>
-          </div>
-          <div class="job-right">
-            <a href="#" class="btn btn-orange">Apply Now</a>
-          </div>
-        </div>
-
-        <div class="job-card">
-          <div class="job-left">
-            <div class="job-tags">
-              <span class="job-tag tag-full">Full-Time</span>
-              <span class="job-tag tag-dept">Administration</span>
-            </div>
-            <h3>School Registrar / Administrative Officer</h3>
-            <p>A detail-oriented, parent-friendly professional to manage admissions, records, and day-to-day school administration.</p>
-          </div>
-          <div class="job-right">
-            <a href="#" class="btn btn-orange">Apply Now</a>
-          </div>
-        </div>
-
-        <div class="job-card">
-          <div class="job-left">
-            <div class="job-tags">
-              <span class="job-tag tag-part">Part-Time</span>
-              <span class="job-tag tag-dept">Enrichment</span>
-            </div>
-            <h3>ICT / Coding Facilitator (After-School Programme)</h3>
-            <p>Someone with a passion for technology education to run our after-school ICT and coding enrichment sessions.</p>
-          </div>
-          <div class="job-right">
-            <a href="#" class="btn btn-orange">Apply Now</a>
-          </div>
-        </div>
+      <div class="jobs-list" id="homeVacanciesGrid">
+        <!-- skeleton rows shown while loading -->
+        <div class="job-card job-skeleton"><div class="job-left"><div class="skel-line w40" style="height:10px;margin-bottom:12px;"></div><div class="skel-line w80" style="height:16px;margin-bottom:8px;"></div><div class="skel-line w60"></div></div></div>
+        <div class="job-card job-skeleton"><div class="job-left"><div class="skel-line w40" style="height:10px;margin-bottom:12px;"></div><div class="skel-line w80" style="height:16px;margin-bottom:8px;"></div><div class="skel-line w60"></div></div></div>
+        <div class="job-card job-skeleton"><div class="job-left"><div class="skel-line w40" style="height:10px;margin-bottom:12px;"></div><div class="skel-line w80" style="height:16px;margin-bottom:8px;"></div><div class="skel-line w60"></div></div></div>
       </div>
     </div>
   </section>
@@ -1434,16 +1397,7 @@
       observer.observe(el);
     });
 
-    // ─── JOB APPLY BUTTONS ───────────────────────────────────────
-    // Update all "Apply Now" buttons on job cards to open the modal with position name
-    document.querySelectorAll('.job-card').forEach((card, index) => {
-      const applyBtn = card.querySelector('.btn-orange');
-      const jobTitle = card.querySelector('h3').textContent;
-      applyBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        openJobModal(jobTitle);
-      });
-    });
+    // ─── JOB APPLY BUTTONS wired dynamically in Supabase script below ─────────────
 
     // Close modal when clicking outside content
     const modal = document.getElementById('jobModal');
@@ -1513,6 +1467,55 @@
             </div>
           </div>`;
       }).join('');
+    })();
+
+    // ── Vacancies: fetch open positions ────────────────────
+    (async () => {
+      function escV(s) {
+        return String(s || '')
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      }
+
+      const vacGrid = document.getElementById('homeVacanciesGrid');
+
+      const { data, error } = await supabasePublic
+        .from('vacancies')
+        .select('id,title,department,type,description')
+        .eq('status', 'open')
+        .order('created_at', { ascending: false });
+
+      if (error || !data || data.length === 0) {
+        vacGrid.innerHTML = '<p style="text-align:center;color:#6B7280;padding:24px 0;">No open positions at the moment. Check back soon.</p>';
+        return;
+      }
+
+      vacGrid.innerHTML = data.map(v => `
+        <div class="job-card">
+          <div class="job-left">
+            <div class="job-tags">
+              <span class="job-tag ${v.type === 'Part-Time' ? 'tag-part' : 'tag-full'}">${escV(v.type)}</span>
+              ${v.department ? `<span class="job-tag tag-dept">${escV(v.department)}</span>` : ''}
+            </div>
+            <h3>${escV(v.title)}</h3>
+            <p>${escV(v.description || '')}</p>
+          </div>
+          <div class="job-right">
+            <button class="btn btn-orange vac-apply-btn" data-title="${escV(v.title)}">Apply Now</button>
+          </div>
+        </div>`
+      ).join('');
+
+      // Wire apply buttons
+      vacGrid.querySelectorAll('.vac-apply-btn').forEach(btn => {
+        btn.addEventListener('click', () => openJobModal(btn.dataset.title));
+      });
+
+      // Animate newly inserted cards
+      vacGrid.querySelectorAll('.job-card').forEach(el => {
+        el.style.cssText = 'opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease';
+        observer.observe(el);
+      });
     })();
   </script>
 </body>

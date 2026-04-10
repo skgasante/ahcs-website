@@ -138,3 +138,40 @@ CREATE POLICY "news-images public read" ON storage.objects
 -- Authenticated admins can delete images
 CREATE POLICY "news-images authenticated delete" ON storage.objects
   FOR DELETE TO authenticated USING (bucket_id = 'news-images');
+
+-- ──────────────────────────────────────────────────────────────
+-- ADMIN DASHBOARD — Stage 4: Vacancies
+-- Run in Supabase SQL Editor
+-- ──────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS vacancies (
+  id          uuid        DEFAULT gen_random_uuid() PRIMARY KEY,
+  title       TEXT        NOT NULL,
+  department  TEXT,
+  type        TEXT        DEFAULT 'Full-Time',
+  description TEXT,
+  status      TEXT        DEFAULT 'closed',
+  created_at  TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE vacancies ENABLE ROW LEVEL SECURITY;
+
+-- Public (anon) can only read open vacancies
+CREATE POLICY "Public can read open vacancies" ON vacancies
+  FOR SELECT TO anon USING (status = 'open');
+
+-- Authenticated admins can read all vacancies
+CREATE POLICY "Authenticated can read all vacancies" ON vacancies
+  FOR SELECT TO authenticated USING (true);
+
+-- Authenticated admins can create vacancies
+CREATE POLICY "Authenticated can insert vacancies" ON vacancies
+  FOR INSERT TO authenticated WITH CHECK (true);
+
+-- Authenticated admins can update vacancies
+CREATE POLICY "Authenticated can update vacancies" ON vacancies
+  FOR UPDATE TO authenticated USING (true);
+
+-- Authenticated admins can delete vacancies
+CREATE POLICY "Authenticated can delete vacancies" ON vacancies
+  FOR DELETE TO authenticated USING (true);

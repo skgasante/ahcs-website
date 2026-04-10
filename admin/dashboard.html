@@ -139,9 +139,9 @@
               <div class="stat-label">News Articles</div>
             </div>
             <div class="stat-card">
-              <div class="stat-card-icon purple"><i class="fa-solid fa-images"></i></div>
-              <div class="stat-value" id="statGallery">—</div>
-              <div class="stat-label">Gallery Items</div>
+              <div class="stat-card-icon purple"><i class="fa-solid fa-clipboard-list"></i></div>
+              <div class="stat-value" id="statVacancies">—</div>
+              <div class="stat-label">Open Vacancies</div>
             </div>
           </div>
 
@@ -372,15 +372,112 @@
 
         <!-- ── Vacancies ─────────────────────────────────────── -->
         <section class="section-panel" id="section-vacancies">
-          <div class="section-header">
-            <h2>Vacancies</h2>
-            <p>Add and manage job vacancies displayed on the public site.</p>
+
+          <!-- List view -->
+          <div id="vacListView">
+            <div class="section-header section-header-flex">
+              <div>
+                <h2>Vacancies</h2>
+                <p>Create, edit, and publish job vacancies on the public site.</p>
+              </div>
+              <button class="btn-primary-action" id="btnNewVacancy">
+                <i class="fa-solid fa-plus"></i> New Vacancy
+              </button>
+            </div>
+            <div class="table-toolbar">
+              <span class="record-count" id="vacCount"></span>
+              <button class="toolbar-btn" id="refreshVacancies">
+                <i class="fa-solid fa-rotate-right"></i> Refresh
+              </button>
+            </div>
+            <div class="table-loading" id="vacLoading">
+              <div class="tbl-spinner"></div>
+              <span>Loading vacancies&hellip;</span>
+            </div>
+            <div class="table-empty hidden" id="vacEmpty">
+              <i class="fa-solid fa-clipboard-list"></i>
+              <p>No vacancies yet. Click <strong>New Vacancy</strong> to get started.</p>
+            </div>
+            <div class="table-wrap hidden" id="vacTableWrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Department</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="vacTbody"></tbody>
+              </table>
+            </div>
           </div>
-          <div class="placeholder-card">
-            <i class="fa-solid fa-clipboard-list"></i>
-            <h3>Coming in a future stage</h3>
-            <p>Vacancy listings with rich text editing and publish/unpublish controls will appear here.</p>
+
+          <!-- Form view -->
+          <div id="vacFormView" class="hidden">
+            <div class="section-header section-header-flex">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <button class="btn-icon-back" id="btnBackVacancy" aria-label="Back to list">
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div>
+                  <h2 id="vacFormHeading">New Vacancy</h2>
+                  <p id="vacFormSubtitle">Fill in the details below and save when ready.</p>
+                </div>
+              </div>
+            </div>
+            <div class="article-editor-card">
+              <form id="vacancyForm" novalidate>
+                <input type="hidden" id="vfId" />
+                <div class="editor-field">
+                  <label for="vfTitle">Job Title <span class="field-req">*</span></label>
+                  <input type="text" id="vfTitle" placeholder="e.g. Class Teacher &ndash; Upper Primary" required />
+                </div>
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="vfDepartment">Department</label>
+                    <input type="text" id="vfDepartment" placeholder="e.g. Teaching, Administration" />
+                  </div>
+                  <div class="editor-field">
+                    <label for="vfType">Type</label>
+                    <select id="vfType">
+                      <option value="Full-Time">Full-Time</option>
+                      <option value="Part-Time">Part-Time</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="editor-field">
+                  <label for="vfDescription">Description <span class="field-hint">&mdash; shown on the vacancies listing</span></label>
+                  <textarea id="vfDescription" rows="5" placeholder="Describe the role, responsibilities, and what you&rsquo;re looking for&hellip;"></textarea>
+                </div>
+                <div class="editor-field">
+                  <label>Status</label>
+                  <div class="status-radio-group">
+                    <label class="status-radio-option">
+                      <input type="radio" name="vfStatus" value="closed" checked />
+                      <span class="radio-pill pill-draft">Closed</span>
+                    </label>
+                    <label class="status-radio-option">
+                      <input type="radio" name="vfStatus" value="open" />
+                      <span class="radio-pill pill-published">Open</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="editor-actions">
+                  <div class="editor-error hidden" id="vacFormError"></div>
+                  <div class="editor-btns">
+                    <button type="button" class="btn-editor-cancel" id="btnCancelVacForm">Cancel</button>
+                    <button type="submit" class="btn-editor-save" id="btnSaveVacancy">
+                      <span class="btn-label">Save Vacancy</span>
+                      <div class="btn-spinner hidden"></div>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
+
         </section>
 
         <!-- ── Gallery ──────────────────────────────────────── -->
@@ -517,6 +614,8 @@
       'rejected':          'badge-red',
       'published':         'badge-green',
       'draft':             'badge-muted',
+      'open':              'badge-green',
+      'closed':            'badge-muted',
     };
 
     function statusBadge(status) {
@@ -530,15 +629,16 @@
     // OVERVIEW STATS
     // ═══════════════════════════════════════════════════════
     async function loadOverviewStats() {
-      const [admRes, jobRes, newsRes] = await Promise.all([
+      const [admRes, jobRes, newsRes, vacRes] = await Promise.all([
         supabaseClient.from('admission_enquiries').select('id', { count: 'exact', head: true }),
         supabaseClient.from('job_applications').select('id',    { count: 'exact', head: true }),
         supabaseClient.from('news_articles').select('id',       { count: 'exact', head: true }),
+        supabaseClient.from('vacancies').select('id',           { count: 'exact', head: true }).eq('status', 'open'),
       ]);
       document.getElementById('statAdmissions').textContent = admRes.count ?? '—';
       document.getElementById('statJobs').textContent       = jobRes.count ?? '—';
       document.getElementById('statNews').textContent       = newsRes.count ?? '—';
-      document.getElementById('statGallery').textContent    = '—';
+      document.getElementById('statVacancies').textContent  = vacRes.count ?? '—';
     }
     loadOverviewStats();
 
@@ -1132,6 +1232,206 @@
     }
 
     // ═══════════════════════════════════════════════════════
+    // VACANCIES
+    // ═══════════════════════════════════════════════════════
+    let vacanciesData   = [];
+    let vacanciesLoaded = false;
+
+    async function loadVacancies() {
+      vacanciesLoaded = false;
+      show('vacLoading'); hide('vacTableWrap'); hide('vacEmpty');
+      document.getElementById('vacCount').textContent = '';
+
+      const { data, error } = await supabaseClient
+        .from('vacancies')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      hide('vacLoading');
+
+      if (error) {
+        document.getElementById('vacCount').textContent = 'Could not load vacancies — check RLS policies.';
+        console.error('Vacancies load error:', error);
+        return;
+      }
+
+      vacanciesData   = data || [];
+      vacanciesLoaded = true;
+      syncVacanciesCount();
+
+      if (vacanciesData.length === 0) { show('vacEmpty'); return; }
+      renderVacanciesTable();
+      show('vacTableWrap');
+    }
+
+    function syncVacanciesCount() {
+      const n = vacanciesData.length;
+      document.getElementById('vacCount').textContent = `${n} ${n === 1 ? 'vacancy' : 'vacancies'}`;
+    }
+
+    function renderVacanciesTable() {
+      const tbody = document.getElementById('vacTbody');
+      tbody.innerHTML = vacanciesData.map(r => `
+        <tr>
+          <td class="td-bold" style="max-width:260px;">${esc(r.title)}</td>
+          <td>${r.department ? `<span class="year-pill">${esc(r.department)}</span>` : '<span class="muted-text">&mdash;</span>'}</td>
+          <td>${r.type === 'Part-Time'
+            ? '<span class="status-badge badge-orange">Part-Time</span>'
+            : '<span class="status-badge badge-blue">Full-Time</span>'}</td>
+          <td>${statusBadge(r.status)}</td>
+          <td>
+            <div class="row-actions">
+              <button class="btn-view btn-edit-vac" data-id="${r.id}">
+                <i class="fa-solid fa-pen"></i> Edit
+              </button>
+              <button class="btn-toggle-vac" data-id="${r.id}" data-status="${esc(r.status)}">
+                ${r.status === 'open'
+                  ? '<i class="fa-solid fa-eye-slash"></i> Close'
+                  : '<i class="fa-solid fa-eye"></i> Open'}
+              </button>
+              <button class="btn-delete-vac" data-id="${r.id}" data-title="${esc(r.title)}">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      tbody.querySelectorAll('.btn-edit-vac').forEach(btn =>
+        btn.addEventListener('click', () => openVacancyForm(btn.dataset.id)));
+      tbody.querySelectorAll('.btn-toggle-vac').forEach(btn =>
+        btn.addEventListener('click', () => toggleVacancyStatus(btn.dataset.id, btn.dataset.status)));
+      tbody.querySelectorAll('.btn-delete-vac').forEach(btn =>
+        btn.addEventListener('click', () => deleteVacancy(btn.dataset.id, btn.dataset.title)));
+    }
+
+    // ── Open / close form ────────────────────────────────────
+    function openVacancyForm(id = null) {
+      document.getElementById('vacFormError').classList.add('hidden');
+      if (id) {
+        const r = vacanciesData.find(x => x.id === id);
+        if (!r) return;
+        document.getElementById('vacFormHeading').textContent  = 'Edit Vacancy';
+        document.getElementById('vacFormSubtitle').textContent = `Editing: ${r.title}`;
+        document.getElementById('vfId').value          = r.id;
+        document.getElementById('vfTitle').value       = r.title       || '';
+        document.getElementById('vfDepartment').value  = r.department  || '';
+        document.getElementById('vfType').value        = r.type        || 'Full-Time';
+        document.getElementById('vfDescription').value = r.description || '';
+        const sv = (r.status === 'open') ? 'open' : 'closed';
+        document.querySelector(`input[name="vfStatus"][value="${sv}"]`).checked = true;
+      } else {
+        document.getElementById('vacFormHeading').textContent  = 'New Vacancy';
+        document.getElementById('vacFormSubtitle').textContent = 'Fill in the details below and save when ready.';
+        document.getElementById('vacancyForm').reset();
+        document.getElementById('vfId').value = '';
+        document.querySelector('input[name="vfStatus"][value="closed"]').checked = true;
+      }
+      hide('vacListView');
+      show('vacFormView');
+    }
+
+    function closeVacancyForm() {
+      hide('vacFormView');
+      show('vacListView');
+    }
+
+    document.getElementById('btnNewVacancy').addEventListener('click', () => openVacancyForm());
+    document.getElementById('btnBackVacancy').addEventListener('click', closeVacancyForm);
+    document.getElementById('btnCancelVacForm').addEventListener('click', closeVacancyForm);
+    document.getElementById('refreshVacancies').addEventListener('click', loadVacancies);
+
+    // ── Save vacancy ─────────────────────────────────────────
+    document.getElementById('vacancyForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl   = document.getElementById('vacFormError');
+      const saveBtn = document.getElementById('btnSaveVacancy');
+      const spinner = saveBtn.querySelector('.btn-spinner');
+      const label   = saveBtn.querySelector('.btn-label');
+      errEl.classList.add('hidden');
+
+      const id          = document.getElementById('vfId').value;
+      const title       = document.getElementById('vfTitle').value.trim();
+      const department  = document.getElementById('vfDepartment').value.trim();
+      const type        = document.getElementById('vfType').value;
+      const description = document.getElementById('vfDescription').value.trim();
+      const status      = document.querySelector('input[name="vfStatus"]:checked')?.value || 'closed';
+
+      if (!title) {
+        errEl.textContent = 'Please enter a job title.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      saveBtn.disabled = true;
+      spinner.classList.remove('hidden');
+      label.style.display = 'none';
+
+      const payload = {
+        title,
+        department:  department  || null,
+        type,
+        description: description || null,
+        status,
+      };
+
+      let error;
+      if (id) {
+        const res = await supabaseClient.from('vacancies').update(payload).eq('id', id);
+        error = res.error;
+        if (!error) {
+          const idx = vacanciesData.findIndex(x => x.id === id);
+          if (idx !== -1) vacanciesData[idx] = { ...vacanciesData[idx], ...payload };
+        }
+      } else {
+        const res = await supabaseClient.from('vacancies').insert([payload]).select();
+        error = res.error;
+        if (!error && res.data?.[0]) vacanciesData.unshift(res.data[0]);
+      }
+
+      saveBtn.disabled = false;
+      spinner.classList.add('hidden');
+      label.style.display = '';
+
+      if (error) {
+        errEl.textContent = 'Save failed: ' + error.message;
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      syncVacanciesCount();
+      renderVacanciesTable();
+      show('vacTableWrap');
+      hide('vacEmpty');
+      closeVacancyForm();
+    });
+
+    // ── Toggle open / closed ──────────────────────────────────
+    async function toggleVacancyStatus(id, currentStatus) {
+      const newStatus = currentStatus === 'open' ? 'closed' : 'open';
+      const { error } = await supabaseClient
+        .from('vacancies')
+        .update({ status: newStatus })
+        .eq('id', id);
+      if (error) { alert('Status update failed: ' + error.message); return; }
+      const row = vacanciesData.find(x => x.id === id);
+      if (row) row.status = newStatus;
+      renderVacanciesTable();
+    }
+
+    // ── Delete vacancy ────────────────────────────────────────
+    async function deleteVacancy(id, title) {
+      if (!confirm(`Delete "${title}"?\n\nThis cannot be undone.`)) return;
+      const { error } = await supabaseClient.from('vacancies').delete().eq('id', id);
+      if (error) { alert('Delete failed: ' + error.message); return; }
+      vacanciesData = vacanciesData.filter(x => x.id !== id);
+      const n = vacanciesData.length;
+      syncVacanciesCount();
+      if (n === 0) { hide('vacTableWrap'); show('vacEmpty'); }
+      else renderVacanciesTable();
+    }
+
+    // ═══════════════════════════════════════════════════════
     // SIDEBAR NAVIGATION
     // ═══════════════════════════════════════════════════════
     const sectionTitles = {
@@ -1157,6 +1457,7 @@
       if (sectionId === 'admissions' && !admissionsLoaded) loadAdmissions();
       if (sectionId === 'jobs'       && !jobsLoaded)       loadJobs();
       if (sectionId === 'news'       && !newsLoaded)       loadNews();
+      if (sectionId === 'vacancies'  && !vacanciesLoaded)  loadVacancies();
     }
 
     navItems.forEach(btn => btn.addEventListener('click', () => switchSection(btn.dataset.section)));

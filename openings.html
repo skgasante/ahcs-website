@@ -237,7 +237,7 @@
   </div>
 
   <script>
-    // ─── HAMBURGER ───────────────────────────────────────────
+    // ─── HAMBURGER ────────────────────────────────────────────────
     const API_BASE_URL = 'https://ahcs-website-production.up.railway.app';
 
     const hamburger = document.querySelector('.hamburger');
@@ -347,5 +347,57 @@
       if (e.target === document.getElementById('jobModal')) closeJobModal();
     });
   </script>
-</body>
+  <!-- Supabase: load open vacancies -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script>
+    (async () => {
+      function esc(s) {
+        return String(s || '')
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      }
+
+      const loading = document.getElementById('vacLoading');
+      const empty   = document.getElementById('vacEmpty');
+      const grid    = document.getElementById('vacGrid');
+
+      const { data, error } = await supabasePublic
+        .from('vacancies')
+        .select('id,title,department,type,description')
+        .eq('status', 'open')
+        .order('created_at', { ascending: false });
+
+      loading.style.display = 'none';
+
+      if (error || !data || data.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+
+      grid.innerHTML = data.map(v => `
+        <div class="job-card">
+          <div class="job-details">
+            <div class="job-tags">
+              <span class="job-tag">
+                <i class="fa-solid fa-clock" style="margin-right:4px;"></i>${esc(v.type)}
+              </span>
+              ${v.department ? `<span class="job-tag"><i class="fa-solid fa-building" style="margin-right:4px;"></i>${esc(v.department)}</span>` : ''}
+            </div>
+            <h2 class="job-title">${esc(v.title)}</h2>
+            <p class="job-copy">${esc(v.description || '')}</p>
+          </div>
+          <button class="btn btn-orange vac-apply-btn" data-title="${esc(v.title)}" style="flex-shrink:0;">
+            Apply Now <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>`
+      ).join('');
+
+      grid.style.display = 'grid';
+
+      grid.querySelectorAll('.vac-apply-btn').forEach(btn => {
+        btn.addEventListener('click', () => openJobModal(btn.dataset.title));
+      });
+    })();
+  </script></body>
 </html>
