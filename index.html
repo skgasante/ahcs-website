@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Annan House Community School</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    /* ── Design tokens ─────────────────────────────────────────── */
+    :root {
+      --blue:    #0F9ED5;
+      --orange:  #E97132;
+      --green:   #196B24;
+      --purple:  #7B4FAF;
+      --navy:    #0E2841;
+      --white:   #FFFFFF;
+      --off:     #F8F9FA;
+      --muted:   #6B7280;
+      --border:  #E5E7EB;
+
+      --grad: linear-gradient(90deg,
+        #7B4FAF 0%, #0F9ED5 25%, #196B24 50%, #F5C842 75%, #E97132 100%);
+
+      --font-head: 'Plus Jakarta Sans', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(14,40,65,.10);
+    }
+
+    /* ── Reset ─────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); color: var(--navy); background: var(--white); line-height: 1.6; }
+    img  { max-width: 100%; display: block; }
+    a    { text-decoration: none; color: inherit; }
+
+    /* ── Utility ────────────────────────────────────────────────── */
+    .container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 28px; border-radius: 8px; font-family: var(--font-head);
+      font-weight: 600; font-size: .9rem; cursor: pointer; border: 2px solid transparent;
+      transition: all .2s ease;
+    }
+    .btn-primary   { background: var(--blue); color: var(--white); }
+    .btn-primary:hover { background: var(--navy); }
+    .btn-outline   { background: transparent; color: var(--white); border-color: var(--white); }
+    .btn-outline:hover { background: var(--white); color: var(--navy); }
+    .btn-orange    { background: var(--orange); color: var(--white); }
+    .btn-orange:hover { background: #c55e20; }
+    .section-label {
+      font-family: var(--font-head); font-size: .75rem; font-weight: 700;
+      letter-spacing: .12em; text-transform: uppercase; color: var(--blue);
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-family: var(--font-head); font-size: 2rem; font-weight: 800;
+      color: var(--navy); line-height: 1.2; margin-bottom: 16px;
+    }
+    .rainbow-stripe {
+      height: 5px;
+      background: var(--grad);
+      border-radius: 3px;
+    }
+
+    /* ── Logo mark ──────────────────────────────────────────────── */
+    .logo-mark {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 3px; width: 32px; height: 32px; flex-shrink: 0;
+    }
+    .logo-mark span { border-radius: 3px; }
+    .logo-mark span:nth-child(1) { background: var(--purple); }
+    .logo-mark span:nth-child(2) { background: var(--green); }
+    .logo-mark span:nth-child(3) { background: var(--orange); }
+    .logo-mark span:nth-child(4) { background: var(--blue); }
+
+    /* ── NAV ────────────────────────────────────────────────────── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.97); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 68px; gap: 32px;
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-head); font-weight: 800; font-size: 1rem;
+      color: var(--navy); white-space: nowrap;
+    }
+    .nav-logo small { display: block; font-size: .65rem; font-weight: 400; color: var(--muted); }
+    .nav-links {
+      display: flex; align-items: center; gap: 4px;
+      list-style: none;
+    }
+    .nav-links a {
+      padding: 6px 12px; border-radius: 6px; font-size: .85rem; font-weight: 500;
+      color: var(--navy); transition: all .2s;
+    }
+    .nav-links a:hover { background: var(--off); color: var(--blue); }
+    .nav-cta { flex-shrink: 0; }
+    .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; background: none; border: none; }
+    .hamburger span { width: 24px; height: 2px; background: var(--navy); border-radius: 2px; transition: .3s; }
+
+    /* ── HERO ────────────────────────────────────────────────────── */
+    .hero {
+      min-height: 88vh; display: flex; align-items: center;
+      background: var(--navy);
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 70% at 80% 50%, rgba(15,158,213,.18) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 50% at 10% 80%, rgba(123,79,175,.15) 0%, transparent 60%);
+    }
+    .hero-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 64px; align-items: center; position: relative; padding: 80px 0;
+    }
+    .hero-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(15,158,213,.15); color: #7DD3FA;
+      padding: 6px 14px; border-radius: 20px; font-size: .8rem;
+      font-weight: 600; letter-spacing: .05em; margin-bottom: 20px;
+    }
+    .hero-title {
+      font-family: var(--font-head); font-size: clamp(2.2rem, 4.5vw, 3.4rem);
+      font-weight: 800; color: var(--white); line-height: 1.15; margin-bottom: 20px;
+    }
+    .hero-title em { font-style: normal; color: #7DD3FA; }
+    .hero-sub {
+      color: rgba(255,255,255,.7); font-size: 1.05rem;
+      margin-bottom: 36px; max-width: 480px;
+    }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .hero-visual {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .hero-card {
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+      border-radius: var(--radius); padding: 28px 20px;
+      display: flex; flex-direction: column; gap: 8px;
+      transition: background .2s;
+    }
+    .hero-card:hover { background: rgba(255,255,255,.13); }
+    .hero-card .icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; margin-bottom: 4px; color: rgba(255,255,255,.85);
+    }
+    .hero-card h4 { font-family: var(--font-head); font-size: .95rem; font-weight: 700; color: var(--white); }
+    .hero-card p  { font-size: .8rem; color: rgba(255,255,255,.55); }
+    .hero-card:nth-child(1) .icon { background: rgba(15,158,213,.25); }
+    .hero-card:nth-child(2) .icon { background: rgba(233,113,50,.25); }
+    .hero-card:nth-child(3) .icon { background: rgba(123,79,175,.25); }
+    .hero-card:nth-child(4) .icon { background: rgba(25,107,36,.25); }
+    .hero-stripe { position: absolute; bottom: 0; left: 0; right: 0; height: 5px; background: var(--grad); }
+
+    /* ── NOTICE BAR ─────────────────────────────────────────────── */
+    .notice-bar {
+      background: var(--off); border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+    }
+    .notice-inner {
+      display: flex; align-items: center; gap: 12px;
+    }
+    .notice-badge {
+      background: var(--orange); color: var(--white);
+      font-family: var(--font-head); font-size: .7rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 4px; white-space: nowrap;
+    }
+    .notice-text { font-size: .88rem; color: var(--navy); }
+    .notice-text a { color: var(--blue); font-weight: 600; }
+
+    /* ── ABOUT ──────────────────────────────────────────────────── */
+    .about { padding: 96px 0; }
+    .about-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 80px; align-items: center;
+    }
+    .about-visual {
+      position: relative;
+    }
+    .about-img-main {
+      width: 100%; height: 380px; border-radius: 16px;
+      background: linear-gradient(135deg, #e0f0fa 0%, #c8e6f5 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem; color: var(--blue); position: relative;
+    }
+    .about-stat-card {
+      position: absolute; bottom: -20px; right: -20px;
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 24px;
+      box-shadow: var(--shadow);
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .about-stat-card .num { font-family: var(--font-head); font-size: 2rem; font-weight: 800; color: var(--blue); }
+    .about-stat-card .lbl { font-size: .8rem; color: var(--muted); }
+    .about-body p { color: var(--muted); margin-bottom: 16px; font-size: .97rem; }
+    .value-list { display: flex; flex-direction: column; gap: 14px; margin-top: 24px; }
+    .value-item { display: flex; align-items: flex-start; gap: 12px; }
+    .value-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 6px;
+    }
+    .value-item h5 { font-family: var(--font-head); font-weight: 700; font-size: .9rem; color: var(--navy); }
+    .value-item p  { font-size: .85rem; color: var(--muted); }
+
+    /* ── ACADEMICS ──────────────────────────────────────────────── */
+    .academics { padding: 96px 0; background: var(--off); }
+    .academics-head { text-align: center; max-width: 560px; margin: 0 auto 56px; }
+    .programs-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .program-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 36px 28px;
+      transition: box-shadow .2s, transform .2s;
+      position: relative; overflow: hidden;
+    }
+    .program-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    }
+    .program-card:nth-child(1)::before { background: var(--blue); }
+    .program-card:nth-child(2)::before { background: var(--orange); }
+    .program-card:nth-child(3)::before { background: var(--purple); }
+    .program-card:nth-child(4)::before { background: var(--green); }
+    .program-card:nth-child(5)::before { background: var(--blue); }
+    .program-card:nth-child(6)::before { background: var(--orange); }
+    .program-card:hover { box-shadow: var(--shadow); transform: translateY(-4px); }
+    .prog-icon { font-size: 2.2rem; margin-bottom: 16px; }
+    .program-card:nth-child(1) .prog-icon { color: var(--blue); }
+    .program-card:nth-child(2) .prog-icon { color: var(--orange); }
+    .program-card:nth-child(3) .prog-icon { color: var(--purple); }
+    .program-card:nth-child(4) .prog-icon { color: var(--green); }
+    .program-card:nth-child(5) .prog-icon { color: var(--blue); }
+    .program-card:nth-child(6) .prog-icon { color: var(--orange); }
+    .program-card h3 { font-family: var(--font-head); font-weight: 700; font-size: 1.05rem; color: var(--navy); margin-bottom: 10px; }
+    .program-card p  { font-size: .85rem; color: var(--muted); line-height: 1.6; }
+    .prog-tag {
+      display: inline-block; margin-top: 16px;
+      background: var(--off); color: var(--muted);
+      font-size: .72rem; font-weight: 600; padding: 3px 10px;
+      border-radius: 4px; font-family: var(--font-head);
+    }
+
+    /* ── NEWS ───────────────────────────────────────────────────── */
+    .news { padding: 96px 0; }
+    .news-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 48px; }
+    .news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .news-card {
+      border: 1px solid var(--border); border-radius: var(--radius);
+      overflow: hidden; transition: box-shadow .2s;
+    }
+    .news-card:hover { box-shadow: var(--shadow); }
+    .news-img {
+      height: 190px; background: var(--off);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem; color: var(--muted);
+    }
+    .news-img.blue   { background: #EBF6FD; }
+    .news-img.orange { background: #FDF0EA; }
+    .news-img.purple { background: #F3EEF8; }
+    .news-img.blue i   { color: var(--blue); }
+    .news-img.orange i { color: var(--orange); }
+    .news-img.purple i { color: var(--purple); }
+    .news-body { padding: 24px; }
+    .news-meta { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+    .news-cat {
+      font-family: var(--font-head); font-size: .68rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--blue);
+    }
+    .news-date { font-size: .78rem; color: var(--muted); }
+    .news-card h3 { font-family: var(--font-head); font-size: 1rem; font-weight: 700; color: var(--navy); margin-bottom: 8px; line-height: 1.4; }
+    .news-card p  { font-size: .85rem; color: var(--muted); }
+    .news-link { display: inline-flex; align-items: center; gap: 4px; margin-top: 16px; font-size: .85rem; font-weight: 600; color: var(--blue); }
+
+    /* ── GALLERY ────────────────────────────────────────────────── */
+    .gallery { padding: 96px 0; background: var(--navy); }
+    .gallery-head { text-align: center; margin-bottom: 48px; }
+    .gallery-head .section-label { color: #7DD3FA; }
+    .gallery-head .section-title  { color: var(--white); }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: auto auto;
+      gap: 12px;
+    }
+    .gallery-item {
+      border-radius: 10px; overflow: hidden; position: relative;
+      background: rgba(255,255,255,.08);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 160px; font-size: 2.5rem; color: rgba(255,255,255,.8);
+      transition: transform .2s;
+      cursor: pointer;
+    }
+    .gallery-item:hover { transform: scale(1.02); }
+    .gallery-item:nth-child(1) { grid-column: span 2; grid-row: span 2; min-height: 330px; background: rgba(15,158,213,.2); }
+    .gallery-item:nth-child(2) { background: rgba(233,113,50,.2); }
+    .gallery-item:nth-child(3) { background: rgba(123,79,175,.2); }
+    .gallery-item:nth-child(4) { background: rgba(25,107,36,.2); }
+    .gallery-item:nth-child(5) { background: rgba(15,158,213,.15); }
+    .gallery-overlay {
+      position: absolute; inset: 0; background: rgba(14,40,65,.5);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .2s;
+      font-size: 1.5rem;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+    .gallery-cta { text-align: center; margin-top: 36px; }
+
+    /* ── ADMISSIONS ─────────────────────────────────────────────── */
+    .admissions { padding: 96px 0; background: var(--off); }
+    .admissions-grid {
+      display: grid; grid-template-columns: 1fr 1.4fr;
+      gap: 80px; align-items: start;
+    }
+    .admissions-info h2 { font-family: var(--font-head); font-size: 1.8rem; font-weight: 800; color: var(--navy); margin-bottom: 16px; }
+    .admissions-info p  { color: var(--muted); font-size: .95rem; margin-bottom: 24px; }
+    .steps { display: flex; flex-direction: column; gap: 20px; }
+    .step { display: flex; gap: 14px; align-items: flex-start; }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head); font-size: .8rem; font-weight: 800;
+      color: var(--white);
+    }
+    .step:nth-child(1) .step-num { background: var(--blue); }
+    .step:nth-child(2) .step-num { background: var(--orange); }
+    .step:nth-child(3) .step-num { background: var(--purple); }
+    .step:nth-child(4) .step-num { background: var(--green); }
+    .step-body h5 { font-family: var(--font-head); font-weight: 700; font-size: .9rem; color: var(--navy); }
+    .step-body p  { font-size: .82rem; color: var(--muted); }
+    .form-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: 16px; padding: 40px 36px;
+      box-shadow: var(--shadow);
+    }
+    .form-card h3 { font-family: var(--font-head); font-weight: 800; font-size: 1.2rem; color: var(--navy); margin-bottom: 4px; }
+    .form-card .sub { font-size: .85rem; color: var(--muted); margin-bottom: 28px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .form-group label { font-family: var(--font-head); font-size: .8rem; font-weight: 600; color: var(--navy); }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 10px 14px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-family: var(--font-body); font-size: .88rem;
+      color: var(--navy); background: var(--white);
+      transition: border-color .2s;
+      outline: none;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--blue); }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-full { grid-column: span 2; }
+    .form-submit { width: 100%; padding: 14px; font-size: 1rem; margin-top: 8px; }
+
+    /* ── VACANCIES ──────────────────────────────────────────────── */
+    .vacancies { padding: 96px 0; }
+    .vacancies-head { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 48px; }
+    .jobs-list { display: flex; flex-direction: column; gap: 16px; }
+    .job-card {
+      border: 1.5px solid var(--border); border-radius: var(--radius);
+      padding: 28px 32px;
+      display: flex; align-items: center; justify-content: space-between; gap: 24px;
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .job-card:hover { box-shadow: var(--shadow); border-color: var(--blue); }
+    .job-left { flex: 1; }
+    .job-tags { display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+    .job-tag {
+      font-family: var(--font-head); font-size: .68rem; font-weight: 700;
+      padding: 3px 10px; border-radius: 4px;
+    }
+    .tag-full  { background: #EBF6FD; color: var(--blue); }
+    .tag-part  { background: #FDF0EA; color: var(--orange); }
+    .tag-dept  { background: var(--off); color: var(--muted); }
+    .job-card h3 { font-family: var(--font-head); font-size: 1.05rem; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .job-card p  { font-size: .85rem; color: var(--muted); }
+    .job-right { flex-shrink: 0; }
+
+    /* ── CONTACT ────────────────────────────────────────────────── */
+    .contact { padding: 96px 0; background: var(--off); }
+    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
+    .contact-info h2 { font-family: var(--font-head); font-size: 1.8rem; font-weight: 800; color: var(--navy); margin-bottom: 16px; }
+    .contact-info p  { color: var(--muted); margin-bottom: 32px; }
+    .contact-items { display: flex; flex-direction: column; gap: 20px; }
+    .contact-item { display: flex; gap: 14px; align-items: flex-start; }
+    .contact-icon {
+      width: 44px; height: 44px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    }
+    .ci-blue   { background: #EBF6FD; }
+    .ci-orange { background: #FDF0EA; }
+    .ci-green  { background: #EAF3EB; }
+    .contact-item h5 { font-family: var(--font-head); font-weight: 700; font-size: .88rem; color: var(--navy); }
+    .contact-item p  { font-size: .85rem; color: var(--muted); }
+    .map-placeholder {
+      height: 300px; border-radius: var(--radius);
+      background: linear-gradient(135deg, #e0f0fa, #c8e0ea);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--muted); gap: 8px; font-size: .9rem; border: 1px solid var(--border);
+    }
+
+    /* ── FOOTER ─────────────────────────────────────────────────── */
+    .footer {
+      background: var(--navy); color: rgba(255,255,255,.65);
+      padding: 64px 0 24px;
+    }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px; }
+    .footer-brand p { font-size: .85rem; line-height: 1.7; margin-top: 14px; max-width: 260px; }
+    .footer-col h5 {
+      font-family: var(--font-head); font-size: .8rem; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase; color: var(--white); margin-bottom: 16px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul li a { font-size: .85rem; transition: color .2s; }
+    .footer-col ul li a:hover { color: var(--white); }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.1);
+      padding-top: 24px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: .8rem;
+    }
+    .footer-logo {
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--font-head); font-weight: 800; font-size: .95rem; color: var(--white);
+    }
+    .footer-logo small { font-size: .65rem; font-weight: 400; color: rgba(255,255,255,.45); }
+
+    /* ── Social ─────────────────────────────────────────────────── */
+    .social-links { display: flex; gap: 10px; margin-top: 16px; }
+    .social-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; transition: background .2s; cursor: pointer;
+    }
+    .social-btn:hover { background: rgba(255,255,255,.18); }
+
+    /* ── MODAL ──────────────────────────────────────────────────── */
+    .modal {
+      display: none; position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,.5); align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal.show { display: flex !important; }
+    .modal-content {
+      background: var(--white); border-radius: 16px; padding: 40px;
+      max-width: 540px; width: 100%; max-height: 90vh; overflow-y: auto;
+      position: relative; box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    }
+    .modal-close {
+      position: absolute; top: 20px; right: 20px;
+      width: 32px; height: 32px; border: none; background: var(--off);
+      cursor: pointer; border-radius: 8px; font-size: 1.2rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .2s;
+    }
+    .modal-close:hover { background: var(--border); }
+    .modal-header h2 { font-family: var(--font-head); font-size: 1.6rem; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+    .modal-header p { font-size: .85rem; color: var(--muted); margin-bottom: 24px; }
+    .modal-form { display: flex; flex-direction: column; gap: 16px; }
+    .modal-form label { font-family: var(--font-head); font-size: .8rem; font-weight: 600; color: var(--navy); }
+    .modal-form input,
+    .modal-form select,
+    .modal-form textarea {
+      padding: 10px 14px; border: 1.5px solid var(--border);
+      border-radius: 8px; font-family: var(--font-body); font-size: .88rem;
+      color: var(--navy); background: var(--white);
+      transition: border-color .2s; outline: none;
+    }
+    .modal-form input:focus,
+    .modal-form select:focus,
+    .modal-form textarea:focus { border-color: var(--blue); }
+    .modal-form textarea { resize: vertical; min-height: 100px; }
+    .modal-file-input {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px; border: 2px dashed var(--blue);
+      border-radius: 8px; cursor: pointer; background: #EBF6FD;
+      transition: background .2s;
+    }
+    .modal-file-input:hover { background: #DBF0FA; }
+    .modal-file-input input[type="file"] { display: none; }
+    .modal-file-label { font-size: .9rem; color: var(--blue); font-weight: 600; }
+    .modal-file-name { font-size: .8rem; color: var(--muted); margin-top: 4px; }
+    .modal-form button {
+      padding: 14px 24px; font-size: 1rem; margin-top: 8px;
+      white-space: nowrap;
+    }
+    .success-message {
+      text-align: center; padding: 32px; display: none;
+    }
+    .success-message.show { display: block; }
+    .success-icon {
+      width: 88px; height: 88px; margin: 0 auto 20px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; background: rgba(15,158,213,.1);
+      position: relative; box-shadow: inset 0 0 0 1px rgba(15,158,213,.15);
+    }
+    .success-icon::before {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: 50%;
+      border: 3px solid rgba(15,158,213,.35);
+      animation: pulse-ring 1.4s ease-out infinite;
+      opacity: 0.7;
+    }
+    .checkmark {
+      width: 26px; height: 14px;
+      border-left: 4px solid var(--green);
+      border-bottom: 4px solid var(--green);
+      transform: rotate(-45deg) scale(0);
+      animation: pop-check 0.36s ease-out 0.18s forwards;
+      position: relative;
+      display: block;
+    }
+    .success-message h3 { font-family: var(--font-head); font-size: 1.5rem; font-weight: 800; color: var(--navy); margin-bottom: 12px; }
+    .success-message p { font-size: .95rem; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
+    .success-message .btn { width: 100%; text-align: center; }
+    @keyframes pop-check {
+      0% { transform: rotate(-45deg) scale(0); opacity: 0; }
+      70% { transform: rotate(-45deg) scale(1.1); opacity: 1; }
+      100% { transform: rotate(-45deg) scale(1); opacity: 1; }
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.88); opacity: 0.72; }
+      100% { transform: scale(1.4); opacity: 0; }
+    }
+
+    /* ── Social ─────────────────────────────────────────────────── */
+    .social-links { display: flex; gap: 10px; margin-top: 16px; }
+    .social-btn {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; transition: background .2s; cursor: pointer;
+    }
+    .social-btn:hover { background: rgba(255,255,255,.18); }
+
+    /* ── Responsive ──────────────────────────────────────────────── */
+    @media (max-width: 960px) {
+      .hero-grid, .about-grid, .admissions-grid, .contact-grid { grid-template-columns: 1fr; }
+      .hero-visual { display: none; }
+      .programs-grid, .news-grid { grid-template-columns: repeat(2, 1fr); }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+      .gallery-item:nth-child(1) { grid-column: span 2; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .nav-links, .nav-cta { display: none; }
+      .hamburger { display: flex; }
+    }
+    @media (max-width: 600px) {
+      .programs-grid, .news-grid, .gallery-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .gallery-item:nth-child(1) { grid-column: span 1; }
+      .form-row { grid-template-columns: 1fr; }
+      .form-full { grid-column: span 1; }
+      .section-title { font-size: 1.6rem; }
+      .hero-title   { font-size: 2rem; }
+      .jobs-list .job-card { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAV ─────────────────────────────────────────────────── -->
+  <nav class="nav">
+    <div class="container">
+      <div class="nav-inner">
+        <a href="#" class="nav-logo">
+          <div class="logo-mark">
+            <span></span><span></span><span></span><span></span>
+          </div>
+          <div>
+            Annan House
+            <small>Community School</small>
+          </div>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#about">About</a></li>
+          <li><a href="#academics">Academics</a></li>
+          <li><a href="#news">News</a></li>
+          <li><a href="#gallery">Gallery</a></li>
+          <li><a href="#admissions">Admissions</a></li>
+          <li><a href="#vacancies">Vacancies</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+        <a href="#admissions" class="btn btn-primary nav-cta">Apply Now</a>
+        <button class="hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── NOTICE BAR ──────────────────────────────────────────── -->
+  <div class="notice-bar">
+    <div class="container">
+      <div class="notice-inner">
+        <span class="notice-badge">ADMISSIONS OPEN</span>
+        <p class="notice-text">
+          Enrolment for the 2026/2027 academic year is now open.
+          <a href="#admissions">Submit your application today →</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── HERO ────────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <div class="hero-label"><i class="fa-solid fa-graduation-cap"></i> Airport Residential, Accra</div>
+          <h1 class="hero-title">
+            Building Bright<br />
+            Futures, One<br />
+            <em>Child at a Time</em>
+          </h1>
+          <p class="hero-sub">
+            At Annan House Community School, we nurture curious minds
+            and confident learners in a warm, supportive environment
+            built for academic excellence.
+          </p>
+          <div class="hero-actions">
+            <a href="#admissions" class="btn btn-primary">Apply for Admission</a>
+            <a href="#about" class="btn btn-outline">Learn More</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-card">
+            <div class="icon"><i class="fa-solid fa-book-open"></i></div>
+            <h4>Academic Excellence</h4>
+            <p>A rich, broad curriculum from Nursery through Junior High</p>
+          </div>
+          <div class="hero-card">
+            <div class="icon"><i class="fa-solid fa-palette"></i></div>
+            <h4>Arts & Creativity</h4>
+            <p>Music, drama, visual arts, and hands-on creative projects</p>
+          </div>
+          <div class="hero-card">
+            <div class="icon"><i class="fa-solid fa-handshake"></i></div>
+            <h4>Community Values</h4>
+            <p>Respect, integrity, and a genuine sense of belonging</p>
+          </div>
+          <div class="hero-card">
+            <div class="icon"><i class="fa-solid fa-futbol"></i></div>
+            <h4>Sports & Wellbeing</h4>
+            <p>Physical education, team sports, and healthy development</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-stripe"></div>
+  </section>
+
+  <!-- ─── ABOUT ───────────────────────────────────────────────── -->
+  <section class="about" id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-visual">
+          <div class="about-img-main"><i class="fa-solid fa-school"></i></div>
+          <div class="about-stat-card">
+            <span class="num">97%</span>
+            <span class="lbl">Parent Satisfaction Rate</span>
+          </div>
+        </div>
+        <div class="about-body">
+          <p class="section-label">About Us</p>
+          <h2 class="section-title">A School Where Every Child is Seen and Known</h2>
+          <p>
+            Annan House Community School was founded on a simple conviction: that every child
+            deserves an education that sees them as a whole person. We are not just teaching
+            subjects. We are shaping character, building confidence, and preparing young people
+            for a world that needs their best.
+          </p>
+          <p>
+            Located in the heart of Airport Residential, Accra, we serve families from all
+            walks of life with a consistent commitment to quality, warmth, and excellence.
+          </p>
+          <div class="value-list">
+            <div class="value-item">
+              <div class="value-dot" style="background:var(--blue)"></div>
+              <div>
+                <h5>Excellence in Learning</h5>
+                <p>We hold high academic standards while making learning enjoyable and meaningful.</p>
+              </div>
+            </div>
+            <div class="value-item">
+              <div class="value-dot" style="background:var(--orange)"></div>
+              <div>
+                <h5>Inclusive Community</h5>
+                <p>Every child belongs here. We celebrate difference and build unity.</p>
+              </div>
+            </div>
+            <div class="value-item">
+              <div class="value-dot" style="background:var(--green)"></div>
+              <div>
+                <h5>Partnerships with Parents</h5>
+                <p>Strong home-school relationships are central to how we operate.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ACADEMICS ───────────────────────────────────────────── -->
+  <section class="academics" id="academics">
+    <div class="container">
+      <div class="academics-head">
+        <p class="section-label">Academics</p>
+        <h2 class="section-title">A Curriculum Built for This Generation</h2>
+        <p style="color:var(--muted);font-size:.95rem;">
+          We offer a rich, Cambridge International Curriculum-based programme from our earliest learners through to Cambridge Lower Secondary (Year 9).
+        </p>
+      </div>
+
+      <div class="programs-grid">
+        <div class="program-card">
+          <div class="prog-icon"><i class="fa-solid fa-baby"></i></div>
+          <h3>Creche & Nursery</h3>
+          <p>A nurturing start for our youngest learners. Play-based, structured, and full of love.</p>
+          <span class="prog-tag">Ages 1 – 3</span>
+        </div>
+        <div class="program-card">
+          <div class="prog-icon"><i class="fa-solid fa-child-reaching"></i></div>
+          <h3>Kindergarten</h3>
+          <p>Building the foundations of literacy, numeracy, and social confidence.</p>
+          <span class="prog-tag">Ages 4 – 5</span>
+        </div>
+        <div class="program-card">
+          <div class="prog-icon"><i class="fa-solid fa-pencil"></i></div>
+          <h3>Cambridge Primary (Years 1–3)</h3>
+          <p>Reading, writing, mathematics, science and discovery guided by Cambridge International Curriculum standards.</p>
+          <span class="prog-tag">Years 1 – 3</span>
+        </div>
+        <div class="program-card">
+          <div class="prog-icon"><i class="fa-solid fa-flask"></i></div>
+          <h3>Cambridge Primary (Years 4–6)</h3>
+          <p>Deepening knowledge across core and enrichment subjects. Critical thinking and independence flourish here.</p>
+          <span class="prog-tag">Years 4 – 6</span>
+        </div>
+        <div class="program-card">
+          <div class="prog-icon"><i class="fa-solid fa-lightbulb"></i></div>
+          <h3>Cambridge Lower Secondary (Years 7–9)</h3>
+          <p>Rigorous academic preparation using Cambridge International Curriculum for holistic development and progression to IGCSE.</p>
+          <span class="prog-tag">Years 7 – 9</span>
+        </div>
+        <div class="program-card">
+          <div class="prog-icon"><i class="fa-solid fa-star"></i></div>
+          <h3>Enrichment & Co-Curricular</h3>
+          <p>Drama, Karate, Painting, UCMAS Mental Arithmetic, French, Spanish, football, coding — something for every passion.</p>
+          <span class="prog-tag">All Levels</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── NEWS ────────────────────────────────────────────────── -->
+  <section class="news" id="news">
+    <div class="container">
+      <div class="news-head">
+        <div>
+          <p class="section-label">Latest News</p>
+          <h2 class="section-title">What's Happening at AHCS</h2>
+        </div>
+        <a href="news.html" class="btn btn-primary">View All News</a>
+      </div>
+
+      <div class="news-grid">
+        <div class="news-card">
+          <div class="news-img blue"><i class="fa-solid fa-bullhorn"></i></div>
+          <div class="news-body">
+            <div class="news-meta">
+              <span class="news-cat">Announcement</span>
+              <span class="news-date">April 2026</span>
+            </div>
+            <h3>Second Term Ends on a High Note</h3>
+            <p>Students and staff celebrated an outstanding second term with an end-of-term awards ceremony honouring academic and character achievements.</p>
+            <a href="news-second-term.html" class="news-link">Read more →</a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div class="news-img orange"><i class="fa-solid fa-trophy"></i></div>
+          <div class="news-body">
+            <div class="news-meta">
+              <span class="news-cat">Sports</span>
+              <span class="news-date">March 2026</span>
+            </div>
+            <h3>AHCS Junior Team Wins Inter-School Football Cup</h3>
+            <p>Our Under-12 boys brought home the trophy after a thrilling final at the Accra Sports Stadium complex.</p>
+            <a href="news-football-cup.html" class="news-link">Read more →</a>
+          </div>
+        </div>
+        <div class="news-card">
+          <div class="news-img purple"><i class="fa-solid fa-paintbrush"></i></div>
+          <div class="news-body">
+            <div class="news-meta">
+              <span class="news-cat">Events</span>
+              <span class="news-date">February 2026</span>
+            </div>
+            <h3>Annual Arts Exhibition Draws Hundreds of Visitors</h3>
+            <p>Students from KG through JHS 3 displayed remarkable work at our biggest arts exhibition yet, attended by parents, alumni, and community members.</p>
+            <a href="news-arts-exhibition.html" class="news-link">Read more →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── GALLERY ──────────────────────────────────────────────── -->
+  <section class="gallery" id="gallery">
+    <div class="container">
+      <div class="gallery-head">
+        <p class="section-label">Gallery</p>
+        <h2 class="section-title">Life at Annan House</h2>
+      </div>
+      <div class="gallery-grid">
+        <div class="gallery-item"><i class="fa-solid fa-camera"></i>
+          <div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass"></i> View</div>
+        </div>
+        <div class="gallery-item"><i class="fa-solid fa-graduation-cap"></i>
+          <div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass"></i> View</div>
+        </div>
+        <div class="gallery-item"><i class="fa-solid fa-paintbrush"></i>
+          <div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass"></i> View</div>
+        </div>
+        <div class="gallery-item"><i class="fa-solid fa-futbol"></i>
+          <div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass"></i> View</div>
+        </div>
+        <div class="gallery-item"><i class="fa-solid fa-trophy"></i>
+          <div class="gallery-overlay"><i class="fa-solid fa-magnifying-glass"></i> View</div>
+        </div>
+      </div>
+      <div class="gallery-cta">
+        <a href="gallery.html" class="btn btn-outline">View Full Gallery</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── ADMISSIONS ───────────────────────────────────────────── -->
+  <section class="admissions" id="admissions">
+    <div class="container">
+      <div class="admissions-grid">
+        <div class="admissions-info">
+          <p class="section-label">Admissions</p>
+          <h2>Join the AHCS Family</h2>
+          <p>
+            We welcome applications for all year groups subject to availability. Our admissions
+            process is straightforward and designed to help us get to know your child and family.
+          </p>
+          <div class="steps">
+            <div class="step">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <h5>Submit an Application</h5>
+                <p>Fill out the form with your child's details and your contact information.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <h5>Assessment & Tour</h5>
+                <p>We invite your family for a brief visit and an age-appropriate assessment.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <h5>Offer of Placement</h5>
+                <p>Successful applicants receive a formal offer letter within 5 working days.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <h5>Enrolment & Welcome</h5>
+                <p>Complete registration, pay fees, and prepare for a warm welcome.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-card">
+          <h3>Admission Enquiry Form</h3>
+          <p class="sub">We will contact you within 48 hours of receiving your enquiry.</p>
+
+          <form id="admissionForm" onsubmit="submitAdmissionForm(event)">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Parent / Guardian Name *</label>
+                <input type="text" name="parentName" placeholder="e.g. Kwame Mensah" required />
+              </div>
+              <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" name="phoneNumber" placeholder="e.g. 024 000 0000" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Email Address *</label>
+              <input type="email" name="email" placeholder="e.g. kwame@email.com" required />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Child's Name *</label>
+                <input type="text" name="childName" placeholder="Full name" required />
+              </div>
+              <div class="form-group">
+                <label>Date of Birth *</label>
+                <input type="date" name="dateOfBirth" required />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Year Group Applying For *</label>
+                <select name="yearGroup" required>
+                  <option value="">Select level</option>
+                  <option>Creche</option>
+                  <option>Nursery</option>
+                  <option>Kindergarten 1</option>
+                  <option>Kindergarten 2</option>
+                  <option>Year 1</option>
+                  <option>Year 2</option>
+                  <option>Year 3</option>
+                  <option>Year 4</option>
+                  <option>Year 5</option>
+                  <option>Year 6</option>
+                  <option>Year 7</option>
+                  <option>Year 8</option>
+                  <option>Year 9</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Preferred Start Term</label>
+                <select name="preferredTerm">
+                  <option value="">Select term</option>
+                  <option>First Term 2026/27</option>
+                  <option>Second Term 2026/27</option>
+                  <option>Third Term 2026/27</option>
+                  <option>First Term 2027/28</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group form-full">
+              <label>Additional Notes or Questions</label>
+              <textarea name="additionalNotes" placeholder="Anything you'd like us to know about your child or family situation..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary form-submit" id="admissionSubmitBtn">
+              <span id="admissionBtnText">Submit Enquiry →</span>
+              <span id="admissionBtnLoading" style="display: none;">Submitting...</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── VACANCIES ────────────────────────────────────────────── -->
+  <section class="vacancies" id="vacancies">
+    <div class="container">
+      <div class="vacancies-head">
+        <div>
+          <p class="section-label">Careers</p>
+          <h2 class="section-title">Join Our Team</h2>
+        </div>
+        <a href="openings.html" class="btn btn-primary">View All Openings</a>
+      </div>
+
+      <div class="jobs-list">
+        <div class="job-card">
+          <div class="job-left">
+            <div class="job-tags">
+              <span class="job-tag tag-full">Full-Time</span>
+              <span class="job-tag tag-dept">Teaching</span>
+            </div>
+            <h3>Class Teacher – Upper Primary (Year 4–6)</h3>
+            <p>We are seeking an enthusiastic, experienced teacher to lead our Upper Primary class with confidence and creativity.</p>
+          </div>
+          <div class="job-right">
+            <a href="#" class="btn btn-orange">Apply Now</a>
+          </div>
+        </div>
+
+        <div class="job-card">
+          <div class="job-left">
+            <div class="job-tags">
+              <span class="job-tag tag-full">Full-Time</span>
+              <span class="job-tag tag-dept">Administration</span>
+            </div>
+            <h3>School Registrar / Administrative Officer</h3>
+            <p>A detail-oriented, parent-friendly professional to manage admissions, records, and day-to-day school administration.</p>
+          </div>
+          <div class="job-right">
+            <a href="#" class="btn btn-orange">Apply Now</a>
+          </div>
+        </div>
+
+        <div class="job-card">
+          <div class="job-left">
+            <div class="job-tags">
+              <span class="job-tag tag-part">Part-Time</span>
+              <span class="job-tag tag-dept">Enrichment</span>
+            </div>
+            <h3>ICT / Coding Facilitator (After-School Programme)</h3>
+            <p>Someone with a passion for technology education to run our after-school ICT and coding enrichment sessions.</p>
+          </div>
+          <div class="job-right">
+            <a href="#" class="btn btn-orange">Apply Now</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CONTACT ──────────────────────────────────────────────── -->
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="contact-grid">
+        <div class="contact-info">
+          <p class="section-label">Contact Us</p>
+          <h2>Come Say Hello</h2>
+          <p>
+            We would love to hear from you. Whether you have a question about admissions,
+            want to visit the school, or just want to know more about what we do.
+          </p>
+          <div class="contact-items">
+            <div class="contact-item">
+              <div class="contact-icon ci-blue"><i class="fa-solid fa-location-dot"></i></div>
+              <div>
+                <h5>Our Address</h5>
+                <p>8 Dr Amilcar Cabral Road, Airport Residential, Accra, GA-085-8565</p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon ci-orange"><i class="fa-solid fa-phone"></i></div>
+              <div>
+                <h5>Phone</h5>
+                <p>0244 000 444</p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon ci-green"><i class="fa-solid fa-envelope"></i></div>
+              <div>
+                <h5>Email</h5>
+                <p>info@annanhouseschool.edu.gh</p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon ci-blue"><i class="fa-solid fa-clock"></i></div>
+              <div>
+                <h5>Office Hours</h5>
+                <p>Monday – Friday: 7:30am – 4:30pm</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <iframe src="https://www.google.com/maps/embed?pb=!4v1775766370331!6m8!1m7!1sbVFJbdu2USWxK1gh7iPvoA!2m2!1d5.605505322770591!2d-0.1846096760848306!3f203.82746644602776!4f2.7268478034937402!5f0.7820865974627469" width="100%" height="400" style="border:0;border-radius:var(--radius);display:block;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOOTER ───────────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <div class="logo-mark">
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <div>
+              Annan House
+              <small>Community School</small>
+            </div>
+          </div>
+          <p>Nurturing curious minds and confident learners at the heart of Airport Residential, Accra, since our founding.</p>
+          <div class="social-links">
+            <div class="social-btn"><i class="fa-brands fa-facebook-f"></i></div>
+            <div class="social-btn"><i class="fa-brands fa-instagram"></i></div>
+            <div class="social-btn"><i class="fa-brands fa-x-twitter"></i></div>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h5>School</h5>
+          <ul>
+            <li><a href="#about">About Us</a></li>
+            <li><a href="#academics">Academics</a></li>
+            <li><a href="#gallery">Gallery</a></li>
+            <li><a href="#news">News</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Families</h5>
+          <ul>
+            <li><a href="#admissions">Admissions</a></li>
+            <li><a href="school-calendar.html">School Calendar</a></li>
+            <li><a href="parent-portal.html">Parent Portal</a></li>
+            <li><a href="fees-payments.html">Fees & Payments</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Connect</h5>
+          <ul>
+            <li><a href="#contact">Contact Us</a></li>
+            <li><a href="#vacancies">Vacancies</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="child-safety.html">Child Safety</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="rainbow-stripe" style="margin-bottom:24px;"></div>
+
+      <div class="footer-bottom">
+        <span>© 2026 Annan House Community School. All rights reserved.</span>
+        <span>8 Dr Amilcar Cabral Road, Airport Residential, Accra &middot; GA-085-8565</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ─── JOB APPLICATION MODAL ────────────────────────────────── -->
+  <div id="jobModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeJobModal()">✕</button>
+      
+      <!-- Application Form -->
+      <div id="jobFormContainer">
+        <div class="modal-header">
+          <h2>Apply for This Position</h2>
+          <p>Tell us about yourself and why you'd be great for this role.</p>
+        </div>
+
+        <form class="modal-form" id="jobApplicationForm" onsubmit="submitJobApplication(event)">
+          <div>
+            <label>Full Name *</label>
+            <input type="text" name="fullName" id="applicantName" placeholder="Your full name" required />
+          </div>
+
+          <div>
+            <label>Email Address *</label>
+            <input type="email" name="email" id="applicantEmail" placeholder="your@email.com" required />
+          </div>
+
+          <div>
+            <label>Phone Number *</label>
+            <input type="tel" name="phoneNumber" id="applicantPhone" placeholder="024 000 0000" required />
+          </div>
+
+          <div>
+            <label>Position Applied For *</label>
+            <input type="text" name="positionApplied" id="positionName" placeholder="Position name" readonly style="background: var(--off); cursor: not-allowed;" required />
+          </div>
+
+          <div>
+            <label>Upload Your CV (PDF preferred) *</label>
+            <div class="modal-file-input" id="cvUploadArea">
+              <input type="file" name="cvFile" id="cvFile" accept=".pdf,.doc,.docx" required />
+              <div>
+                <div class="modal-file-label">📎 Click to upload or drag & drop</div>
+                <div class="modal-file-name" id="fileName">PDF, DOC, or DOCX (Max 5MB)</div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label>Motivation Statement *</label>
+            <textarea name="motivation" id="motivation" placeholder="Tell us in a few sentences who you are and why you're passionate about this role..." required></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="jobSubmitBtn">
+            <span id="jobBtnText">Submit Application →</span>
+            <span id="jobBtnLoading" style="display: none;">Submitting...</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Success Message -->
+      <div id="successMessage" class="success-message">
+        <div class="success-icon"><i class="fa-solid fa-circle-check" style="font-size:2.4rem;color:var(--blue);"></i></div>
+        <h3>Application Received</h3>
+        <p>
+          Thank you for your interest in joining the Annan House Community School team. 
+          We have received your application and will review it carefully. If your qualifications 
+          and experience align with our needs, we will contact you within 5 working days.
+        </p>
+        <p style="font-size: .9rem; color: var(--blue); margin-bottom: 0;">
+          We appreciate your patience and wish you all the best!
+        </p>
+        <button class="btn btn-primary" onclick="closeJobModal()" style="margin-top: 20px; width: 100%;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── ADMISSION SUCCESS MODAL ───────────────────────────────── -->
+  <div id="admissionSuccessModal" class="modal">
+    <div class="modal-content" style="max-width: 520px;">
+      <button class="modal-close" onclick="closeAdmissionSuccessModal()">✕</button>
+      
+      <div class="success-message">
+        <div class="success-icon"><span class="checkmark"></span></div>
+        <h3>Enquiry Received</h3>
+        <p id="admissionSuccessText1"></p>
+        <p id="admissionSuccessText2" style="font-size: .95rem; color: var(--blue); margin-bottom: 0;"></p>
+        <button class="btn btn-primary" onclick="closeAdmissionSuccessModal()" style="margin-top: 20px; width: 100%;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ─── ADMISSION FORM SUBMISSION ───────────────────────────────────
+    function submitAdmissionForm(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const submitBtn = document.getElementById('admissionSubmitBtn');
+      const btnText = document.getElementById('admissionBtnText');
+      const btnLoading = document.getElementById('admissionBtnLoading');
+
+      // Convert FormData to JSON
+      const data = {};
+      for (let [key, value] of formData.entries()) {
+        data[key] = value;
+      }
+
+      // Show loading state
+      submitBtn.disabled = true;
+      btnText.style.display = 'none';
+      btnLoading.style.display = 'inline';
+
+      // Submit to backend
+      fetch(`${API_BASE_URL}/api/admissions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Response received:', data); // Debug: log entire response
+        
+        if (data.success) {
+          // Show success modal
+          const successModal = document.getElementById('admissionSuccessModal');
+          const successText1 = document.getElementById('admissionSuccessText1');
+          const successText2 = document.getElementById('admissionSuccessText2');
+          
+          // Split message into paragraphs
+          const messageParts = data.message.split('\n\n');
+          successText1.textContent = messageParts[0] || '';
+          successText2.textContent = messageParts[1] || '';
+          
+          const successMessage = document.querySelector('#admissionSuccessModal .success-message');
+          successModal.classList.add('show');
+          if (successMessage) {
+            successMessage.classList.add('show');
+          }
+        } else {
+          alert('Error: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting your enquiry. Please try again.');
+      })
+      .finally(() => {
+        // Reset loading state
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+      });
+    }
+
+    // ─── ADMISSION SUCCESS MODAL FUNCTIONS ───────────────────────
+    function closeAdmissionSuccessModal() {
+      const modal = document.getElementById('admissionSuccessModal');
+      const successMessage = document.querySelector('#admissionSuccessModal .success-message');
+      const form = document.getElementById('admissionForm');
+      
+      // Close modal and reset form
+      modal.classList.remove('show');
+      if (successMessage) {
+        successMessage.classList.remove('show');
+      }
+      form.reset();
+    }
+
+    // ─── JOB MODAL FUNCTIONS ─────────────────────────────────────
+    function openJobModal(positionTitle) {
+      const modal = document.getElementById('jobModal');
+      const positionInput = document.getElementById('positionName');
+      const formContainer = document.getElementById('jobFormContainer');
+      const successMessage = document.getElementById('successMessage');
+
+      positionInput.value = positionTitle;
+      formContainer.style.display = 'block';
+      successMessage.classList.remove('show');
+      modal.classList.add('show');
+    }
+
+    function closeJobModal() {
+      const modal = document.getElementById('jobModal');
+      const form = document.getElementById('jobApplicationForm');
+      modal.classList.remove('show');
+      form.reset();
+      document.getElementById('fileName').textContent = 'PDF, DOC, or DOCX (Max 5MB)';
+    }
+
+    function submitJobApplication(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const submitBtn = document.getElementById('jobSubmitBtn');
+      const btnText = document.getElementById('jobBtnText');
+      const btnLoading = document.getElementById('jobBtnLoading');
+
+      // Show loading state
+      submitBtn.disabled = true;
+      btnText.style.display = 'none';
+      btnLoading.style.display = 'inline';
+
+      // Submit to backend
+      fetch(`${API_BASE_URL}/api/jobs`, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Show success message
+          const formContainer = document.getElementById('jobFormContainer');
+          const successMessage = document.getElementById('successMessage');
+          formContainer.style.display = 'none';
+          successMessage.classList.add('show');
+        } else {
+          alert('Error: ' + data.message);
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting your application. Please try again.');
+      })
+      .finally(() => {
+        // Reset loading state
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+      });
+    }
+
+    // CV file upload handling
+    const cvUploadArea = document.getElementById('cvUploadArea');
+    const cvFile = document.getElementById('cvFile');
+    const fileName = document.getElementById('fileName');
+
+    cvUploadArea.addEventListener('click', () => cvFile.click());
+
+    cvUploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      cvUploadArea.style.background = '#DBF0FA';
+    });
+
+    cvUploadArea.addEventListener('dragleave', () => {
+      cvUploadArea.style.background = '#EBF6FD';
+    });
+
+    cvUploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      cvUploadArea.style.background = '#EBF6FD';
+      if (e.dataTransfer.files[0]) {
+        cvFile.files = e.dataTransfer.files;
+        updateFileName();
+      }
+    });
+
+    cvFile.addEventListener('change', updateFileName);
+
+    function updateFileName() {
+      if (cvFile.files[0]) {
+        const name = cvFile.files[0].name;
+        fileName.textContent = `✓ ${name}`;
+        fileName.style.color = 'var(--green)';
+      }
+    }
+
+    // ─── EXISTING FUNCTIONS ──────────────────────────────────────
+    // Mobile menu toggle
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks  = document.querySelector('.nav-links');
+    const navCta    = document.querySelector('.nav-cta');
+
+    hamburger.addEventListener('click', () => {
+      const open = navLinks.style.display === 'flex';
+      navLinks.style.cssText = open
+        ? ''
+        : 'display:flex;flex-direction:column;position:absolute;top:68px;left:0;right:0;background:#fff;padding:16px 24px;border-bottom:1px solid #e5e7eb;gap:4px;z-index:200';
+      navCta.style.display = open ? 'none' : 'inline-flex';
+    });
+
+    // Smooth scroll offset for sticky nav
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const href = a.getAttribute('href');
+        if (!href || href === '#') return;
+        const target = document.querySelector(href);
+        if (!target) return;
+        e.preventDefault();
+        const top = target.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top, behavior: 'smooth' });
+      });
+    });
+
+    // Fade-in on scroll
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.program-card, .news-card, .job-card, .hero-card').forEach(el => {
+      el.style.cssText = 'opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease';
+      observer.observe(el);
+    });
+
+    // ─── JOB APPLY BUTTONS ───────────────────────────────────────
+    // Update all "Apply Now" buttons on job cards to open the modal with position name
+    document.querySelectorAll('.job-card').forEach((card, index) => {
+      const applyBtn = card.querySelector('.btn-orange');
+      const jobTitle = card.querySelector('h3').textContent;
+      applyBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openJobModal(jobTitle);
+      });
+    });
+
+    // Close modal when clicking outside content
+    const modal = document.getElementById('jobModal');
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeJobModal();
+      }
+    });
+
+    // Close admission success modal when clicking outside content
+    const admissionModal = document.getElementById('admissionSuccessModal');
+    admissionModal.addEventListener('click', (e) => {
+      if (e.target === admissionModal) {
+        closeAdmissionSuccessModal();
+      }
+    });
+  </script>
+</body>
+</html>

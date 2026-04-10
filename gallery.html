@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gallery | Annan House Community School</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    body { background: var(--off); }
+    .page-hero { background: var(--navy); padding: 64px 0 48px; }
+    .page-hero .section-label { display: inline-block; font-family: var(--font-head); font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; }
+    .page-hero h1 { font-family: var(--font-head); font-size: clamp(2rem,3vw,3rem); color: var(--white); margin-bottom: 12px; }
+    .page-hero p  { color: rgba(255,255,255,.65); max-width: 640px; line-height: 1.75; }
+    .page-content { padding: 56px 0 80px; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+    .photo-card {
+      border-radius: var(--radius); min-height: 220px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--muted); font-size: 2.5rem; position: relative; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .photo-card::after { content: 'Placeholder image'; position: absolute; bottom: 14px; font-size: .8rem; color: rgba(0,0,0,.4); }
+    .photo-card:nth-child(1) { background: linear-gradient(135deg,#e8f4fd,#f8fbff); }
+    .photo-card:nth-child(2) { background: linear-gradient(135deg,#fdf3e8,#fff8f3); }
+    .photo-card:nth-child(3) { background: linear-gradient(135deg,#edf7ee,#f6fdf6); }
+    .photo-card:nth-child(4) { background: linear-gradient(135deg,#f3edf7,#faf6fd); }
+    .photo-card:nth-child(5) { background: linear-gradient(135deg,#fdf8e1,#fffdf0); }
+    .photo-card:nth-child(6) { background: linear-gradient(135deg,#e8f4fd,#f8fbff); }
+    @media (max-width:860px) { .gallery-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width:560px) { .gallery-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <!-- ─── NAV ─────────────────────────────────────────────── -->
+  <nav class="nav">
+    <div class="container">
+      <div class="nav-inner">
+        <a href="index.html" class="nav-logo">
+          <div class="logo-mark"><span></span><span></span><span></span><span></span></div>
+          <div>Annan House<small>Community School</small></div>
+        </a>
+        <ul class="nav-links">
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="index.html#academics">Academics</a></li>
+          <li><a href="news.html">News</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="index.html#admissions">Admissions</a></li>
+          <li><a href="openings.html">Vacancies</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <a href="index.html#admissions" class="btn btn-primary nav-cta">Apply Now</a>
+        <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ─── PAGE HERO ─────────────────────────────────────── -->
+  <section class="page-hero">
+    <div class="container">
+      <p class="section-label"><i class="fa-solid fa-images"></i> Gallery</p>
+      <h1>Full Gallery</h1>
+      <p>A look inside our classrooms, events, and school life. Replace these placeholders with real photos of Annan House Community School.</p>
+    </div>
+  </section>
+  <div class="rainbow-stripe"></div>
+
+  <!-- ─── CONTENT ───────────────────────────────────────── -->
+  <main class="page-content">
+    <div class="container">
+      <div class="gallery-grid">
+        <div class="photo-card"><i class="fa-solid fa-camera"></i></div>
+        <div class="photo-card"><i class="fa-solid fa-graduation-cap"></i></div>
+        <div class="photo-card"><i class="fa-solid fa-palette"></i></div>
+        <div class="photo-card"><i class="fa-solid fa-futbol"></i></div>
+        <div class="photo-card"><i class="fa-solid fa-school"></i></div>
+        <div class="photo-card"><i class="fa-solid fa-star"></i></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ─── FOOTER ────────────────────────────────────────── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <div class="logo-mark"><span></span><span></span><span></span><span></span></div>
+            <div>Annan House<small>Community School</small></div>
+          </div>
+          <p>Nurturing curious minds and confident learners at the heart of Airport Residential, Accra, since our founding.</p>
+          <div class="social-links">
+            <div class="social-btn"><i class="fa-brands fa-facebook-f"></i></div>
+            <div class="social-btn"><i class="fa-brands fa-instagram"></i></div>
+            <div class="social-btn"><i class="fa-brands fa-x-twitter"></i></div>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h5>School</h5>
+          <ul>
+            <li><a href="index.html#about">About Us</a></li>
+            <li><a href="index.html#academics">Academics</a></li>
+            <li><a href="gallery.html">Gallery</a></li>
+            <li><a href="news.html">News</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Families</h5>
+          <ul>
+            <li><a href="index.html#admissions">Admissions</a></li>
+            <li><a href="school-calendar.html">School Calendar</a></li>
+            <li><a href="parent-portal.html">Parent Portal</a></li>
+            <li><a href="fees-payments.html">Fees &amp; Payments</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Connect</h5>
+          <ul>
+            <li><a href="index.html#contact">Contact Us</a></li>
+            <li><a href="openings.html">Vacancies</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="child-safety.html">Child Safety</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="rainbow-stripe" style="margin-bottom:24px;"></div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Annan House Community School. All rights reserved.</span>
+        <span>8 Dr Amilcar Cabral Road, Airport Residential, Accra &middot; GA-085-8565</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks  = document.querySelector('.nav-links');
+    const navCta    = document.querySelector('.nav-cta');
+    hamburger.addEventListener('click', () => {
+      const open = navLinks.style.display === 'flex';
+      navLinks.style.cssText = open ? '' : 'display:flex;flex-direction:column;position:absolute;top:68px;left:0;right:0;background:#fff;padding:16px 24px;border-bottom:1px solid #e5e7eb;gap:4px;z-index:200';
+      navCta.style.display = open ? 'none' : 'inline-flex';
+    });
+  </script>
+</body>
+</html>
