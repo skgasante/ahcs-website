@@ -22,7 +22,6 @@ app.use(cors({
       callback(new Error(`CORS policy: origin ${origin} not allowed`));
     }
   },
-  credentials: true,
 }));
 
 // Allow Chrome's Private Network Access preflight (file:// → localhost)

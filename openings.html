@@ -277,18 +277,28 @@
       btnText.style.display = 'none';
       btnLoading.style.display = 'inline';
 
-      fetch(`${API_BASE_URL}/api/jobs`, { method: 'POST', body: formData })
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 30000);
+
+      fetch(`${API_BASE_URL}/api/jobs`, { method: 'POST', body: formData, signal: controller.signal })
         .then(r => r.json())
         .then(data => {
           if (data.success) {
             document.getElementById('jobFormContainer').style.display = 'none';
             document.getElementById('successMessage').classList.add('show');
           } else {
-            alert('Error: ' + data.message);
+            alert('Submission failed: ' + data.message);
           }
         })
-        .catch(() => alert('An error occurred while submitting your application. Please try again.'))
+        .catch(err => {
+          if (err.name === 'AbortError') {
+            alert('The request timed out. Please check your connection and try again.');
+          } else {
+            alert('An error occurred while submitting your application. Please try again.\n\nDetails: ' + err.message);
+          }
+        })
         .finally(() => {
+          clearTimeout(timeout);
           submitBtn.disabled = false;
           btnText.style.display = 'inline';
           btnLoading.style.display = 'none';

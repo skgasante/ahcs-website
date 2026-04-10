@@ -1336,9 +1336,13 @@
       btnLoading.style.display = 'inline';
 
       // Submit to backend
+      const jobController = new AbortController();
+      const jobTimeout = setTimeout(() => jobController.abort(), 30000);
+
       fetch(`${API_BASE_URL}/api/jobs`, {
         method: 'POST',
-        body: formData
+        body: formData,
+        signal: jobController.signal
       })
       .then(response => response.json())
       .then(data => {
@@ -1349,14 +1353,18 @@
           formContainer.style.display = 'none';
           successMessage.classList.add('show');
         } else {
-          alert('Error: ' + data.message);
+          alert('Submission failed: ' + data.message);
         }
       })
       .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while submitting your application. Please try again.');
+        if (error.name === 'AbortError') {
+          alert('The request timed out. Please check your connection and try again.');
+        } else {
+          alert('An error occurred while submitting your application. Please try again.\n\nDetails: ' + error.message);
+        }
       })
       .finally(() => {
+        clearTimeout(jobTimeout);
         // Reset loading state
         submitBtn.disabled = false;
         btnText.style.display = 'inline';
