@@ -158,10 +158,38 @@
             <h2>Admissions Enquiries</h2>
             <p>View and manage enquiries submitted through the website.</p>
           </div>
-          <div class="placeholder-card">
-            <i class="fa-solid fa-user-plus"></i>
-            <h3>Coming in a future stage</h3>
-            <p>Admissions enquiries submitted via the public form will be listed and managed here.</p>
+
+          <div class="table-toolbar">
+            <span class="record-count" id="admCount"></span>
+            <button class="toolbar-btn" id="refreshAdm">
+              <i class="fa-solid fa-rotate-right"></i> Refresh
+            </button>
+          </div>
+
+          <div class="table-loading" id="admLoading">
+            <div class="tbl-spinner"></div>
+            <span>Loading enquiries&hellip;</span>
+          </div>
+          <div class="table-empty hidden" id="admEmpty">
+            <i class="fa-solid fa-inbox"></i>
+            <p>No admissions enquiries found.</p>
+          </div>
+          <div class="table-wrap hidden" id="admTableWrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Parent Name</th>
+                  <th>Phone</th>
+                  <th>Email</th>
+                  <th>Child Name</th>
+                  <th>Year Group</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="admTbody"></tbody>
+            </table>
           </div>
         </section>
 
@@ -171,10 +199,37 @@
             <h2>Job Applications</h2>
             <p>Review applications submitted for advertised vacancies.</p>
           </div>
-          <div class="placeholder-card">
-            <i class="fa-solid fa-briefcase"></i>
-            <h3>Coming in a future stage</h3>
-            <p>Job applications with CV downloads and status tracking will be available here.</p>
+
+          <div class="table-toolbar">
+            <span class="record-count" id="jobCount"></span>
+            <button class="toolbar-btn" id="refreshJob">
+              <i class="fa-solid fa-rotate-right"></i> Refresh
+            </button>
+          </div>
+
+          <div class="table-loading" id="jobLoading">
+            <div class="tbl-spinner"></div>
+            <span>Loading applications&hellip;</span>
+          </div>
+          <div class="table-empty hidden" id="jobEmpty">
+            <i class="fa-solid fa-inbox"></i>
+            <p>No job applications found.</p>
+          </div>
+          <div class="table-wrap hidden" id="jobTableWrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Applicant</th>
+                  <th>Email</th>
+                  <th>Position</th>
+                  <th>Status</th>
+                  <th>CV</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="jobTbody"></tbody>
+            </table>
           </div>
         </section>
 
@@ -236,6 +291,31 @@
     </div>
     <!-- /main-wrap -->
 
+    <!-- ══ DETAIL DRAWER ═══════════════════════════════════════ -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+    <aside class="detail-drawer" id="detailDrawer" aria-modal="true" role="dialog" aria-label="Record details">
+      <div class="drawer-header">
+        <div class="drawer-header-text">
+          <div class="drawer-title" id="drawerTitle">Details</div>
+          <div class="drawer-subtitle" id="drawerSubtitle"></div>
+        </div>
+        <button class="drawer-close" id="drawerClose" aria-label="Close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="drawer-body" id="drawerBody"></div>
+      <div class="drawer-footer">
+        <div class="status-update-label">Update Status</div>
+        <div class="status-update-controls">
+          <select class="status-select-input" id="drawerStatusSelect"></select>
+          <button class="btn-save-status" id="drawerSaveStatus">
+            <i class="fa-solid fa-check"></i> Save
+          </button>
+        </div>
+        <div class="status-feedback" id="statusFeedback"></div>
+      </div>
+    </aside>
+
   </div>
   <!-- /admin-shell -->
 
@@ -245,52 +325,372 @@
   <script src="config.js"></script>
   <script>
     // ═══════════════════════════════════════════════════════
-    // AUTH GUARD — must run immediately
+    // AUTH GUARD
     // ═══════════════════════════════════════════════════════
     (async () => {
       const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session) {
-        window.location.replace('index.html');
-      }
+      if (!session) window.location.replace('index.html');
     })();
 
-    // ═══════════════════════════════════════════════════════
-    // Listen for auth state changes (e.g. token expiry)
-    // ═══════════════════════════════════════════════════════
     supabaseClient.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        window.location.replace('index.html');
-      }
+      if (event === 'SIGNED_OUT' || !session) window.location.replace('index.html');
     });
 
     // ═══════════════════════════════════════════════════════
-    // Populate user info in sidebar
+    // HELPERS
+    // ═══════════════════════════════════════════════════════
+    function show(id) { document.getElementById(id)?.classList.remove('hidden'); }
+    function hide(id) { document.getElementById(id)?.classList.add('hidden'); }
+
+    function esc(str) {
+      if (str == null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function fmtDate(iso) {
+      if (!iso) return '—';
+      return new Date(iso).toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'short', year: 'numeric'
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // USER INFO
     // ═══════════════════════════════════════════════════════
     async function loadUser() {
       const { data: { user } } = await supabaseClient.auth.getUser();
       if (!user) return;
-
-      const email  = user.email || '';
-      const initials = email
-        .split('@')[0]
-        .replace(/[^a-zA-Z]/g, '')
-        .slice(0, 2)
-        .toUpperCase() || '?';
-
+      const email    = user.email || '';
+      const initials = email.split('@')[0].replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase() || '?';
       document.getElementById('userEmail').textContent  = email;
       document.getElementById('userAvatar').textContent = initials;
     }
     loadUser();
 
-    // ═══════════════════════════════════════════════════════
-    // Topbar date
-    // ═══════════════════════════════════════════════════════
     document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-GB', {
       weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
     });
 
     // ═══════════════════════════════════════════════════════
-    // Sidebar navigation
+    // STATUS CONFIG
+    // ═══════════════════════════════════════════════════════
+    const ADMISSIONS_STATUSES = ['New', 'Contacted', 'Assessment Booked', 'Offer Made', 'Declined'];
+    const JOBS_STATUSES       = ['New', 'Reviewed', 'Shortlisted', 'Offer Made', 'Rejected'];
+
+    const STATUS_CLASSES = {
+      'new':               'badge-blue',
+      'pending':           'badge-blue',
+      'contacted':         'badge-orange',
+      'assessment booked': 'badge-purple',
+      'shortlisted':       'badge-purple',
+      'reviewed':          'badge-muted',
+      'offer made':        'badge-green',
+      'declined':          'badge-red',
+      'rejected':          'badge-red',
+    };
+
+    function statusBadge(status) {
+      const norm  = (status || 'new').toLowerCase();
+      const cls   = STATUS_CLASSES[norm] || 'badge-muted';
+      const label = (norm === 'pending') ? 'New' : (status || 'New');
+      return `<span class="status-badge ${cls}">${esc(label)}</span>`;
+    }
+
+    // ═══════════════════════════════════════════════════════
+    // OVERVIEW STATS
+    // ═══════════════════════════════════════════════════════
+    async function loadOverviewStats() {
+      const [admRes, jobRes] = await Promise.all([
+        supabaseClient.from('admission_enquiries').select('id', { count: 'exact', head: true }),
+        supabaseClient.from('job_applications').select('id',    { count: 'exact', head: true }),
+      ]);
+      document.getElementById('statAdmissions').textContent = admRes.count ?? '—';
+      document.getElementById('statJobs').textContent       = jobRes.count ?? '—';
+      document.getElementById('statNews').textContent       = '—';
+      document.getElementById('statGallery').textContent    = '—';
+    }
+    loadOverviewStats();
+
+    // ═══════════════════════════════════════════════════════
+    // ADMISSIONS TABLE
+    // ═══════════════════════════════════════════════════════
+    let admissionsData   = [];
+    let admissionsLoaded = false;
+
+    async function loadAdmissions() {
+      admissionsLoaded = false;
+      show('admLoading'); hide('admTableWrap'); hide('admEmpty');
+      document.getElementById('admCount').textContent = '';
+
+      const { data, error } = await supabaseClient
+        .from('admission_enquiries')
+        .select('*')
+        .order('submitted_at', { ascending: false });
+
+      hide('admLoading');
+
+      if (error) {
+        document.getElementById('admCount').textContent = 'Could not load data — check Supabase RLS policies.';
+        console.error('Admissions load error:', error);
+        return;
+      }
+
+      admissionsData   = data || [];
+      admissionsLoaded = true;
+      const n = admissionsData.length;
+      document.getElementById('admCount').textContent = `${n} ${n === 1 ? 'enquiry' : 'enquiries'}`;
+
+      if (n === 0) { show('admEmpty'); return; }
+
+      const tbody = document.getElementById('admTbody');
+      tbody.innerHTML = admissionsData.map(r => `
+        <tr>
+          <td class="td-date">${fmtDate(r.submitted_at)}</td>
+          <td class="td-bold">${esc(r.parent_name)}</td>
+          <td><a class="cell-link" href="tel:${esc(r.phone_number)}">${esc(r.phone_number)}</a></td>
+          <td><a class="cell-link" href="mailto:${esc(r.email)}">${esc(r.email)}</a></td>
+          <td>${esc(r.child_name)}</td>
+          <td><span class="year-pill">${esc(r.year_group)}</span></td>
+          <td>${statusBadge(r.status)}</td>
+          <td><button class="btn-view" data-id="${r.id}"><i class="fa-solid fa-eye"></i> View</button></td>
+        </tr>
+      `).join('');
+
+      show('admTableWrap');
+
+      tbody.querySelectorAll('.btn-view').forEach(btn => {
+        btn.addEventListener('click', () => openAdmissionDrawer(+btn.dataset.id));
+      });
+    }
+
+    document.getElementById('refreshAdm').addEventListener('click', loadAdmissions);
+
+    // ═══════════════════════════════════════════════════════
+    // JOBS TABLE
+    // ═══════════════════════════════════════════════════════
+    let jobsData   = [];
+    let jobsLoaded = false;
+
+    async function loadJobs() {
+      jobsLoaded = false;
+      show('jobLoading'); hide('jobTableWrap'); hide('jobEmpty');
+      document.getElementById('jobCount').textContent = '';
+
+      const { data, error } = await supabaseClient
+        .from('job_applications')
+        .select('*')
+        .order('submitted_at', { ascending: false });
+
+      hide('jobLoading');
+
+      if (error) {
+        document.getElementById('jobCount').textContent = 'Could not load data.';
+        console.error('Jobs load error:', error);
+        return;
+      }
+
+      jobsData   = data || [];
+      jobsLoaded = true;
+      const n = jobsData.length;
+      document.getElementById('jobCount').textContent = `${n} ${n === 1 ? 'application' : 'applications'}`;
+
+      if (n === 0) { show('jobEmpty'); return; }
+
+      const tbody = document.getElementById('jobTbody');
+      tbody.innerHTML = jobsData.map(r => `
+        <tr>
+          <td class="td-date">${fmtDate(r.submitted_at)}</td>
+          <td class="td-bold">${esc(r.full_name)}</td>
+          <td><a class="cell-link" href="mailto:${esc(r.email)}">${esc(r.email)}</a></td>
+          <td>${esc(r.position_applied)}</td>
+          <td>${statusBadge(r.status)}</td>
+          <td>
+            ${r.cv_file_url
+              ? `<a class="cv-link" href="${esc(r.cv_file_url)}" target="_blank" rel="noopener noreferrer">
+                   <i class="fa-solid fa-file-arrow-down"></i> Download
+                 </a>`
+              : `<span class="muted-text">&mdash;</span>`}
+          </td>
+          <td><button class="btn-view" data-id="${r.id}"><i class="fa-solid fa-eye"></i> View</button></td>
+        </tr>
+      `).join('');
+
+      show('jobTableWrap');
+
+      tbody.querySelectorAll('.btn-view').forEach(btn => {
+        btn.addEventListener('click', () => openJobDrawer(+btn.dataset.id));
+      });
+    }
+
+    document.getElementById('refreshJob').addEventListener('click', loadJobs);
+
+    // ═══════════════════════════════════════════════════════
+    // DETAIL DRAWER
+    // ═══════════════════════════════════════════════════════
+    let drawerType = null;
+    let drawerId   = null;
+
+    function openDrawer() {
+      document.getElementById('detailDrawer').classList.add('open');
+      document.getElementById('drawerOverlay').classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+      document.getElementById('detailDrawer').classList.remove('open');
+      document.getElementById('drawerOverlay').classList.remove('show');
+      document.body.style.overflow = '';
+      drawerType = null;
+      drawerId   = null;
+    }
+
+    document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+    document.getElementById('drawerOverlay').addEventListener('click', closeDrawer);
+
+    function drawerField(label, value, href) {
+      let display;
+      if (!value) {
+        display = '<span class="df-empty">&mdash;</span>';
+      } else if (href) {
+        display = `<a class="df-link" href="${esc(href)}">${esc(value)}</a>`;
+      } else {
+        display = `<span>${esc(value)}</span>`;
+      }
+      return `<div class="drawer-field">
+        <div class="drawer-field-label">${label}</div>
+        <div class="drawer-field-value">${display}</div>
+      </div>`;
+    }
+
+    function buildStatusSelect(statuses, current) {
+      const sel  = document.getElementById('drawerStatusSelect');
+      const norm = (current || '').toLowerCase();
+      sel.innerHTML = statuses.map(s => {
+        const selected = s.toLowerCase() === norm || (norm === 'pending' && s === 'New');
+        return `<option value="${s}"${selected ? ' selected' : ''}>${s}</option>`;
+      }).join('');
+    }
+
+    function openAdmissionDrawer(id) {
+      const r = admissionsData.find(x => x.id === id);
+      if (!r) return;
+      drawerType = 'admission';
+      drawerId   = id;
+
+      document.getElementById('drawerTitle').textContent    = r.child_name;
+      document.getElementById('drawerSubtitle').textContent = `Enquiry submitted ${fmtDate(r.submitted_at)}`;
+      document.getElementById('statusFeedback').textContent = '';
+      document.getElementById('statusFeedback').className   = 'status-feedback';
+
+      document.getElementById('drawerBody').innerHTML = `
+        <div class="drawer-group-label">Child Details</div>
+        ${drawerField('Child Name',     r.child_name)}
+        ${drawerField('Date of Birth',  r.date_of_birth ? new Date(r.date_of_birth).toLocaleDateString('en-GB') : null)}
+        ${drawerField('Year Group',     r.year_group)}
+        ${drawerField('Preferred Term', r.preferred_term)}
+        <div class="drawer-group-label">Parent / Guardian</div>
+        ${drawerField('Parent Name', r.parent_name)}
+        ${drawerField('Phone',       r.phone_number, `tel:${r.phone_number}`)}
+        ${drawerField('Email',       r.email,        `mailto:${r.email}`)}
+        ${r.additional_notes ? `
+          <div class="drawer-group-label">Additional Notes</div>
+          <div class="drawer-notes">${esc(r.additional_notes)}</div>
+        ` : ''}
+      `;
+
+      buildStatusSelect(ADMISSIONS_STATUSES, r.status);
+      openDrawer();
+    }
+
+    function openJobDrawer(id) {
+      const r = jobsData.find(x => x.id === id);
+      if (!r) return;
+      drawerType = 'job';
+      drawerId   = id;
+
+      document.getElementById('drawerTitle').textContent    = r.full_name;
+      document.getElementById('drawerSubtitle').textContent = `${r.position_applied} &middot; ${fmtDate(r.submitted_at)}`;
+      document.getElementById('statusFeedback').textContent = '';
+      document.getElementById('statusFeedback').className   = 'status-feedback';
+
+      document.getElementById('drawerBody').innerHTML = `
+        <div class="drawer-group-label">Applicant</div>
+        ${drawerField('Full Name', r.full_name)}
+        ${drawerField('Email',     r.email,        `mailto:${r.email}`)}
+        ${drawerField('Phone',     r.phone_number, `tel:${r.phone_number}`)}
+        <div class="drawer-group-label">Application</div>
+        ${drawerField('Position Applied', r.position_applied)}
+        <div class="drawer-field">
+          <div class="drawer-field-label">CV / R&eacute;sum&eacute;</div>
+          <div class="drawer-field-value">
+            ${r.cv_file_url
+              ? `<a class="cv-link" href="${esc(r.cv_file_url)}" target="_blank" rel="noopener noreferrer">
+                   <i class="fa-solid fa-file-arrow-down"></i> ${esc(r.cv_file_name || 'Download CV')}
+                 </a>`
+              : '<span class="df-empty">&mdash;</span>'}
+          </div>
+        </div>
+        ${r.motivation ? `
+          <div class="drawer-group-label">Cover Letter / Motivation</div>
+          <div class="drawer-notes">${esc(r.motivation)}</div>
+        ` : ''}
+      `;
+
+      buildStatusSelect(JOBS_STATUSES, r.status);
+      openDrawer();
+    }
+
+    // ── Save status ────────────────────────────────────────
+    document.getElementById('drawerSaveStatus').addEventListener('click', async () => {
+      if (!drawerId || !drawerType) return;
+      const newStatus = document.getElementById('drawerStatusSelect').value;
+      const table     = drawerType === 'admission' ? 'admission_enquiries' : 'job_applications';
+      const saveBtn   = document.getElementById('drawerSaveStatus');
+      const fbEl      = document.getElementById('statusFeedback');
+
+      saveBtn.disabled = true;
+      fbEl.textContent = '';
+      fbEl.className   = 'status-feedback';
+
+      const { error } = await supabaseClient
+        .from(table)
+        .update({ status: newStatus })
+        .eq('id', drawerId);
+
+      saveBtn.disabled = false;
+
+      if (error) {
+        fbEl.textContent = 'Save failed: ' + error.message;
+        fbEl.className   = 'status-feedback error';
+        return;
+      }
+
+      // Update local cache and refresh badge in table
+      const idToUpdate = drawerId;
+      if (drawerType === 'admission') {
+        const row = admissionsData.find(x => x.id === idToUpdate);
+        if (row) row.status = newStatus;
+        const badge = document.querySelector(`#admTbody .btn-view[data-id="${idToUpdate}"]`)
+          ?.closest('tr')?.querySelector('.status-badge');
+        if (badge) badge.outerHTML = statusBadge(newStatus);
+      } else {
+        const row = jobsData.find(x => x.id === idToUpdate);
+        if (row) row.status = newStatus;
+        const badge = document.querySelector(`#jobTbody .btn-view[data-id="${idToUpdate}"]`)
+          ?.closest('tr')?.querySelector('.status-badge');
+        if (badge) badge.outerHTML = statusBadge(newStatus);
+      }
+
+      fbEl.textContent = '✓ Status saved';
+      fbEl.className   = 'status-feedback success';
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // SIDEBAR NAVIGATION
     // ═══════════════════════════════════════════════════════
     const sectionTitles = {
       overview:   'Overview',
@@ -307,26 +707,19 @@
     const topbarTitle = document.getElementById('topbarTitle');
 
     function switchSection(sectionId) {
-      // Update nav items
-      navItems.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.section === sectionId);
-      });
-      // Update panels
-      panels.forEach(panel => {
-        panel.classList.toggle('active', panel.id === `section-${sectionId}`);
-      });
-      // Update topbar title
+      navItems.forEach(btn => btn.classList.toggle('active', btn.dataset.section === sectionId));
+      panels.forEach(panel => panel.classList.toggle('active', panel.id === `section-${sectionId}`));
       topbarTitle.textContent = sectionTitles[sectionId] || sectionId;
-      // Close mobile sidebar
       closeSidebar();
+      // Lazy-load data on first visit to each section
+      if (sectionId === 'admissions' && !admissionsLoaded) loadAdmissions();
+      if (sectionId === 'jobs'       && !jobsLoaded)       loadJobs();
     }
 
-    navItems.forEach(btn => {
-      btn.addEventListener('click', () => switchSection(btn.dataset.section));
-    });
+    navItems.forEach(btn => btn.addEventListener('click', () => switchSection(btn.dataset.section)));
 
     // ═══════════════════════════════════════════════════════
-    // Mobile sidebar toggle
+    // MOBILE SIDEBAR
     // ═══════════════════════════════════════════════════════
     const sidebar        = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -349,7 +742,7 @@
     sidebarOverlay.addEventListener('click', closeSidebar);
 
     // ═══════════════════════════════════════════════════════
-    // Logout
+    // LOGOUT
     // ═══════════════════════════════════════════════════════
     document.getElementById('logoutBtn').addEventListener('click', async () => {
       await supabaseClient.auth.signOut();

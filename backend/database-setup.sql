@@ -59,3 +59,20 @@ CREATE POLICY "Allow public deletes from cv-uploads" ON storage.objects
 -- Create storage bucket for CV uploads (run this in Supabase Storage)
 -- Bucket name: cv-uploads
 -- Make it public for file access
+
+-- ──────────────────────────────────────────────────────────────
+-- ADMIN DASHBOARD — Stage 2
+-- Run these additional policies so the admin dashboard can read
+-- and update records using the anon key for authenticated users.
+-- ──────────────────────────────────────────────────────────────
+
+-- Allow logged-in admins to READ admissions enquiries
+CREATE POLICY "Allow authenticated reads on admission_enquiries" ON admission_enquiries
+  FOR SELECT TO authenticated USING (true);
+
+-- Allow logged-in admins to UPDATE admissions enquiries (e.g. status)
+CREATE POLICY "Allow authenticated updates on admission_enquiries" ON admission_enquiries
+  FOR UPDATE TO authenticated USING (true);
+
+-- job_applications has RLS disabled so no extra policies are needed.
+-- If you re-enable RLS on job_applications, add equivalent policies:
