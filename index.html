@@ -1344,7 +1344,12 @@
         body: formData,
         signal: jobController.signal
       })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok && response.status === 413) {
+          return { success: false, message: 'File too large. Please upload a PDF, DOC, or DOCX under 5MB.' };
+        }
+        return response.json();
+      })
       .then(data => {
         if (data.success) {
           // Show success message

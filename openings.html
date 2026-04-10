@@ -281,7 +281,12 @@
       const timeout = setTimeout(() => controller.abort(), 30000);
 
       fetch(`${API_BASE_URL}/api/jobs`, { method: 'POST', body: formData, signal: controller.signal })
-        .then(r => r.json())
+        .then(r => {
+          if (!r.ok && r.status === 413) {
+            return { success: false, message: 'File too large. Please upload a PDF, DOC, or DOCX under 5MB.' };
+          }
+          return r.json();
+        })
         .then(data => {
           if (data.success) {
             document.getElementById('jobFormContainer').style.display = 'none';

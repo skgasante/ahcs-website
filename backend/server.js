@@ -37,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(fileUpload({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   abortOnLimit: true,
+  responseOnLimit: JSON.stringify({ success: false, message: 'File too large. Maximum size is 5MB.' }),
 }));
 
 // Routes
