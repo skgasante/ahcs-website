@@ -1479,15 +1479,16 @@
 
       const vacGrid = document.getElementById('homeVacanciesGrid');
 
-      const { data, error } = await supabasePublic
+      const { data: vacData, error: vacErr } = await supabasePublic
         .from('vacancies')
         .select('id,title,department,type,description')
         .eq('status', 'open')
-        .order('created_at', { ascending: false })
-        .limit(3);
+        .order('created_at', { ascending: false });
 
-      if (error || !data || data.length === 0) {
-        vacGrid.innerHTML = '<p style="text-align:center;color:#6B7280;padding:24px 0;">No open positions at the moment. Check back soon.</p>';
+      if (vacErr) console.error('Vacancies fetch error:', vacErr);
+      const data = vacData ? vacData.slice(0, 3) : null;
+
+      if (vacErr || !data || data.length === 0) {
         return;
       }
 
