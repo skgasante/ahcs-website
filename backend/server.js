@@ -8,7 +8,22 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors({ origin: true }));
+const allowedOrigins = [
+  'https://ahcs-website.netlify.app',
+  'http://localhost:3001',
+  'http://127.0.0.1:3001',
+];
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. curl, Postman) and allowed origins
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`CORS policy: origin ${origin} not allowed`));
+    }
+  },
+  credentials: true,
+}));
 
 // Allow Chrome's Private Network Access preflight (file:// → localhost)
 app.use((req, res, next) => {
