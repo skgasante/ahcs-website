@@ -238,6 +238,8 @@
 
   <script>
     // ─── HAMBURGER ───────────────────────────────────────────
+    const API_BASE_URL = 'https://ahcs-website-production.up.railway.app';
+
     const hamburger = document.querySelector('.hamburger');
     const navLinks  = document.querySelector('.nav-links');
     const navCta    = document.querySelector('.nav-cta');
@@ -345,6 +347,5 @@
       if (e.target === document.getElementById('jobModal')) closeJobModal();
     });
   </script>
-  <script src="api-config.js"></script>
 </body>
 </html>
