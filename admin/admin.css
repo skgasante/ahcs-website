@@ -1054,3 +1054,166 @@ a   { text-decoration: none; color: inherit; }
   .section-header-flex  { flex-direction: column; gap: 12px; }
   .row-actions          { flex-wrap: wrap; }
 }
+
+/* ══════════════════════════════════════
+   NEWS IMAGE PANEL
+══════════════════════════════════════ */
+.img-upload-area {
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* List of uploaded images */
+.img-list {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--white);
+}
+.img-list-empty {
+  font-size: .82rem;
+  color: var(--muted);
+  text-align: center;
+  padding: 16px 8px;
+}
+
+/* Single image row */
+.img-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--off);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px;
+}
+.img-thumb {
+  width: 80px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  background: var(--border);
+}
+.img-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+.img-marker-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(123,79,175,.1);
+  color: var(--purple);
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: .8rem;
+  font-weight: 700;
+  width: fit-content;
+}
+.img-caption-input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 7px;
+  font-family: var(--font-body);
+  font-size: .83rem;
+  color: var(--navy);
+  background: var(--white);
+  outline: none;
+  transition: border-color .2s;
+}
+.img-caption-input:focus { border-color: var(--blue); }
+.img-caption-input::placeholder { color: #B0B8C1; }
+
+.img-item-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.img-insert-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: rgba(15,158,213,.08);
+  border: 1px solid rgba(15,158,213,.2);
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: .77rem;
+  font-weight: 600;
+  color: var(--blue);
+  cursor: pointer;
+  transition: all .15s;
+}
+.img-insert-btn:hover { background: rgba(15,158,213,.16); }
+.img-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: .85rem;
+  transition: all .15s;
+}
+.img-remove-btn:hover {
+  background: rgba(220,38,38,.08);
+  border-color: rgba(220,38,38,.25);
+  color: #DC2626;
+}
+
+/* Upload row */
+.img-upload-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--off);
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.img-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--font-head);
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--navy);
+  cursor: pointer;
+  transition: all .15s;
+  user-select: none;
+}
+.img-upload-btn:hover:not(.uploading) {
+  background: var(--off);
+  border-color: var(--blue);
+  color: var(--blue);
+}
+.img-upload-btn.uploading {
+  opacity: .55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+/* Hide the actual file input visually */
+.img-upload-btn input[type="file"] {
+  display: none;
+}
+.img-upload-status {
+  font-size: .8rem;
+  color: var(--muted);
+}
+.img-upload-status.error { color: #DC2626; }

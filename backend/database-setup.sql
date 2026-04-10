@@ -114,3 +114,27 @@ CREATE POLICY "Authenticated can update news" ON news_articles
 -- Authenticated admins can delete articles
 CREATE POLICY "Authenticated can delete news" ON news_articles
   FOR DELETE TO authenticated USING (true);
+
+-- ──────────────────────────────────────────────────────────────
+-- ADMIN DASHBOARD — Stage 3.5: News Images
+-- Run in Supabase SQL Editor
+-- ──────────────────────────────────────────────────────────────
+
+-- Add images column to store uploaded image URLs and captions as JSON
+ALTER TABLE news_articles
+  ADD COLUMN IF NOT EXISTS images JSONB DEFAULT '[]';
+
+-- Create a "news-images" storage bucket in Supabase Storage (public bucket),
+-- then run these policies:
+
+-- Authenticated admins can upload images
+CREATE POLICY "news-images authenticated upload" ON storage.objects
+  FOR INSERT TO authenticated WITH CHECK (bucket_id = 'news-images');
+
+-- Anyone can read news images (they appear on the public article page)
+CREATE POLICY "news-images public read" ON storage.objects
+  FOR SELECT USING (bucket_id = 'news-images');
+
+-- Authenticated admins can delete images
+CREATE POLICY "news-images authenticated delete" ON storage.objects
+  FOR DELETE TO authenticated USING (bucket_id = 'news-images');

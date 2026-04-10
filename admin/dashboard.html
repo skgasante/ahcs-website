@@ -320,9 +320,27 @@
                   <textarea id="nfSummary" rows="3" placeholder="A short description shown on the news listing page…"></textarea>
                 </div>
                 <div class="editor-field">
-                  <label for="nfBody">Article Body <span class="field-hint">— separate paragraphs with a blank line</span></label>
-                  <textarea id="nfBody" rows="14" placeholder="Write the full article here…&#10;&#10;Use a blank line between paragraphs."></textarea>
+                  <label for="nfBody">Article Body <span class="field-hint">— blank line between paragraphs; type <code>[img:0]</code> on its own line to embed an image</span></label>
+                  <textarea id="nfBody" rows="14" placeholder="Write the full article here…&#10;&#10;Use a blank line between paragraphs.&#10;&#10;Place [img:0] on its own line where you want the first image to appear, [img:1] for the second, and so on."></textarea>
                 </div>
+
+                <!-- ── Images panel ─────────────────────────────── -->
+                <div class="editor-field">
+                  <label>Images <span class="field-hint">— upload images, then click “Insert in body” to place each one, or type <code>[img:N]</code> manually. Add a caption per image.</span></label>
+                  <div class="img-upload-area">
+                    <div class="img-list" id="nfImgList">
+                      <p class="img-list-empty">No images yet. Click “Add Image” below to upload one.</p>
+                    </div>
+                    <div class="img-upload-row">
+                      <label class="img-upload-btn" id="nfImgUploadLabel">
+                        <i class="fa-solid fa-image"></i> Add Image
+                        <input type="file" id="nfImgInput" accept="image/jpeg,image/png,image/gif,image/webp" />
+                      </label>
+                      <span class="img-upload-status" id="nfImgStatus"></span>
+                    </div>
+                  </div>
+                </div>
+
                 <div class="editor-field">
                   <label>Status</label>
                   <div class="status-radio-group">
@@ -871,6 +889,114 @@
         btn.addEventListener('click', () => deleteArticle(btn.dataset.id, btn.dataset.title)));
     }
 
+    // ── Image management ─────────────────────────────────
+    let nfImages = [];
+
+    async function uploadNewsImage(file) {
+      const ext      = file.name.split('.').pop().toLowerCase();
+      const filename = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabaseClient.storage
+        .from('news-images')
+        .upload(filename, file, { contentType: file.type, upsert: false });
+      if (error) throw error;
+      const { data: { publicUrl } } = supabaseClient.storage
+        .from('news-images')
+        .getPublicUrl(filename);
+      return publicUrl;
+    }
+
+    function renderImgList() {
+      const list = document.getElementById('nfImgList');
+      if (!list) return;
+      if (nfImages.length === 0) {
+        list.innerHTML = '<p class="img-list-empty">No images yet. Click “Add Image” below to upload one.</p>';
+        return;
+      }
+      list.innerHTML = nfImages.map((img, i) => `
+        <div class="img-item">
+          <img class="img-thumb" src="${esc(img.url)}" alt="" loading="lazy" />
+          <div class="img-item-info">
+            <span class="img-marker-badge">[img:${i}]</span>
+            <input class="img-caption-input" type="text" value="${esc(img.caption || '')}"
+              placeholder="Caption (optional)…" data-idx="${i}" />
+            <div class="img-item-actions">
+              <button type="button" class="img-insert-btn" data-idx="${i}">
+                <i class="fa-solid fa-arrow-turn-down-right"></i> Insert in body
+              </button>
+              <button type="button" class="img-remove-btn" data-idx="${i}" title="Remove">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      list.querySelectorAll('.img-caption-input').forEach(inp => {
+        inp.addEventListener('input', () => { nfImages[+inp.dataset.idx].caption = inp.value; });
+      });
+      list.querySelectorAll('.img-insert-btn').forEach(btn => {
+        btn.addEventListener('click', () => insertImgMarker(+btn.dataset.idx));
+      });
+      list.querySelectorAll('.img-remove-btn').forEach(btn => {
+        btn.addEventListener('click', () => removeNewsImage(+btn.dataset.idx));
+      });
+    }
+
+    function insertImgMarker(idx) {
+      const ta     = document.getElementById('nfBody');
+      const marker = `\n\n[img:${idx}]\n\n`;
+      const start  = ta.selectionStart;
+      const end    = ta.selectionEnd;
+      ta.value = ta.value.slice(0, start) + marker + ta.value.slice(end);
+      ta.selectionStart = ta.selectionEnd = start + marker.length;
+      ta.focus();
+    }
+
+    function removeNewsImage(idx) {
+      const ta = document.getElementById('nfBody');
+      // Replace target marker with a temporary placeholder (avoids regex collisions)
+      ta.value = ta.value.replace(new RegExp(`\\[img:${idx}\\]`, 'g'), '__IMG_REMOVED__');
+      // Decrement all higher markers
+      for (let j = idx + 1; j < nfImages.length; j++) {
+        ta.value = ta.value.replace(new RegExp(`\\[img:${j}\\]`, 'g'), `[img:${j - 1}]`);
+      }
+      ta.value = ta.value.replace(/__IMG_REMOVED__/g, '');
+      nfImages.splice(idx, 1);
+      renderImgList();
+    }
+
+    document.getElementById('nfImgInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowed.includes(file.type)) {
+        document.getElementById('nfImgStatus').textContent = 'Only JPEG, PNG, GIF, or WebP supported.';
+        e.target.value = ''; return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        document.getElementById('nfImgStatus').textContent = 'Image must be under 5 MB.';
+        e.target.value = ''; return;
+      }
+      const statusEl    = document.getElementById('nfImgStatus');
+      const uploadLabel = document.getElementById('nfImgUploadLabel');
+      statusEl.textContent = 'Uploading…';
+      statusEl.className   = 'img-upload-status';
+      uploadLabel.classList.add('uploading');
+      try {
+        const url = await uploadNewsImage(file);
+        nfImages.push({ url, caption: '' });
+        renderImgList();
+        insertImgMarker(nfImages.length - 1);
+        statusEl.textContent = '';
+      } catch (err) {
+        statusEl.textContent = 'Upload failed: ' + (err.message || err);
+        statusEl.className   = 'img-upload-status error';
+      } finally {
+        uploadLabel.classList.remove('uploading');
+        e.target.value = '';
+      }
+    });
+
     // ── Open / close form ──────────────────────────────────
     function openNewsForm(id = null) {
       document.getElementById('newsFormError').classList.add('hidden');
@@ -887,12 +1013,16 @@
         document.getElementById('nfBody').value     = r.body        || '';
         const statusVal = (r.status === 'published') ? 'published' : 'draft';
         document.querySelector(`input[name="nfStatus"][value="${statusVal}"]`).checked = true;
+        nfImages = Array.isArray(r.images) ? r.images.map(img => ({ ...img })) : [];
+        renderImgList();
       } else {
         document.getElementById('newsFormHeading').textContent  = 'New Article';
         document.getElementById('newsFormSubtitle').textContent = 'Fill in the details below and save when ready.';
         document.getElementById('newsArticleForm').reset();
         document.getElementById('nfId').value = '';
         document.querySelector('input[name="nfStatus"][value="draft"]').checked = true;
+        nfImages = [];
+        renderImgList();
       }
       hide('newsListView');
       show('newsFormView');
@@ -942,6 +1072,7 @@
         summary:      summary   || null,
         body:         body      || null,
         status,
+        images:       nfImages,
       };
 
       let error;

@@ -95,6 +95,21 @@
       color: var(--navy);
     }
     .article-body br { line-height: 1.85; }
+    figure.article-figure { margin: 32px 0; }
+    figure.article-figure img {
+      width: 100%;
+      border-radius: var(--radius);
+      display: block;
+      max-height: 520px;
+      object-fit: cover;
+    }
+    figure.article-figure figcaption {
+      font-size: .82rem;
+      color: #6B7280;
+      margin-top: 8px;
+      text-align: center;
+      font-style: italic;
+    }
 
     /* ── Category icon banner ── */
     .article-icon-banner {
@@ -215,14 +230,27 @@
         .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
 
-    // ── Render body: double newlines → paragraphs ──────────────
-    function renderBody(text) {
+    // ── Render body: double newlines → paragraphs, [img:N] → figures ──
+    function renderBody(text, images) {
       if (!text) return '';
+      const imgs = Array.isArray(images) ? images : [];
       return text
         .split(/\n\n+/)
-        .map(para => {
-          const lines = para.trim().replace(/\n/g, '<br>');
-          return lines ? `<p>${lines}</p>` : '';
+        .map(block => {
+          const trimmed = block.trim();
+          if (!trimmed) return '';
+          const imgMatch = trimmed.match(/^\[img:(\d+)\]$/);
+          if (imgMatch) {
+            const idx = parseInt(imgMatch[1], 10);
+            const img = imgs[idx];
+            if (!img) return '';
+            const caption = img.caption
+              ? `<figcaption>${esc(img.caption)}</figcaption>`
+              : '';
+            return `<figure class="article-figure"><img src="${esc(img.url)}" alt="${esc(img.caption || '')}" loading="lazy" />${caption}</figure>`;
+          }
+          const lines = trimmed.replace(/\n/g, '<br>');
+          return `<p>${lines}</p>`;
         })
         .filter(Boolean)
         .join('\n');
@@ -294,7 +322,7 @@
             <div class="article-icon-banner ${cs.cls}">
               <i class="fa-solid ${cs.icon}"></i>
             </div>
-            ${renderBody(data.body)}
+            ${renderBody(data.body, data.images)}
             <p style="margin-top:40px;">
               <a href="news.html" style="color:var(--blue);font-weight:700;">
                 <i class="fa-solid fa-arrow-left"></i> Back to all news
