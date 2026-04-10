@@ -1483,7 +1483,8 @@
         .from('vacancies')
         .select('id,title,department,type,description')
         .eq('status', 'open')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(3);
 
       if (error || !data || data.length === 0) {
         vacGrid.innerHTML = '<p style="text-align:center;color:#6B7280;padding:24px 0;">No open positions at the moment. Check back soon.</p>';

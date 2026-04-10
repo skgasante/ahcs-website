@@ -175,3 +175,31 @@ CREATE POLICY "Authenticated can update vacancies" ON vacancies
 -- Authenticated admins can delete vacancies
 CREATE POLICY "Authenticated can delete vacancies" ON vacancies
   FOR DELETE TO authenticated USING (true);
+
+-- ──────────────────────────────────────────────────────────────
+-- ADMIN DASHBOARD — Stage 4: Seed Vacancies
+-- Run in Supabase SQL Editor to populate the initial vacancies
+-- ──────────────────────────────────────────────────────────────
+
+INSERT INTO vacancies (title, department, type, description, status) VALUES
+  (
+    'Primary Class Teacher',
+    'Teaching',
+    'Full-Time',
+    'Lead a class of young learners with engaging lessons, strong classroom management, and a nurturing approach that brings out the best in every child.',
+    'open'
+  ),
+  (
+    'School Administrator',
+    'Administration',
+    'Full-Time',
+    'Support daily office operations, coordinate admissions paperwork, and maintain clear communication between parents, staff, and leadership.',
+    'open'
+  ),
+  (
+    'ICT / Coding Coach',
+    'Enrichment',
+    'Part-Time',
+    'Deliver after-school technology sessions that spark curiosity, develop coding skills, and build digital confidence in our pupils.',
+    'open'
+  );
