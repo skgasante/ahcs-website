@@ -517,11 +517,6 @@
         supabaseClient.from('job_applications').select('id',    { count: 'exact', head: true }),
         supabaseClient.from('news_articles').select('id',       { count: 'exact', head: true }),
       ]);
-      const [admRes, jobRes, newsRes] = await Promise.all([
-        supabaseClient.from('admission_enquiries').select('id', { count: 'exact', head: true }),
-        supabaseClient.from('job_applications').select('id',    { count: 'exact', head: true }),
-        supabaseClient.from('news_articles').select('id',       { count: 'exact', head: true }),
-      ]);
       document.getElementById('statAdmissions').textContent = admRes.count ?? '—';
       document.getElementById('statJobs').textContent       = jobRes.count ?? '—';
       document.getElementById('statNews').textContent       = newsRes.count ?? '—';
