@@ -55,10 +55,10 @@ router.post('/', async (req, res) => {
       });
 
     if (uploadError) {
-      console.error('File upload error:', uploadError);
+      console.error('File upload error (full):', JSON.stringify(uploadError));
       return res.status(500).json({
         success: false,
-        message: `Failed to upload CV file: ${uploadError.message || uploadError}`
+        message: `Failed to upload CV file: ${uploadError.message} (status: ${uploadError.statusCode || uploadError.status || 'unknown'})`
       });
     }
 
