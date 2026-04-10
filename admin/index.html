@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — Annan House Community School</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    :root {
+      --blue:   #0F9ED5;
+      --orange: #E97132;
+      --green:  #196B24;
+      --purple: #7B4FAF;
+      --navy:   #0E2841;
+      --white:  #FFFFFF;
+      --off:    #F8F9FA;
+      --muted:  #6B7280;
+      --border: #E5E7EB;
+      --grad: linear-gradient(90deg,
+        #7B4FAF 0%, #0F9ED5 25%, #196B24 50%, #F5C842 75%, #E97132 100%);
+      --font-head: 'Plus Jakarta Sans', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --radius: 12px;
+      --shadow: 0 4px 24px rgba(14,40,65,.10);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      color: var(--navy);
+      background: var(--off);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Rainbow stripe ── */
+    .rainbow-stripe { height: 5px; background: var(--grad); flex-shrink: 0; }
+
+    /* ── Page layout ── */
+    .login-page {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    /* ── Card ── */
+    .login-card {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    /* ── Logo ── */
+    .login-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+    .logo-mark {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3px;
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+    }
+    .logo-mark span { border-radius: 3px; }
+    .logo-mark span:nth-child(1) { background: var(--purple); }
+    .logo-mark span:nth-child(2) { background: var(--green); }
+    .logo-mark span:nth-child(3) { background: var(--orange); }
+    .logo-mark span:nth-child(4) { background: var(--blue); }
+    .login-logo-text {
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: .95rem;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+    .login-logo-text small {
+      display: block;
+      font-size: .65rem;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    /* ── Headings ── */
+    .login-heading {
+      font-family: var(--font-head);
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .login-sub {
+      font-size: .875rem;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    /* ── Form ── */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      font-family: var(--font-head);
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+    .input-wrap {
+      position: relative;
+    }
+    .input-wrap i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: .85rem;
+      pointer-events: none;
+    }
+    .input-wrap input {
+      width: 100%;
+      padding: 11px 14px 11px 38px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: var(--font-body);
+      font-size: .9rem;
+      color: var(--navy);
+      background: var(--white);
+      transition: border-color .2s, box-shadow .2s;
+      outline: none;
+    }
+    .input-wrap input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(15,158,213,.12);
+    }
+    .input-wrap input::placeholder { color: #B0B8C1; }
+
+    /* Password toggle */
+    .toggle-pw {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: .85rem;
+      padding: 4px;
+      transition: color .2s;
+    }
+    .toggle-pw:hover { color: var(--navy); }
+
+    /* ── Error alert ── */
+    .alert-error {
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: .85rem;
+      color: #DC2626;
+    }
+    .alert-error.show { display: flex; }
+    .alert-error i { font-size: .9rem; margin-top: 1px; flex-shrink: 0; }
+
+    /* ── Submit button ── */
+    .btn-login {
+      width: 100%;
+      padding: 13px 20px;
+      background: var(--blue);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: .95rem;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .btn-login:hover:not(:disabled) { background: var(--navy); }
+    .btn-login:active:not(:disabled) { transform: scale(.98); }
+    .btn-login:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,.35);
+      border-top-color: var(--white);
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      display: none;
+    }
+    .btn-login.loading .spinner { display: block; }
+    .btn-login.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Footer note ── */
+    .login-footer-note {
+      text-align: center;
+      margin-top: 24px;
+      font-size: .78rem;
+      color: var(--muted);
+    }
+    .login-footer-note a {
+      color: var(--blue);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .login-footer-note a:hover { text-decoration: underline; }
+
+    /* ── Bottom bar ── */
+    .bottom-bar {
+      text-align: center;
+      padding: 16px 20px;
+      font-size: .75rem;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <div class="rainbow-stripe"></div>
+
+  <main class="login-page">
+    <div class="login-card">
+
+      <!-- Logo -->
+      <div class="login-logo">
+        <div class="logo-mark">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="login-logo-text">
+          Annan House<br>Community School
+          <small>Admin Portal</small>
+        </div>
+      </div>
+
+      <h1 class="login-heading">Sign in</h1>
+      <p class="login-sub">Enter your admin credentials to continue.</p>
+
+      <!-- Error alert -->
+      <div class="alert-error" id="errorAlert" role="alert">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="errorMsg">Invalid email or password. Please try again.</span>
+      </div>
+
+      <!-- Login form -->
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="email">Email address</label>
+          <div class="input-wrap">
+            <i class="fa-regular fa-envelope"></i>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="you@ahcs.edu"
+              autocomplete="email"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <i class="fa-solid fa-lock"></i>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              required
+            />
+            <button type="button" class="toggle-pw" id="togglePw" aria-label="Toggle password visibility">
+              <i class="fa-regular fa-eye" id="togglePwIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-login" id="loginBtn">
+          <div class="spinner"></div>
+          <span class="btn-text">Sign in <i class="fa-solid fa-arrow-right" style="font-size:.8rem"></i></span>
+        </button>
+      </form>
+
+      <p class="login-footer-note">
+        Forgotten your password?
+        <a href="#" id="resetLink">Request a reset</a>
+      </p>
+    </div>
+  </main>
+
+  <div class="bottom-bar">
+    &copy; 2026 Annan House Community School &mdash; Restricted access
+  </div>
+
+  <!-- Supabase JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Admin Supabase config -->
+  <script src="config.js"></script>
+  <script>
+    // ── Redirect if already logged in ──────────────────────────
+    (async () => {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (session) window.location.replace('dashboard.html');
+    })();
+
+    // ── Password toggle ────────────────────────────────────────
+    const togglePw   = document.getElementById('togglePw');
+    const toggleIcon = document.getElementById('togglePwIcon');
+    const pwInput    = document.getElementById('password');
+
+    togglePw.addEventListener('click', () => {
+      const isHidden = pwInput.type === 'password';
+      pwInput.type       = isHidden ? 'text' : 'password';
+      toggleIcon.className = isHidden
+        ? 'fa-regular fa-eye-slash'
+        : 'fa-regular fa-eye';
+    });
+
+    // ── Login form submit ──────────────────────────────────────
+    const loginForm  = document.getElementById('loginForm');
+    const loginBtn   = document.getElementById('loginBtn');
+    const errorAlert = document.getElementById('errorAlert');
+    const errorMsg   = document.getElementById('errorMsg');
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorAlert.classList.add('show');
+    }
+    function hideError() {
+      errorAlert.classList.remove('show');
+    }
+    function setLoading(on) {
+      loginBtn.disabled = on;
+      loginBtn.classList.toggle('loading', on);
+    }
+
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+
+      const email    = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        showError('Please enter both your email address and password.');
+        return;
+      }
+
+      setLoading(true);
+
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      setLoading(false);
+
+      if (error) {
+        showError(error.message || 'Sign-in failed. Please try again.');
+        return;
+      }
+
+      // Success — go to dashboard
+      window.location.replace('dashboard.html');
+    });
+
+    // ── Password reset ─────────────────────────────────────────
+    document.getElementById('resetLink').addEventListener('click', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      if (!email) {
+        showError('Enter your email address above, then click "Request a reset".');
+        return;
+      }
+      hideError();
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+      if (error) {
+        showError(error.message);
+      } else {
+        errorAlert.style.background   = '#F0FDF4';
+        errorAlert.style.borderColor  = '#BBF7D0';
+        errorAlert.style.color        = '#166534';
+        errorAlert.querySelector('i').className = 'fa-solid fa-circle-check';
+        errorMsg.textContent = 'Reset email sent — check your inbox.';
+        errorAlert.classList.add('show');
+      }
+    });
+  </script>
+</body>
+</html>

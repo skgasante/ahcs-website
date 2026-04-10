@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — AHCS Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+  <!-- Mobile sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="admin-shell">
+
+    <!-- ══ SIDEBAR ══════════════════════════════════════════════ -->
+    <aside class="sidebar" id="sidebar">
+
+      <!-- Brand -->
+      <div class="sidebar-brand">
+        <div class="logo-mark">
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="sidebar-brand-text">
+          Annan House<br>Community School
+          <small>Admin Portal</small>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="sidebar-nav" aria-label="Admin navigation">
+
+        <div class="nav-section-label">Main</div>
+
+        <button class="nav-item active" data-section="overview">
+          <i class="fa-solid fa-gauge-high"></i>
+          Overview
+        </button>
+
+        <button class="nav-item" data-section="admissions">
+          <i class="fa-solid fa-user-plus"></i>
+          Admissions Enquiries
+        </button>
+
+        <button class="nav-item" data-section="jobs">
+          <i class="fa-solid fa-briefcase"></i>
+          Job Applications
+        </button>
+
+        <div class="nav-section-label">Content</div>
+
+        <button class="nav-item" data-section="news">
+          <i class="fa-solid fa-newspaper"></i>
+          News
+        </button>
+
+        <button class="nav-item" data-section="vacancies">
+          <i class="fa-solid fa-clipboard-list"></i>
+          Vacancies
+        </button>
+
+        <button class="nav-item" data-section="gallery">
+          <i class="fa-solid fa-images"></i>
+          Gallery
+        </button>
+
+        <div class="nav-section-label">System</div>
+
+        <button class="nav-item" data-section="settings">
+          <i class="fa-solid fa-gear"></i>
+          Settings
+        </button>
+
+      </nav>
+
+      <!-- Footer: user info + logout -->
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">?</div>
+          <div class="user-details">
+            <div class="user-email" id="userEmail">Loading…</div>
+            <div class="user-role">Administrator</div>
+          </div>
+        </div>
+        <button class="btn-logout" id="logoutBtn">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          Sign out
+        </button>
+      </div>
+
+    </aside>
+    <!-- /SIDEBAR -->
+
+    <!-- ══ MAIN WRAP ═════════════════════════════════════════════ -->
+    <div class="main-wrap">
+
+      <!-- Top bar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle sidebar">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <span class="topbar-title" id="topbarTitle">Overview</span>
+        </div>
+        <div class="topbar-right">
+          <span class="topbar-badge">
+            <i class="fa-regular fa-calendar" style="margin-right:5px"></i>
+            <span id="topbarDate"></span>
+          </span>
+        </div>
+      </header>
+
+      <!-- Content area -->
+      <main class="content-area">
+
+        <!-- ── Overview ───────────────────────────────────────── -->
+        <section class="section-panel active" id="section-overview">
+          <div class="section-header">
+            <h2>Overview</h2>
+            <p>Welcome back. Here's a summary of recent activity.</p>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-card-icon blue"><i class="fa-solid fa-user-plus"></i></div>
+              <div class="stat-value" id="statAdmissions">—</div>
+              <div class="stat-label">Admissions Enquiries</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-icon orange"><i class="fa-solid fa-briefcase"></i></div>
+              <div class="stat-value" id="statJobs">—</div>
+              <div class="stat-label">Job Applications</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-icon green"><i class="fa-solid fa-newspaper"></i></div>
+              <div class="stat-value" id="statNews">—</div>
+              <div class="stat-label">News Articles</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-icon purple"><i class="fa-solid fa-images"></i></div>
+              <div class="stat-value" id="statGallery">—</div>
+              <div class="stat-label">Gallery Items</div>
+            </div>
+          </div>
+
+          <div class="placeholder-card">
+            <i class="fa-solid fa-chart-line"></i>
+            <h3>Recent activity coming soon</h3>
+            <p>Detailed charts and activity feeds will appear here in a future stage.</p>
+          </div>
+        </section>
+
+        <!-- ── Admissions Enquiries ───────────────────────────── -->
+        <section class="section-panel" id="section-admissions">
+          <div class="section-header">
+            <h2>Admissions Enquiries</h2>
+            <p>View and manage enquiries submitted through the website.</p>
+          </div>
+          <div class="placeholder-card">
+            <i class="fa-solid fa-user-plus"></i>
+            <h3>Coming in a future stage</h3>
+            <p>Admissions enquiries submitted via the public form will be listed and managed here.</p>
+          </div>
+        </section>
+
+        <!-- ── Job Applications ──────────────────────────────── -->
+        <section class="section-panel" id="section-jobs">
+          <div class="section-header">
+            <h2>Job Applications</h2>
+            <p>Review applications submitted for advertised vacancies.</p>
+          </div>
+          <div class="placeholder-card">
+            <i class="fa-solid fa-briefcase"></i>
+            <h3>Coming in a future stage</h3>
+            <p>Job applications with CV downloads and status tracking will be available here.</p>
+          </div>
+        </section>
+
+        <!-- ── News ─────────────────────────────────────────── -->
+        <section class="section-panel" id="section-news">
+          <div class="section-header">
+            <h2>News</h2>
+            <p>Create, edit, and publish school news articles.</p>
+          </div>
+          <div class="placeholder-card">
+            <i class="fa-solid fa-newspaper"></i>
+            <h3>Coming in a future stage</h3>
+            <p>A news editor for creating and managing articles will be built here.</p>
+          </div>
+        </section>
+
+        <!-- ── Vacancies ─────────────────────────────────────── -->
+        <section class="section-panel" id="section-vacancies">
+          <div class="section-header">
+            <h2>Vacancies</h2>
+            <p>Add and manage job vacancies displayed on the public site.</p>
+          </div>
+          <div class="placeholder-card">
+            <i class="fa-solid fa-clipboard-list"></i>
+            <h3>Coming in a future stage</h3>
+            <p>Vacancy listings with rich text editing and publish/unpublish controls will appear here.</p>
+          </div>
+        </section>
+
+        <!-- ── Gallery ──────────────────────────────────────── -->
+        <section class="section-panel" id="section-gallery">
+          <div class="section-header">
+            <h2>Gallery</h2>
+            <p>Upload and organise school photos and albums.</p>
+          </div>
+          <div class="placeholder-card">
+            <i class="fa-solid fa-images"></i>
+            <h3>Coming in a future stage</h3>
+            <p>Image upload, album organisation, and gallery management will be built here.</p>
+          </div>
+        </section>
+
+        <!-- ── Settings ──────────────────────────────────────── -->
+        <section class="section-panel" id="section-settings">
+          <div class="section-header">
+            <h2>Settings</h2>
+            <p>Manage your account and site configuration.</p>
+          </div>
+          <div class="placeholder-card">
+            <i class="fa-solid fa-gear"></i>
+            <h3>Coming in a future stage</h3>
+            <p>Account settings, password management, and site configuration options will appear here.</p>
+          </div>
+        </section>
+
+      </main>
+      <!-- /content-area -->
+
+    </div>
+    <!-- /main-wrap -->
+
+  </div>
+  <!-- /admin-shell -->
+
+  <!-- Supabase JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Admin Supabase config -->
+  <script src="config.js"></script>
+  <script>
+    // ═══════════════════════════════════════════════════════
+    // AUTH GUARD — must run immediately
+    // ═══════════════════════════════════════════════════════
+    (async () => {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) {
+        window.location.replace('index.html');
+      }
+    })();
+
+    // ═══════════════════════════════════════════════════════
+    // Listen for auth state changes (e.g. token expiry)
+    // ═══════════════════════════════════════════════════════
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        window.location.replace('index.html');
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // Populate user info in sidebar
+    // ═══════════════════════════════════════════════════════
+    async function loadUser() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) return;
+
+      const email  = user.email || '';
+      const initials = email
+        .split('@')[0]
+        .replace(/[^a-zA-Z]/g, '')
+        .slice(0, 2)
+        .toUpperCase() || '?';
+
+      document.getElementById('userEmail').textContent  = email;
+      document.getElementById('userAvatar').textContent = initials;
+    }
+    loadUser();
+
+    // ═══════════════════════════════════════════════════════
+    // Topbar date
+    // ═══════════════════════════════════════════════════════
+    document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-GB', {
+      weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // Sidebar navigation
+    // ═══════════════════════════════════════════════════════
+    const sectionTitles = {
+      overview:   'Overview',
+      admissions: 'Admissions Enquiries',
+      jobs:       'Job Applications',
+      news:       'News',
+      vacancies:  'Vacancies',
+      gallery:    'Gallery',
+      settings:   'Settings',
+    };
+
+    const navItems    = document.querySelectorAll('.nav-item[data-section]');
+    const panels      = document.querySelectorAll('.section-panel');
+    const topbarTitle = document.getElementById('topbarTitle');
+
+    function switchSection(sectionId) {
+      // Update nav items
+      navItems.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.section === sectionId);
+      });
+      // Update panels
+      panels.forEach(panel => {
+        panel.classList.toggle('active', panel.id === `section-${sectionId}`);
+      });
+      // Update topbar title
+      topbarTitle.textContent = sectionTitles[sectionId] || sectionId;
+      // Close mobile sidebar
+      closeSidebar();
+    }
+
+    navItems.forEach(btn => {
+      btn.addEventListener('click', () => switchSection(btn.dataset.section));
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // Mobile sidebar toggle
+    // ═══════════════════════════════════════════════════════
+    const sidebar        = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const hamburgerBtn   = document.getElementById('hamburgerBtn');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      sidebarOverlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      sidebarOverlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    hamburgerBtn.addEventListener('click', () => {
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+    sidebarOverlay.addEventListener('click', closeSidebar);
+
+    // ═══════════════════════════════════════════════════════
+    // Logout
+    // ═══════════════════════════════════════════════════════
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabaseClient.auth.signOut();
+      window.location.replace('index.html');
+    });
+  </script>
+</body>
+</html>
