@@ -235,15 +235,121 @@
 
         <!-- ── News ─────────────────────────────────────────── -->
         <section class="section-panel" id="section-news">
-          <div class="section-header">
-            <h2>News</h2>
-            <p>Create, edit, and publish school news articles.</p>
+
+          <!-- List view -->
+          <div id="newsListView">
+            <div class="section-header section-header-flex">
+              <div>
+                <h2>News</h2>
+                <p>Create, edit, and publish school news articles.</p>
+              </div>
+              <button class="btn-primary-action" id="btnNewArticle">
+                <i class="fa-solid fa-plus"></i> New Article
+              </button>
+            </div>
+            <div class="table-toolbar">
+              <span class="record-count" id="newsCount"></span>
+              <button class="toolbar-btn" id="refreshNews">
+                <i class="fa-solid fa-rotate-right"></i> Refresh
+              </button>
+            </div>
+            <div class="table-loading" id="newsLoading">
+              <div class="tbl-spinner"></div>
+              <span>Loading articles&hellip;</span>
+            </div>
+            <div class="table-empty hidden" id="newsEmpty">
+              <i class="fa-solid fa-newspaper"></i>
+              <p>No articles yet. Click <strong>New Article</strong> to get started.</p>
+            </div>
+            <div class="table-wrap hidden" id="newsTableWrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="newsTbody"></tbody>
+              </table>
+            </div>
           </div>
-          <div class="placeholder-card">
-            <i class="fa-solid fa-newspaper"></i>
-            <h3>Coming in a future stage</h3>
-            <p>A news editor for creating and managing articles will be built here.</p>
+
+          <!-- Form view -->
+          <div id="newsFormView" class="hidden">
+            <div class="section-header section-header-flex">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <button class="btn-icon-back" id="btnBackNews" aria-label="Back to list">
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div>
+                  <h2 id="newsFormHeading">New Article</h2>
+                  <p id="newsFormSubtitle">Fill in the details below and save when ready.</p>
+                </div>
+              </div>
+            </div>
+            <div class="article-editor-card">
+              <form id="newsArticleForm" novalidate>
+                <input type="hidden" id="nfId" />
+                <div class="editor-field">
+                  <label for="nfTitle">Title <span class="field-req">*</span></label>
+                  <input type="text" id="nfTitle" placeholder="e.g. End of Term Awards Ceremony" required />
+                </div>
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="nfCategory">Category</label>
+                    <select id="nfCategory">
+                      <option value="">— Select —</option>
+                      <option value="Announcement">Announcement</option>
+                      <option value="Sports">Sports</option>
+                      <option value="Events">Events</option>
+                      <option value="Academic">Academic</option>
+                      <option value="Community">Community</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  <div class="editor-field">
+                    <label for="nfDate">Date</label>
+                    <input type="text" id="nfDate" placeholder="e.g. April 2026" />
+                  </div>
+                </div>
+                <div class="editor-field">
+                  <label for="nfSummary">Summary <span class="field-hint">— short teaser shown on the news listing</span></label>
+                  <textarea id="nfSummary" rows="3" placeholder="A short description shown on the news listing page…"></textarea>
+                </div>
+                <div class="editor-field">
+                  <label for="nfBody">Article Body <span class="field-hint">— separate paragraphs with a blank line</span></label>
+                  <textarea id="nfBody" rows="14" placeholder="Write the full article here…&#10;&#10;Use a blank line between paragraphs."></textarea>
+                </div>
+                <div class="editor-field">
+                  <label>Status</label>
+                  <div class="status-radio-group">
+                    <label class="status-radio-option">
+                      <input type="radio" name="nfStatus" value="draft" checked />
+                      <span class="radio-pill pill-draft">Draft</span>
+                    </label>
+                    <label class="status-radio-option">
+                      <input type="radio" name="nfStatus" value="published" />
+                      <span class="radio-pill pill-published">Published</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="editor-actions">
+                  <div class="editor-error hidden" id="newsFormError"></div>
+                  <div class="editor-btns">
+                    <button type="button" class="btn-editor-cancel" id="btnCancelForm">Cancel</button>
+                    <button type="submit" class="btn-editor-save" id="btnSaveArticle">
+                      <span class="btn-label">Save Article</span>
+                      <div class="btn-spinner hidden"></div>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
+
         </section>
 
         <!-- ── Vacancies ─────────────────────────────────────── -->
@@ -391,6 +497,8 @@
       'offer made':        'badge-green',
       'declined':          'badge-red',
       'rejected':          'badge-red',
+      'published':         'badge-green',
+      'draft':             'badge-muted',
     };
 
     function statusBadge(status) {
@@ -404,13 +512,19 @@
     // OVERVIEW STATS
     // ═══════════════════════════════════════════════════════
     async function loadOverviewStats() {
-      const [admRes, jobRes] = await Promise.all([
+      const [admRes, jobRes, newsRes] = await Promise.all([
         supabaseClient.from('admission_enquiries').select('id', { count: 'exact', head: true }),
         supabaseClient.from('job_applications').select('id',    { count: 'exact', head: true }),
+        supabaseClient.from('news_articles').select('id',       { count: 'exact', head: true }),
+      ]);
+      const [admRes, jobRes, newsRes] = await Promise.all([
+        supabaseClient.from('admission_enquiries').select('id', { count: 'exact', head: true }),
+        supabaseClient.from('job_applications').select('id',    { count: 'exact', head: true }),
+        supabaseClient.from('news_articles').select('id',       { count: 'exact', head: true }),
       ]);
       document.getElementById('statAdmissions').textContent = admRes.count ?? '—';
       document.getElementById('statJobs').textContent       = jobRes.count ?? '—';
-      document.getElementById('statNews').textContent       = '—';
+      document.getElementById('statNews').textContent       = newsRes.count ?? '—';
       document.getElementById('statGallery').textContent    = '—';
     }
     loadOverviewStats();
@@ -690,6 +804,208 @@
     });
 
     // ═══════════════════════════════════════════════════════
+    // NEWS MANAGEMENT
+    // ═══════════════════════════════════════════════════════
+    let newsData   = [];
+    let newsLoaded = false;
+
+    async function loadNews() {
+      newsLoaded = false;
+      show('newsLoading'); hide('newsTableWrap'); hide('newsEmpty');
+      document.getElementById('newsCount').textContent = '';
+
+      const { data, error } = await supabaseClient
+        .from('news_articles')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      hide('newsLoading');
+
+      if (error) {
+        document.getElementById('newsCount').textContent = 'Could not load articles — check RLS policies.';
+        console.error('News load error:', error);
+        return;
+      }
+
+      newsData   = data || [];
+      newsLoaded = true;
+      syncNewsCount();
+
+      if (newsData.length === 0) { show('newsEmpty'); return; }
+      renderNewsTable();
+      show('newsTableWrap');
+    }
+
+    function syncNewsCount() {
+      const n = newsData.length;
+      document.getElementById('newsCount').textContent = `${n} ${n === 1 ? 'article' : 'articles'}`;
+      document.getElementById('statNews').textContent  = n;
+    }
+
+    function renderNewsTable() {
+      const tbody = document.getElementById('newsTbody');
+      tbody.innerHTML = newsData.map(r => `
+        <tr>
+          <td class="td-bold" style="max-width:260px;">${esc(r.title)}</td>
+          <td>${r.category ? `<span class="year-pill">${esc(r.category)}</span>` : '<span class="muted-text">&mdash;</span>'}</td>
+          <td class="td-date">${esc(r.article_date || '—')}</td>
+          <td>${statusBadge(r.status === 'published' ? 'published' : 'draft')}</td>
+          <td>
+            <div class="row-actions">
+              <button class="btn-view btn-edit-art" data-id="${r.id}">
+                <i class="fa-solid fa-pen"></i> Edit
+              </button>
+              <button class="btn-toggle-status" data-id="${r.id}" data-status="${esc(r.status)}">
+                ${r.status === 'published'
+                  ? '<i class="fa-solid fa-eye-slash"></i> Unpublish'
+                  : '<i class="fa-solid fa-eye"></i> Publish'}
+              </button>
+              <button class="btn-delete-article" data-id="${r.id}" data-title="${esc(r.title)}">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+
+      tbody.querySelectorAll('.btn-edit-art').forEach(btn =>
+        btn.addEventListener('click', () => openNewsForm(btn.dataset.id)));
+      tbody.querySelectorAll('.btn-toggle-status').forEach(btn =>
+        btn.addEventListener('click', () => toggleArticleStatus(btn.dataset.id, btn.dataset.status)));
+      tbody.querySelectorAll('.btn-delete-article').forEach(btn =>
+        btn.addEventListener('click', () => deleteArticle(btn.dataset.id, btn.dataset.title)));
+    }
+
+    // ── Open / close form ──────────────────────────────────
+    function openNewsForm(id = null) {
+      document.getElementById('newsFormError').classList.add('hidden');
+      if (id) {
+        const r = newsData.find(x => x.id === id);
+        if (!r) return;
+        document.getElementById('newsFormHeading').textContent  = 'Edit Article';
+        document.getElementById('newsFormSubtitle').textContent = `Editing: ${r.title}`;
+        document.getElementById('nfId').value       = r.id;
+        document.getElementById('nfTitle').value    = r.title       || '';
+        document.getElementById('nfCategory').value = r.category    || '';
+        document.getElementById('nfDate').value     = r.article_date || '';
+        document.getElementById('nfSummary').value  = r.summary     || '';
+        document.getElementById('nfBody').value     = r.body        || '';
+        const statusVal = (r.status === 'published') ? 'published' : 'draft';
+        document.querySelector(`input[name="nfStatus"][value="${statusVal}"]`).checked = true;
+      } else {
+        document.getElementById('newsFormHeading').textContent  = 'New Article';
+        document.getElementById('newsFormSubtitle').textContent = 'Fill in the details below and save when ready.';
+        document.getElementById('newsArticleForm').reset();
+        document.getElementById('nfId').value = '';
+        document.querySelector('input[name="nfStatus"][value="draft"]').checked = true;
+      }
+      hide('newsListView');
+      show('newsFormView');
+    }
+
+    function closeNewsForm() {
+      hide('newsFormView');
+      show('newsListView');
+    }
+
+    document.getElementById('btnNewArticle').addEventListener('click', () => openNewsForm());
+    document.getElementById('btnBackNews').addEventListener('click', closeNewsForm);
+    document.getElementById('btnCancelForm').addEventListener('click', closeNewsForm);
+    document.getElementById('refreshNews').addEventListener('click', loadNews);
+
+    // ── Save article ───────────────────────────────────────
+    document.getElementById('newsArticleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl  = document.getElementById('newsFormError');
+      const saveBtn = document.getElementById('btnSaveArticle');
+      const spinner = saveBtn.querySelector('.btn-spinner');
+      const label   = saveBtn.querySelector('.btn-label');
+      errEl.classList.add('hidden');
+
+      const id       = document.getElementById('nfId').value;
+      const title    = document.getElementById('nfTitle').value.trim();
+      const category = document.getElementById('nfCategory').value;
+      const date     = document.getElementById('nfDate').value.trim();
+      const summary  = document.getElementById('nfSummary').value.trim();
+      const body     = document.getElementById('nfBody').value.trim();
+      const status   = document.querySelector('input[name="nfStatus"]:checked')?.value || 'draft';
+
+      if (!title) {
+        errEl.textContent = 'Please enter a title.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      saveBtn.disabled = true;
+      spinner.classList.remove('hidden');
+      label.style.display = 'none';
+
+      const payload = {
+        title,
+        category:     category  || null,
+        article_date: date      || null,
+        summary:      summary   || null,
+        body:         body      || null,
+        status,
+      };
+
+      let error;
+      if (id) {
+        const res = await supabaseClient.from('news_articles').update(payload).eq('id', id);
+        error = res.error;
+        if (!error) {
+          const idx = newsData.findIndex(x => x.id === id);
+          if (idx !== -1) newsData[idx] = { ...newsData[idx], ...payload };
+        }
+      } else {
+        const res = await supabaseClient.from('news_articles').insert([payload]).select();
+        error = res.error;
+        if (!error && res.data?.[0]) newsData.unshift(res.data[0]);
+      }
+
+      saveBtn.disabled = false;
+      spinner.classList.add('hidden');
+      label.style.display = '';
+
+      if (error) {
+        errEl.textContent = 'Save failed: ' + error.message;
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      syncNewsCount();
+      renderNewsTable();
+      show('newsTableWrap');
+      hide('newsEmpty');
+      closeNewsForm();
+    });
+
+    // ── Toggle published / draft ───────────────────────────
+    async function toggleArticleStatus(id, currentStatus) {
+      const newStatus = currentStatus === 'published' ? 'draft' : 'published';
+      const { error } = await supabaseClient
+        .from('news_articles')
+        .update({ status: newStatus })
+        .eq('id', id);
+      if (error) { alert('Status update failed: ' + error.message); return; }
+      const row = newsData.find(x => x.id === id);
+      if (row) row.status = newStatus;
+      renderNewsTable();
+    }
+
+    // ── Delete article ─────────────────────────────────────
+    async function deleteArticle(id, title) {
+      if (!confirm(`Delete "${title}"?\n\nThis cannot be undone.`)) return;
+      const { error } = await supabaseClient.from('news_articles').delete().eq('id', id);
+      if (error) { alert('Delete failed: ' + error.message); return; }
+      newsData = newsData.filter(x => x.id !== id);
+      const n = newsData.length;
+      syncNewsCount();
+      if (n === 0) { hide('newsTableWrap'); show('newsEmpty'); }
+      else renderNewsTable();
+    }
+
+    // ═══════════════════════════════════════════════════════
     // SIDEBAR NAVIGATION
     // ═══════════════════════════════════════════════════════
     const sectionTitles = {
@@ -714,6 +1030,7 @@
       // Lazy-load data on first visit to each section
       if (sectionId === 'admissions' && !admissionsLoaded) loadAdmissions();
       if (sectionId === 'jobs'       && !jobsLoaded)       loadJobs();
+      if (sectionId === 'news'       && !newsLoaded)       loadNews();
     }
 
     navItems.forEach(btn => btn.addEventListener('click', () => switchSection(btn.dataset.section)));

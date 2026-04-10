@@ -70,48 +70,22 @@
   <!-- NEWS GRID -->
   <main class="news-section">
     <div class="container">
-      <div class="news-grid">
 
-        <div class="news-card">
-          <div class="news-img blue"><i class="fa-solid fa-bullhorn"></i></div>
-          <div class="news-body">
-            <div class="news-meta">
-              <span class="news-cat">Announcement</span>
-              <span class="news-date">April 2026</span>
-            </div>
-            <h3>Second Term Ends on a High Note</h3>
-            <p>Students and staff celebrated an outstanding second term with an end-of-term awards ceremony honouring academic and character achievements.</p>
-            <a href="news-second-term.html" class="news-link">Read more <i class="fa-solid fa-arrow-right"></i></a>
-          </div>
-        </div>
-
-        <div class="news-card">
-          <div class="news-img orange"><i class="fa-solid fa-trophy"></i></div>
-          <div class="news-body">
-            <div class="news-meta">
-              <span class="news-cat">Sports</span>
-              <span class="news-date">March 2026</span>
-            </div>
-            <h3>AHCS Junior Team Wins Inter-School Football Cup</h3>
-            <p>Our Under-12 boys brought home the trophy after a thrilling final at the Accra Sports Stadium complex.</p>
-            <a href="news-football-cup.html" class="news-link">Read more <i class="fa-solid fa-arrow-right"></i></a>
-          </div>
-        </div>
-
-        <div class="news-card">
-          <div class="news-img purple"><i class="fa-solid fa-palette"></i></div>
-          <div class="news-body">
-            <div class="news-meta">
-              <span class="news-cat">Events</span>
-              <span class="news-date">February 2026</span>
-            </div>
-            <h3>Annual Arts Exhibition Draws Hundreds of Visitors</h3>
-            <p>Students from KG through JHS 3 displayed remarkable work at our biggest arts exhibition yet, attended by parents, alumni, and community members.</p>
-            <a href="news-arts-exhibition.html" class="news-link">Read more <i class="fa-solid fa-arrow-right"></i></a>
-          </div>
-        </div>
-
+      <!-- Loading state -->
+      <div id="newsLoading" style="text-align:center;padding:64px 0;color:var(--muted);">
+        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:1.8rem;margin-bottom:12px;display:block;"></i>
+        <p style="font-size:.9rem;">Loading latest news&hellip;</p>
       </div>
+
+      <!-- Empty state -->
+      <div id="newsEmpty" style="display:none;text-align:center;padding:64px 0;color:var(--muted);">
+        <i class="fa-solid fa-newspaper" style="font-size:2rem;margin-bottom:16px;display:block;opacity:.3;"></i>
+        <p style="font-size:.95rem;">No news articles have been published yet. Check back soon.</p>
+      </div>
+
+      <!-- Dynamic grid -->
+      <div class="news-grid" id="newsGrid" style="display:none;"></div>
+
     </div>
   </main>
 
@@ -167,7 +141,69 @@
     </div>
   </footer>
 
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
   <script>
+    // ── Category styling map ────────────────────────────────
+    const CAT_STYLE = {
+      'announcement': { icon: 'fa-bullhorn',      bg: 'blue',   },
+      'sports':       { icon: 'fa-trophy',        bg: 'orange', },
+      'events':       { icon: 'fa-calendar',      bg: 'purple', },
+      'academic':     { icon: 'fa-book-open',     bg: 'blue',   },
+      'community':    { icon: 'fa-people-group',  bg: 'orange', },
+    };
+    function catStyle(cat) {
+      return CAT_STYLE[(cat || '').toLowerCase()] || { icon: 'fa-newspaper', bg: 'blue' };
+    }
+    function esc(s) {
+      return String(s || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Fetch published articles ────────────────────────────
+    (async () => {
+      const loading = document.getElementById('newsLoading');
+      const empty   = document.getElementById('newsEmpty');
+      const grid    = document.getElementById('newsGrid');
+
+      const { data, error } = await supabasePublic
+        .from('news_articles')
+        .select('id,title,category,article_date,summary,status')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false });
+
+      loading.style.display = 'none';
+
+      if (error || !data || data.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+
+      grid.innerHTML = data.map(a => {
+        const cs = catStyle(a.category);
+        return `
+          <div class="news-card">
+            <div class="news-img ${cs.bg}"><i class="fa-solid ${cs.icon}"></i></div>
+            <div class="news-body">
+              <div class="news-meta">
+                <span class="news-cat">${esc(a.category || 'News')}</span>
+                <span class="news-date">${esc(a.article_date || '')}</span>
+              </div>
+              <h3>${esc(a.title)}</h3>
+              <p>${esc(a.summary || '')}</p>
+              <a href="news-article.html?id=${esc(a.id)}" class="news-link">
+                Read more <i class="fa-solid fa-arrow-right"></i>
+              </a>
+            </div>
+          </div>`;
+      }).join('');
+
+      grid.style.display = 'grid';
+    })();
+
+    // ── Mobile nav ──────────────────────────────────────────
     const hamburger = document.querySelector('.hamburger');
     const navLinks  = document.querySelector('.nav-links');
     const navCta    = document.querySelector('.nav-cta');

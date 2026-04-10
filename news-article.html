@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>News | Annan House Community School</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="shared.css" />
+  <style>
+    body { background: var(--off); }
+
+    /* ── Skeleton / loading ── */
+    .article-loading {
+      max-width: 780px;
+      margin: 64px auto;
+      padding: 0 24px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .article-loading i { font-size: 1.8rem; display: block; margin-bottom: 12px; }
+
+    /* ── Error / not found ── */
+    .article-error  {
+      max-width: 600px;
+      margin: 80px auto;
+      padding: 48px 40px;
+      background: var(--white);
+      border-radius: var(--radius);
+      text-align: center;
+      border: 1px solid var(--border);
+    }
+    .article-error i  { font-size: 2.5rem; color: var(--muted); opacity: .4; margin-bottom: 20px; display: block; }
+    .article-error h2 { font-family: var(--font-head); font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; }
+    .article-error p  { font-size: .9rem; color: var(--muted); }
+
+    /* ── Article layout ── */
+    .container-article { max-width: 780px; margin: 0 auto; padding: 0 24px; }
+
+    .article-header {
+      padding: 56px 0 40px;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+    }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--blue);
+      margin-bottom: 20px;
+      text-decoration: none;
+    }
+    .back-link:hover { text-decoration: underline; }
+
+    .article-meta { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+    .article-cat {
+      font-family: var(--font-head);
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 4px;
+    }
+    .article-cat.blue   { background: #EBF6FD; color: var(--blue);   }
+    .article-cat.orange { background: #FDF0EA; color: var(--orange); }
+    .article-cat.purple { background: #F3EEF8; color: var(--purple); }
+    .article-cat.green  { background: #EAF4EB; color: var(--green);  }
+    .article-date { font-size: .82rem; color: var(--muted); }
+
+    .article-header h1 {
+      font-family: var(--font-head);
+      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 14px;
+    }
+    .article-summary {
+      font-size: 1.02rem;
+      color: var(--muted);
+      max-width: 640px;
+      line-height: 1.75;
+    }
+
+    /* ── Article body ── */
+    .article-body { padding: 44px 0 88px; }
+    .article-body p  { font-size: 1rem; color: #374151; line-height: 1.85; margin-bottom: 22px; }
+    .article-body h2 {
+      font-family: var(--font-head);
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin: 36px 0 14px;
+      color: var(--navy);
+    }
+    .article-body br { line-height: 1.85; }
+
+    /* ── Category icon banner ── */
+    .article-icon-banner {
+      width: 100%;
+      height: 240px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      margin-bottom: 36px;
+      border: 1px solid var(--border);
+    }
+    .article-icon-banner.blue   { background: #EBF6FD; color: var(--blue);   }
+    .article-icon-banner.orange { background: #FDF0EA; color: var(--orange); }
+    .article-icon-banner.purple { background: #F3EEF8; color: var(--purple); }
+    .article-icon-banner.green  { background: #EAF4EB; color: var(--green);  }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="container">
+      <div class="nav-inner">
+        <a href="index.html" class="nav-logo">
+          <div class="logo-mark"><span></span><span></span><span></span><span></span></div>
+          <div>Annan House<small>Community School</small></div>
+        </a>
+        <ul class="nav-links">
+          <li><a href="index.html#about">About</a></li>
+          <li><a href="index.html#academics">Academics</a></li>
+          <li><a href="news.html">News</a></li>
+          <li><a href="gallery.html">Gallery</a></li>
+          <li><a href="index.html#admissions">Admissions</a></li>
+          <li><a href="openings.html">Vacancies</a></li>
+          <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+        <a href="index.html#admissions" class="btn btn-primary nav-cta">Apply Now</a>
+        <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Article will be rendered here by JS -->
+  <div id="articleRoot"></div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <div class="logo-mark"><span></span><span></span><span></span><span></span></div>
+            <div>Annan House<small>Community School</small></div>
+          </div>
+          <p>Nurturing curious minds and confident learners at the heart of Airport Residential, Accra, since our founding.</p>
+          <div class="social-links">
+            <div class="social-btn"><i class="fa-brands fa-facebook-f"></i></div>
+            <div class="social-btn"><i class="fa-brands fa-instagram"></i></div>
+            <div class="social-btn"><i class="fa-brands fa-x-twitter"></i></div>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h5>School</h5>
+          <ul>
+            <li><a href="index.html#about">About Us</a></li>
+            <li><a href="index.html#academics">Academics</a></li>
+            <li><a href="gallery.html">Gallery</a></li>
+            <li><a href="news.html">News</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Families</h5>
+          <ul>
+            <li><a href="index.html#admissions">Admissions</a></li>
+            <li><a href="school-calendar.html">School Calendar</a></li>
+            <li><a href="parent-portal.html">Parent Portal</a></li>
+            <li><a href="fees-payments.html">Fees &amp; Payments</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Connect</h5>
+          <ul>
+            <li><a href="index.html#contact">Contact Us</a></li>
+            <li><a href="openings.html">Vacancies</a></li>
+            <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            <li><a href="child-safety.html">Child Safety</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="rainbow-stripe" style="margin-bottom:24px;"></div>
+      <div class="footer-bottom">
+        <span>&copy; 2026 Annan House Community School. All rights reserved.</span>
+        <span>8 Dr Amilcar Cabral Road, Airport Residential, Accra &middot; GA-085-8565</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
+  <script>
+    // ── Category style map ─────────────────────────────────────
+    const CAT_STYLE = {
+      'announcement': { cls: 'blue',   icon: 'fa-bullhorn'     },
+      'sports':       { cls: 'orange', icon: 'fa-trophy'       },
+      'events':       { cls: 'purple', icon: 'fa-calendar'     },
+      'academic':     { cls: 'blue',   icon: 'fa-book-open'    },
+      'community':    { cls: 'green',  icon: 'fa-people-group' },
+    };
+    function catStyle(cat) {
+      return CAT_STYLE[(cat || '').toLowerCase()] || { cls: 'blue', icon: 'fa-newspaper' };
+    }
+    function esc(s) {
+      return String(s || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // ── Render body: double newlines → paragraphs ──────────────
+    function renderBody(text) {
+      if (!text) return '';
+      return text
+        .split(/\n\n+/)
+        .map(para => {
+          const lines = para.trim().replace(/\n/g, '<br>');
+          return lines ? `<p>${lines}</p>` : '';
+        })
+        .filter(Boolean)
+        .join('\n');
+    }
+
+    // ── Load and render article ────────────────────────────────
+    const root = document.getElementById('articleRoot');
+
+    (async () => {
+      // Show loading state
+      root.innerHTML = `
+        <div class="article-loading">
+          <i class="fa-solid fa-circle-notch fa-spin"></i>
+          <p>Loading article&hellip;</p>
+        </div>`;
+
+      // Get ID from query string
+      const params = new URLSearchParams(window.location.search);
+      const id     = params.get('id');
+
+      if (!id) {
+        showError('No article specified.', 'Go back to the news page to find an article.');
+        return;
+      }
+
+      const { data, error } = await supabasePublic
+        .from('news_articles')
+        .select('*')
+        .eq('id', id)
+        .eq('status', 'published')
+        .maybeSingle();
+
+      if (error || !data) {
+        showError(
+          'Article not found',
+          'This article may have been removed or is not yet published.'
+        );
+        return;
+      }
+
+      // Update page title
+      document.title = `${data.title} | AHCS News`;
+
+      const cs = catStyle(data.category);
+
+      root.innerHTML = `
+        <div class="article-header">
+          <div class="container-article">
+            <a href="news.html" class="back-link">
+              <i class="fa-solid fa-arrow-left"></i> Back to all news
+            </a>
+            <div class="article-meta">
+              ${data.category
+                ? `<span class="article-cat ${cs.cls}">${esc(data.category)}</span>`
+                : ''}
+              ${data.article_date
+                ? `<span class="article-date">${esc(data.article_date)}</span>`
+                : ''}
+            </div>
+            <h1>${esc(data.title)}</h1>
+            ${data.summary
+              ? `<p class="article-summary">${esc(data.summary)}</p>`
+              : ''}
+          </div>
+        </div>
+        <div class="rainbow-stripe"></div>
+        <main class="article-body">
+          <div class="container-article">
+            <div class="article-icon-banner ${cs.cls}">
+              <i class="fa-solid ${cs.icon}"></i>
+            </div>
+            ${renderBody(data.body)}
+            <p style="margin-top:40px;">
+              <a href="news.html" style="color:var(--blue);font-weight:700;">
+                <i class="fa-solid fa-arrow-left"></i> Back to all news
+              </a>
+            </p>
+          </div>
+        </main>`;
+    })();
+
+    function showError(heading, sub) {
+      root.innerHTML = `
+        <div style="padding:40px 24px;">
+          <div class="article-error">
+            <i class="fa-solid fa-newspaper"></i>
+            <h2>${esc(heading)}</h2>
+            <p>${esc(sub)}</p>
+            <a href="news.html" class="btn btn-primary" style="margin-top:24px;display:inline-flex;">
+              &larr; Back to News
+            </a>
+          </div>
+        </div>`;
+    }
+
+    // ── Mobile nav ─────────────────────────────────────────────
+    const hamburger = document.querySelector('.hamburger');
+    const navLinks  = document.querySelector('.nav-links');
+    const navCta    = document.querySelector('.nav-cta');
+    hamburger.addEventListener('click', () => {
+      const open = navLinks.style.display === 'flex';
+      navLinks.style.cssText = open ? '' : 'display:flex;flex-direction:column;position:absolute;top:68px;left:0;right:0;background:#fff;padding:16px 24px;border-bottom:1px solid #e5e7eb;gap:4px;z-index:200';
+      navCta.style.display = open ? 'none' : 'inline-flex';
+    });
+  </script>
+</body>
+</html>

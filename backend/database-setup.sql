@@ -76,3 +76,41 @@ CREATE POLICY "Allow authenticated updates on admission_enquiries" ON admission_
 
 -- job_applications has RLS disabled so no extra policies are needed.
 -- If you re-enable RLS on job_applications, add equivalent policies:
+
+-- ──────────────────────────────────────────────────────────────
+-- ADMIN DASHBOARD — Stage 3: News Articles
+-- Run in Supabase SQL Editor
+-- ──────────────────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS news_articles (
+  id           uuid        DEFAULT gen_random_uuid() PRIMARY KEY,
+  title        TEXT        NOT NULL,
+  category     TEXT,
+  article_date TEXT,
+  summary      TEXT,
+  body         TEXT,
+  status       TEXT        DEFAULT 'draft',
+  created_at   TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE news_articles ENABLE ROW LEVEL SECURITY;
+
+-- Public (anon) can only read published articles
+CREATE POLICY "Public can read published news" ON news_articles
+  FOR SELECT TO anon USING (status = 'published');
+
+-- Authenticated admins can read all articles (including drafts)
+CREATE POLICY "Authenticated can read all news" ON news_articles
+  FOR SELECT TO authenticated USING (true);
+
+-- Authenticated admins can create articles
+CREATE POLICY "Authenticated can insert news" ON news_articles
+  FOR INSERT TO authenticated WITH CHECK (true);
+
+-- Authenticated admins can update articles
+CREATE POLICY "Authenticated can update news" ON news_articles
+  FOR UPDATE TO authenticated USING (true);
+
+-- Authenticated admins can delete articles
+CREATE POLICY "Authenticated can delete news" ON news_articles
+  FOR DELETE TO authenticated USING (true);
