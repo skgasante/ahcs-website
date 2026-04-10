@@ -1512,12 +1512,6 @@
       vacGrid.querySelectorAll('.vac-apply-btn').forEach(btn => {
         btn.addEventListener('click', () => openJobModal(btn.dataset.title));
       });
-
-      // Animate newly inserted cards
-      vacGrid.querySelectorAll('.job-card').forEach(el => {
-        el.style.cssText = 'opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease';
-        observer.observe(el);
-      });
     })();
   </script>
 </body>
