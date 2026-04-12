@@ -322,6 +322,13 @@
     &copy; 2026 Annan House Community School &mdash; Restricted access
   </div>
 
+  <script>
+    // Ensure /admin resolves to /admin/ so relative assets (e.g. config.js) load correctly.
+    if (window.location.pathname.endsWith('/admin')) {
+      window.location.replace(`${window.location.pathname}/${window.location.search}${window.location.hash}`);
+    }
+  </script>
+
   <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Admin Supabase config -->

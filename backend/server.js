@@ -10,6 +10,9 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 const allowedOrigins = [
   'https://ahcs-website.netlify.app',
+  'https://skgasante.github.io',
+  'http://localhost:3000',
+  'http://127.0.0.1:3000',
   'http://localhost:3001',
   'http://127.0.0.1:3001',
 ];
@@ -43,6 +46,7 @@ app.use(fileUpload({
 // Routes
 app.use('/api/admissions', require('./routes/admissions'));
 app.use('/api/jobs', require('./routes/jobs'));
+app.use('/api/staff', require('./routes/staff'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

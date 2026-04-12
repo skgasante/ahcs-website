@@ -72,51 +72,9 @@
   <!-- ─── JOB LISTINGS ─────────────────────────────────── -->
   <main class="page-content">
     <div class="container" style="max-width:860px;">
-      <div class="jobs-grid">
-
-        <div class="job-card">
-          <div class="job-details">
-            <div class="job-tags">
-              <span class="job-tag"><i class="fa-solid fa-clock" style="margin-right:4px;"></i>Full-Time</span>
-              <span class="job-tag"><i class="fa-solid fa-chalkboard-teacher" style="margin-right:4px;"></i>Teaching</span>
-            </div>
-            <h2 class="job-title">Primary Class Teacher</h2>
-            <p class="job-copy">Lead a class of young learners with engaging lessons, strong classroom management, and a nurturing approach that brings out the best in every child.</p>
-          </div>
-          <button class="btn btn-orange" onclick="openJobModal('Primary Class Teacher')" style="flex-shrink:0;">
-            Apply Now <i class="fa-solid fa-arrow-right"></i>
-          </button>
-        </div>
-
-        <div class="job-card">
-          <div class="job-details">
-            <div class="job-tags">
-              <span class="job-tag"><i class="fa-solid fa-clock" style="margin-right:4px;"></i>Full-Time</span>
-              <span class="job-tag"><i class="fa-solid fa-building" style="margin-right:4px;"></i>Administration</span>
-            </div>
-            <h2 class="job-title">School Administrator</h2>
-            <p class="job-copy">Support daily office operations, coordinate admissions paperwork, and maintain clear communication between parents, staff, and leadership.</p>
-          </div>
-          <button class="btn btn-orange" onclick="openJobModal('School Administrator')" style="flex-shrink:0;">
-            Apply Now <i class="fa-solid fa-arrow-right"></i>
-          </button>
-        </div>
-
-        <div class="job-card">
-          <div class="job-details">
-            <div class="job-tags">
-              <span class="job-tag"><i class="fa-solid fa-clock" style="margin-right:4px;"></i>Part-Time</span>
-              <span class="job-tag"><i class="fa-solid fa-laptop-code" style="margin-right:4px;"></i>Enrichment</span>
-            </div>
-            <h2 class="job-title">ICT / Coding Coach</h2>
-            <p class="job-copy">Deliver after-school technology sessions that spark curiosity, develop coding skills, and build digital confidence in our pupils.</p>
-          </div>
-          <button class="btn btn-orange" onclick="openJobModal('ICT / Coding Coach')" style="flex-shrink:0;">
-            Apply Now <i class="fa-solid fa-arrow-right"></i>
-          </button>
-        </div>
-
-      </div>
+      <div id="vacLoading" style="text-align:center;color:#6B7280;padding:8px 0 20px;">Loading vacancies...</div>
+      <div id="vacEmpty" style="display:none;text-align:center;color:#6B7280;padding:16px 0 24px;">No open positions at the moment. Check back soon.</div>
+      <div class="jobs-grid" id="vacGrid" style="display:none;"></div>
     </div>
   </main>
 
@@ -279,33 +237,82 @@
       btnText.style.display = 'none';
       btnLoading.style.display = 'inline';
 
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000);
+      const cv = formData.get('cvFile');
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ];
 
-      fetch(`${API_BASE_URL}/api/jobs`, { method: 'POST', body: formData, signal: controller.signal })
-        .then(r => {
-          if (!r.ok && r.status === 413) {
-            return { success: false, message: 'File too large. Please upload a PDF, DOC, or DOCX under 5MB.' };
-          }
-          return r.json();
+      if (!(cv instanceof File) || cv.size === 0) {
+        alert('Please upload your CV before submitting.');
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+        return;
+      }
+
+      if (!allowedTypes.includes(cv.type)) {
+        alert('Invalid CV type. Please upload PDF, DOC, or DOCX only.');
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+        return;
+      }
+
+      if (cv.size > 5 * 1024 * 1024) {
+        alert('File too large. Please upload a CV under 5MB.');
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+        return;
+      }
+
+      const fullName = String(formData.get('fullName') || '').trim();
+      const email = String(formData.get('email') || '').trim();
+      const phoneNumber = String(formData.get('phoneNumber') || '').trim();
+      const positionApplied = String(formData.get('positionApplied') || '').trim();
+      const motivation = String(formData.get('motivation') || '').trim();
+
+      const safeName = fullName.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_-]/g, '');
+      const ext = String(cv.name.split('.').pop() || 'bin').toLowerCase();
+      const storagePath = `${Date.now()}_${safeName || 'applicant'}.${ext}`;
+
+      supabasePublic.storage
+        .from('cv-uploads')
+        .upload(storagePath, cv, { contentType: cv.type, upsert: false })
+        .then(({ error: uploadErr }) => {
+          if (uploadErr) throw uploadErr;
+
+          const { data: urlData } = supabasePublic.storage
+            .from('cv-uploads')
+            .getPublicUrl(storagePath);
+
+          return supabasePublic
+            .from('job_applications')
+            .insert([
+              {
+                full_name: fullName,
+                email,
+                phone_number: phoneNumber,
+                position_applied: positionApplied,
+                motivation,
+                cv_file_url: urlData.publicUrl,
+                cv_file_name: cv.name,
+                submitted_at: new Date().toISOString(),
+                status: 'pending',
+              }
+            ]);
         })
-        .then(data => {
-          if (data.success) {
-            document.getElementById('jobFormContainer').style.display = 'none';
-            document.getElementById('successMessage').classList.add('show');
-          } else {
-            alert('Submission failed: ' + data.message);
-          }
+        .then(({ error: insertErr }) => {
+          if (insertErr) throw insertErr;
+          document.getElementById('jobFormContainer').style.display = 'none';
+          document.getElementById('successMessage').classList.add('show');
         })
         .catch(err => {
-          if (err.name === 'AbortError') {
-            alert('The request timed out. Please check your connection and try again.');
-          } else {
-            alert('An error occurred while submitting your application. Please try again.\n\nDetails: ' + err.message);
-          }
+          alert('Submission failed. Please try again.\n\nDetails: ' + err.message);
         })
         .finally(() => {
-          clearTimeout(timeout);
           submitBtn.disabled = false;
           btnText.style.display = 'inline';
           btnLoading.style.display = 'none';
@@ -358,24 +365,38 @@
           .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
       }
 
+      function isOpenVacancy(v) {
+        const status = String(v?.status || '').trim().toLowerCase();
+        if (status) return status === 'open';
+        return v?.is_open === true;
+      }
+
+      function vacancySortTime(v) {
+        const t = Date.parse(v?.created_at || v?.posted_at || '');
+        return Number.isNaN(t) ? 0 : t;
+      }
+
       const loading = document.getElementById('vacLoading');
       const empty   = document.getElementById('vacEmpty');
       const grid    = document.getElementById('vacGrid');
 
       const { data, error } = await supabasePublic
         .from('vacancies')
-        .select('id,title,department,type,description')
-        .eq('status', 'open')
+        .select('*')
         .order('created_at', { ascending: false });
 
       loading.style.display = 'none';
 
-      if (error || !data || data.length === 0) {
+      const openData = (data || [])
+        .filter(isOpenVacancy)
+        .sort((a, b) => vacancySortTime(b) - vacancySortTime(a));
+
+      if (error || openData.length === 0) {
         empty.style.display = 'block';
         return;
       }
 
-      grid.innerHTML = data.map(v => `
+      grid.innerHTML = openData.map(v => `
         <div class="job-card">
           <div class="job-details">
             <div class="job-tags">

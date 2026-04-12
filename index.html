@@ -1278,46 +1278,88 @@
       btnText.style.display = 'none';
       btnLoading.style.display = 'inline';
 
-      // Submit to backend
-      const jobController = new AbortController();
-      const jobTimeout = setTimeout(() => jobController.abort(), 30000);
+      const cv = formData.get('cvFile');
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ];
 
-      fetch(`${API_BASE_URL}/api/jobs`, {
-        method: 'POST',
-        body: formData,
-        signal: jobController.signal
-      })
-      .then(response => {
-        if (!response.ok && response.status === 413) {
-          return { success: false, message: 'File too large. Please upload a PDF, DOC, or DOCX under 5MB.' };
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data.success) {
-          // Show success message
+      if (!(cv instanceof File) || cv.size === 0) {
+        alert('Please upload your CV before submitting.');
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+        return;
+      }
+
+      if (!allowedTypes.includes(cv.type)) {
+        alert('Invalid CV type. Please upload PDF, DOC, or DOCX only.');
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+        return;
+      }
+
+      if (cv.size > 5 * 1024 * 1024) {
+        alert('File too large. Please upload a CV under 5MB.');
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+        return;
+      }
+
+      const fullName = String(formData.get('fullName') || '').trim();
+      const email = String(formData.get('email') || '').trim();
+      const phoneNumber = String(formData.get('phoneNumber') || '').trim();
+      const positionApplied = String(formData.get('positionApplied') || '').trim();
+      const motivation = String(formData.get('motivation') || '').trim();
+
+      const safeName = fullName.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_-]/g, '');
+      const ext = String(cv.name.split('.').pop() || 'bin').toLowerCase();
+      const storagePath = `${Date.now()}_${safeName || 'applicant'}.${ext}`;
+
+      supabasePublic.storage
+        .from('cv-uploads')
+        .upload(storagePath, cv, { contentType: cv.type, upsert: false })
+        .then(({ error: uploadErr }) => {
+          if (uploadErr) throw uploadErr;
+
+          const { data: urlData } = supabasePublic.storage
+            .from('cv-uploads')
+            .getPublicUrl(storagePath);
+
+          return supabasePublic
+            .from('job_applications')
+            .insert([
+              {
+                full_name: fullName,
+                email,
+                phone_number: phoneNumber,
+                position_applied: positionApplied,
+                motivation,
+                cv_file_url: urlData.publicUrl,
+                cv_file_name: cv.name,
+                submitted_at: new Date().toISOString(),
+                status: 'pending',
+              }
+            ]);
+        })
+        .then(({ error: insertErr }) => {
+          if (insertErr) throw insertErr;
           const formContainer = document.getElementById('jobFormContainer');
           const successMessage = document.getElementById('successMessage');
           formContainer.style.display = 'none';
           successMessage.classList.add('show');
-        } else {
-          alert('Submission failed: ' + data.message);
-        }
-      })
-      .catch(error => {
-        if (error.name === 'AbortError') {
-          alert('The request timed out. Please check your connection and try again.');
-        } else {
-          alert('An error occurred while submitting your application. Please try again.\n\nDetails: ' + error.message);
-        }
-      })
-      .finally(() => {
-        clearTimeout(jobTimeout);
-        // Reset loading state
-        submitBtn.disabled = false;
-        btnText.style.display = 'inline';
-        btnLoading.style.display = 'none';
-      });
+        })
+        .catch(error => {
+          alert('Submission failed. Please try again.\n\nDetails: ' + error.message);
+        })
+        .finally(() => {
+          submitBtn.disabled = false;
+          btnText.style.display = 'inline';
+          btnLoading.style.display = 'none';
+        });
     }
 
     // CV file upload handling
@@ -1477,16 +1519,29 @@
           .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
       }
 
+      function isOpenVacancy(v) {
+        const status = String(v?.status || '').trim().toLowerCase();
+        if (status) return status === 'open';
+        return v?.is_open === true;
+      }
+
+      function vacancySortTime(v) {
+        const t = Date.parse(v?.created_at || v?.posted_at || '');
+        return Number.isNaN(t) ? 0 : t;
+      }
+
       const vacGrid = document.getElementById('homeVacanciesGrid');
 
       const { data: vacData, error: vacErr } = await supabasePublic
         .from('vacancies')
-        .select('id,title,department,type,description')
-        .eq('status', 'open')
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (vacErr) console.error('Vacancies fetch error:', vacErr);
-      const data = vacData ? vacData.slice(0, 3) : null;
+      const data = (vacData || [])
+        .filter(isOpenVacancy)
+        .sort((a, b) => vacancySortTime(b) - vacancySortTime(a))
+        .slice(0, 3);
 
       if (vacErr || !data || data.length === 0) {
         vacGrid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#6B7280;padding:24px 0">No open positions at the moment. Check back soon.</p>';

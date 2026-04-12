@@ -482,14 +482,154 @@
 
         <!-- ── Gallery ──────────────────────────────────────── -->
         <section class="section-panel" id="section-gallery">
-          <div class="section-header">
-            <h2>Gallery</h2>
-            <p>Upload and organise school photos and albums.</p>
+          <div id="galleryListView">
+            <div class="section-header section-header-flex">
+              <div>
+                <h2>Gallery</h2>
+                <p>Upload, organise, and publish school photos for the public gallery.</p>
+              </div>
+              <button class="btn-primary-action" id="btnNewGalleryImage">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Upload Images
+              </button>
+            </div>
+
+            <div class="gallery-kpis" id="galleryKpis">
+              <article class="gallery-kpi-card">
+                <div class="gallery-kpi-label">Total Photos</div>
+                <div class="gallery-kpi-value" id="galleryTotalCount">0</div>
+              </article>
+              <article class="gallery-kpi-card">
+                <div class="gallery-kpi-label">Published</div>
+                <div class="gallery-kpi-value" id="galleryPublishedCount">0</div>
+              </article>
+              <article class="gallery-kpi-card">
+                <div class="gallery-kpi-label">Featured</div>
+                <div class="gallery-kpi-value" id="galleryFeaturedCount">0</div>
+              </article>
+              <article class="gallery-kpi-card">
+                <div class="gallery-kpi-label">Albums</div>
+                <div class="gallery-kpi-value" id="galleryAlbumsCount">0</div>
+              </article>
+            </div>
+
+            <div class="gallery-toolbar">
+              <div class="gallery-toolbar-main">
+                <div class="gallery-search-wrap">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="text" id="gallerySearchInput" placeholder="Search title, caption, or album..." />
+                </div>
+                <select id="galleryAlbumFilter">
+                  <option value="all">All albums</option>
+                </select>
+                <select id="galleryStatusFilter">
+                  <option value="all">All statuses</option>
+                  <option value="published">Published</option>
+                  <option value="draft">Draft</option>
+                </select>
+                <select id="gallerySortSelect">
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                  <option value="title-asc">Title A-Z</option>
+                  <option value="title-desc">Title Z-A</option>
+                </select>
+              </div>
+              <button class="toolbar-btn" id="refreshGallery">
+                <i class="fa-solid fa-rotate-right"></i> Refresh
+              </button>
+            </div>
+
+            <div class="table-loading" id="galleryLoading">
+              <div class="tbl-spinner"></div>
+              <span>Loading gallery images&hellip;</span>
+            </div>
+
+            <div class="table-empty hidden" id="galleryEmpty">
+              <i class="fa-solid fa-images"></i>
+              <p>No gallery images found. Click <strong>Upload Images</strong> to add your first photos.</p>
+            </div>
+
+            <div class="table-empty hidden" id="gallerySetupHint">
+              <i class="fa-solid fa-circle-info"></i>
+              <p>Gallery storage/database is not ready yet. Create a <strong>gallery_images</strong> table and <strong>gallery-images</strong> bucket in Supabase to enable this section.</p>
+            </div>
+
+            <div class="gallery-grid-admin hidden" id="galleryGrid"></div>
           </div>
-          <div class="placeholder-card">
-            <i class="fa-solid fa-images"></i>
-            <h3>Coming in a future stage</h3>
-            <p>Image upload, album organisation, and gallery management will be built here.</p>
+
+          <div id="galleryFormView" class="hidden">
+            <div class="section-header section-header-flex">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <button class="btn-icon-back" id="btnBackGallery" aria-label="Back to gallery">
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div>
+                  <h2>Upload Gallery Images</h2>
+                  <p>Add one or multiple photos and choose their visibility settings.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="article-editor-card">
+              <form id="galleryUploadForm" novalidate>
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="gfAlbum">Album</label>
+                    <input type="text" id="gfAlbum" placeholder="e.g. Sports Day 2026" />
+                  </div>
+                  <div class="editor-field">
+                    <label for="gfDate">Photo Date</label>
+                    <input type="date" id="gfDate" />
+                  </div>
+                </div>
+
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label>Status</label>
+                    <div class="status-radio-group">
+                      <label class="status-radio-option">
+                        <input type="radio" name="gfStatus" value="draft" checked />
+                        <span class="radio-pill pill-draft">Draft</span>
+                      </label>
+                      <label class="status-radio-option">
+                        <input type="radio" name="gfStatus" value="published" />
+                        <span class="radio-pill pill-published">Published</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="editor-field">
+                    <label class="gallery-checkbox-row">
+                      <input type="checkbox" id="gfFeatured" />
+                      <span>Mark uploaded images as featured</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="editor-field">
+                  <label for="gfFiles">Images <span class="field-req">*</span></label>
+                  <label class="gallery-dropzone" id="galleryDropzone">
+                    <input type="file" id="gfFiles" accept="image/jpeg,image/png,image/webp,image/gif" multiple required />
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                    <strong>Drop images here</strong>
+                    <span>or click to browse files (JPEG, PNG, WebP, GIF; max 8MB each)</span>
+                  </label>
+                </div>
+
+                <div class="gallery-upload-list" id="galleryUploadList">
+                  <p class="img-list-empty">No files selected yet.</p>
+                </div>
+
+                <div class="editor-actions">
+                  <div class="editor-error hidden" id="galleryFormError"></div>
+                  <div class="editor-btns">
+                    <button type="button" class="btn-editor-cancel" id="btnCancelGalleryForm">Cancel</button>
+                    <button type="submit" class="btn-editor-save" id="btnSaveGallery">
+                      <span class="btn-label">Upload Images</span>
+                      <div class="btn-spinner hidden"></div>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
         </section>
 
@@ -497,12 +637,206 @@
         <section class="section-panel" id="section-settings">
           <div class="section-header">
             <h2>Settings</h2>
-            <p>Manage your account and site configuration.</p>
+            <p>Manage your admin account, security preferences, and notification defaults.</p>
           </div>
-          <div class="placeholder-card">
-            <i class="fa-solid fa-gear"></i>
-            <h3>Coming in a future stage</h3>
-            <p>Account settings, password management, and site configuration options will appear here.</p>
+
+          <div class="table-loading" id="settingsLoading">
+            <div class="tbl-spinner"></div>
+            <span>Loading account settings&hellip;</span>
+          </div>
+
+          <div class="table-empty hidden" id="settingsSetupHint">
+            <i class="fa-solid fa-circle-info"></i>
+            <p>Settings profile table is not ready yet. Create <strong>admin_profiles</strong> in Supabase to enable full account settings.</p>
+          </div>
+
+          <div class="settings-grid hidden" id="settingsGrid">
+            <div class="settings-card">
+              <div class="settings-card-head">
+                <h3><i class="fa-regular fa-id-badge"></i> Account Profile</h3>
+                <p>Public-facing admin identity and contact metadata.</p>
+              </div>
+              <form id="settingsProfileForm" class="settings-form" novalidate>
+                <div class="editor-field">
+                  <label for="spDisplayName">Display Name</label>
+                  <input type="text" id="spDisplayName" placeholder="e.g. Sarah Asante" />
+                </div>
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="spEmail">Email</label>
+                    <input type="text" id="spEmail" readonly />
+                  </div>
+                  <div class="editor-field">
+                    <label for="spRole">Role</label>
+                    <input type="text" id="spRole" readonly />
+                  </div>
+                </div>
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="spPhone">Phone</label>
+                    <input type="text" id="spPhone" placeholder="e.g. +233 24 000 0000" />
+                  </div>
+                  <div class="editor-field">
+                    <label for="spJobTitle">Job Title</label>
+                    <input type="text" id="spJobTitle" placeholder="e.g. Admissions Lead" />
+                  </div>
+                </div>
+                <div class="settings-inline-status" id="settingsProfileStatus"></div>
+                <div class="editor-btns" style="justify-content:flex-start;">
+                  <button type="submit" class="btn-editor-save" id="settingsProfileSaveBtn">
+                    <span class="btn-label">Save Profile</span>
+                    <div class="btn-spinner hidden"></div>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div class="settings-card">
+              <div class="settings-card-head">
+                <h3><i class="fa-solid fa-user-shield"></i> Access Model</h3>
+                <p>Phase 1 governance baseline for roles, permissions, and publishing authority.</p>
+              </div>
+              <div class="settings-access-summary">
+                <div class="settings-session-item">
+                  <div class="settings-session-label">Current Role</div>
+                  <div class="settings-session-value" id="settingsRoleDisplay">&mdash;</div>
+                </div>
+                <div class="settings-access-block">
+                  <div class="settings-access-title">Permission Groups</div>
+                  <div class="settings-permission-pills" id="settingsPermissionPills"></div>
+                </div>
+                <div class="settings-access-block">
+                  <div class="settings-access-title">Publish Permissions</div>
+                  <div class="settings-publish-pills" id="settingsPublishPills"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <div class="settings-card-head">
+                <h3><i class="fa-solid fa-shield-halved"></i> Security</h3>
+                <p>Protect your account with a strong password and session hygiene.</p>
+              </div>
+              <form id="settingsPasswordForm" class="settings-form" novalidate>
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="ssNewPassword">New Password</label>
+                    <input type="password" id="ssNewPassword" minlength="8" placeholder="At least 8 characters" />
+                  </div>
+                  <div class="editor-field">
+                    <label for="ssConfirmPassword">Confirm Password</label>
+                    <input type="password" id="ssConfirmPassword" minlength="8" placeholder="Repeat new password" />
+                  </div>
+                </div>
+                <p class="settings-help-text">Use at least 8 characters and avoid previously used passwords.</p>
+                <div class="settings-inline-status" id="settingsPasswordStatus"></div>
+                <div class="editor-btns" style="justify-content:flex-start;">
+                  <button type="submit" class="btn-editor-save" id="settingsPasswordSaveBtn">
+                    <span class="btn-label">Update Password</span>
+                    <div class="btn-spinner hidden"></div>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div class="settings-card">
+              <div class="settings-card-head">
+                <h3><i class="fa-regular fa-bell"></i> Notifications</h3>
+                <p>Choose which updates you want to see first in your dashboard workflow.</p>
+              </div>
+              <form id="settingsNotificationsForm" class="settings-form" novalidate>
+                <label class="settings-check-item"><input type="checkbox" id="snAdmissions" /> <span>Admissions enquiries updates</span></label>
+                <label class="settings-check-item"><input type="checkbox" id="snJobs" /> <span>Job applications updates</span></label>
+                <label class="settings-check-item"><input type="checkbox" id="snNews" /> <span>News publishing reminders</span></label>
+                <label class="settings-check-item"><input type="checkbox" id="snGallery" /> <span>Gallery moderation reminders</span></label>
+                <div class="settings-inline-status" id="settingsNotificationsStatus"></div>
+                <div class="editor-btns" style="justify-content:flex-start;">
+                  <button type="submit" class="btn-editor-save" id="settingsNotificationsSaveBtn">
+                    <span class="btn-label">Save Preferences</span>
+                    <div class="btn-spinner hidden"></div>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <div class="settings-card">
+              <div class="settings-card-head">
+                <h3><i class="fa-solid fa-user-plus"></i> Staff Onboarding</h3>
+                <p>Create staff accounts, assign positions, and enforce first-login password change.</p>
+              </div>
+              <form id="settingsStaffForm" class="settings-form" novalidate>
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="soName">Staff Name</label>
+                    <input type="text" id="soName" placeholder="e.g. Ama Boateng" required />
+                  </div>
+                  <div class="editor-field">
+                    <label for="soEmail">Staff Email</label>
+                    <input type="email" id="soEmail" placeholder="staff@ahcs.edu" required />
+                  </div>
+                </div>
+
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="soPosition">Position</label>
+                    <select id="soPosition">
+                      <option value="">Unassigned</option>
+                    </select>
+                  </div>
+                  <div class="editor-field">
+                    <label for="soRole">Account Role</label>
+                    <select id="soRole">
+                      <option value="staff">Staff</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="editor-field">
+                  <label for="soTempPassword">Temporary Password</label>
+                  <div class="settings-password-row">
+                    <input type="text" id="soTempPassword" placeholder="Generate a secure temporary password" required />
+                    <button type="button" class="toolbar-btn" id="btnGenerateTempPassword">
+                      <i class="fa-solid fa-shuffle"></i> Generate
+                    </button>
+                  </div>
+                </div>
+
+                <p class="settings-help-text">The staff member will be forced to change this temporary password at first login.</p>
+
+                <div class="settings-inline-status" id="settingsStaffStatus"></div>
+                <div class="editor-btns" style="justify-content:flex-start;">
+                  <button type="submit" class="btn-editor-save" id="settingsStaffSaveBtn">
+                    <span class="btn-label">Create Staff Account</span>
+                    <div class="btn-spinner hidden"></div>
+                  </button>
+                </div>
+              </form>
+
+              <div class="settings-staff-list" id="settingsStaffList"></div>
+            </div>
+
+            <div class="settings-card">
+              <div class="settings-card-head">
+                <h3><i class="fa-solid fa-user-clock"></i> Session</h3>
+                <p>Review active account session details and sign-out options.</p>
+              </div>
+              <div class="settings-session-list">
+                <div class="settings-session-item">
+                  <div class="settings-session-label">Last sign-in</div>
+                  <div class="settings-session-value" id="ssLastSignIn">&mdash;</div>
+                </div>
+                <div class="settings-session-item">
+                  <div class="settings-session-label">User ID</div>
+                  <div class="settings-session-value" id="ssUserId">&mdash;</div>
+                </div>
+              </div>
+              <div class="editor-btns" style="justify-content:flex-start; margin-top:14px;">
+                <button type="button" class="btn-editor-cancel" id="btnSignOutOthers">Sign Out Other Sessions</button>
+                <button type="button" class="btn-editor-save" id="btnSignOutCurrent">Sign Out This Session</button>
+              </div>
+              <div class="settings-inline-status" id="settingsSessionStatus"></div>
+            </div>
           </div>
         </section>
 
@@ -536,6 +870,31 @@
         <div class="status-feedback" id="statusFeedback"></div>
       </div>
     </aside>
+
+    <!-- ══ FIRST LOGIN PASSWORD CHANGE ═══════════════════════ -->
+    <div class="first-login-modal" id="firstLoginModal" aria-modal="true" role="dialog" aria-label="Change temporary password">
+      <div class="first-login-card">
+        <div class="first-login-head">
+          <h3>Set Your New Password</h3>
+          <p>This account was created with a temporary password. You must set a new password to continue.</p>
+        </div>
+        <form id="firstLoginPasswordForm" novalidate>
+          <div class="editor-field">
+            <label for="flNewPassword">New Password</label>
+            <input type="password" id="flNewPassword" minlength="8" placeholder="At least 8 characters" required />
+          </div>
+          <div class="editor-field">
+            <label for="flConfirmPassword">Confirm New Password</label>
+            <input type="password" id="flConfirmPassword" minlength="8" placeholder="Repeat your new password" required />
+          </div>
+          <div class="settings-inline-status" id="firstLoginStatus"></div>
+          <button type="submit" class="btn-editor-save" id="firstLoginSaveBtn" style="width:100%;">
+            <span class="btn-label">Update Password</span>
+            <div class="btn-spinner hidden"></div>
+          </button>
+        </form>
+      </div>
+    </div>
 
   </div>
   <!-- /admin-shell -->
@@ -589,8 +948,27 @@
       const initials = email.split('@')[0].replace(/[^a-zA-Z]/g, '').slice(0, 2).toUpperCase() || '?';
       document.getElementById('userEmail').textContent  = email;
       document.getElementById('userAvatar').textContent = initials;
+
+      const { data: staffProfile, error: staffErr } = await supabaseClient
+        .from('staff_profiles')
+        .select('id,must_change_password')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!staffErr && staffProfile?.must_change_password) {
+        firstLoginRequired = true;
+        document.getElementById('firstLoginModal').classList.add('show');
+        document.body.style.overflow = 'hidden';
+      }
     }
-    loadUser();
+    const ADMIN_API_BASE_URL = 'https://ahcs-website-production.up.railway.app';
+    let firstLoginRequired = false;
+    let authzState = {
+      ready: false,
+      role: 'admin',
+      permissions: {},
+      canPublish: {},
+    };
 
     document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-GB', {
       weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
@@ -830,6 +1208,8 @@
       `;
 
       buildStatusSelect(ADMISSIONS_STATUSES, r.status);
+      document.getElementById('drawerStatusSelect').disabled = !hasPermission('admissions', 'update');
+      document.getElementById('drawerSaveStatus').disabled = !hasPermission('admissions', 'update');
       openDrawer();
     }
 
@@ -868,12 +1248,23 @@
       `;
 
       buildStatusSelect(JOBS_STATUSES, r.status);
+      document.getElementById('drawerStatusSelect').disabled = !hasPermission('jobs', 'update');
+      document.getElementById('drawerSaveStatus').disabled = !hasPermission('jobs', 'update');
       openDrawer();
     }
 
     // ── Save status ────────────────────────────────────────
     document.getElementById('drawerSaveStatus').addEventListener('click', async () => {
       if (!drawerId || !drawerType) return;
+
+      const canUpdateCurrent = drawerType === 'admission'
+        ? hasPermission('admissions', 'update')
+        : hasPermission('jobs', 'update');
+      if (!canUpdateCurrent) {
+        alert('You do not have permission to update this status.');
+        return;
+      }
+
       const newStatus = document.getElementById('drawerStatusSelect').value;
       const table     = drawerType === 'admission' ? 'admission_enquiries' : 'job_applications';
       const saveBtn   = document.getElementById('drawerSaveStatus');
@@ -957,6 +1348,10 @@
 
     function renderNewsTable() {
       const tbody = document.getElementById('newsTbody');
+      const canNewsEdit = document.getElementById('newsCount').dataset.newsEdit === '1';
+      const canNewsPublish = document.getElementById('newsCount').dataset.newsPublish === '1';
+      const canNewsDelete = document.getElementById('newsCount').dataset.newsDelete === '1';
+
       tbody.innerHTML = newsData.map(r => `
         <tr>
           <td class="td-bold" style="max-width:260px;">${esc(r.title)}</td>
@@ -965,17 +1360,17 @@
           <td>${statusBadge(r.status === 'published' ? 'published' : 'draft')}</td>
           <td>
             <div class="row-actions">
-              <button class="btn-view btn-edit-art" data-id="${r.id}">
+              ${canNewsEdit ? `<button class="btn-view btn-edit-art" data-id="${r.id}">
                 <i class="fa-solid fa-pen"></i> Edit
-              </button>
-              <button class="btn-toggle-status" data-id="${r.id}" data-status="${esc(r.status)}">
+              </button>` : ''}
+              ${canNewsPublish ? `<button class="btn-toggle-status" data-id="${r.id}" data-status="${esc(r.status)}">
                 ${r.status === 'published'
                   ? '<i class="fa-solid fa-eye-slash"></i> Unpublish'
                   : '<i class="fa-solid fa-eye"></i> Publish'}
-              </button>
-              <button class="btn-delete-article" data-id="${r.id}" data-title="${esc(r.title)}">
+              </button>` : ''}
+              ${canNewsDelete ? `<button class="btn-delete-article" data-id="${r.id}" data-title="${esc(r.title)}">
                 <i class="fa-solid fa-trash"></i>
-              </button>
+              </button>` : ''}
             </div>
           </td>
         </tr>
@@ -1099,6 +1494,17 @@
 
     // ── Open / close form ──────────────────────────────────
     function openNewsForm(id = null) {
+      const canCreate = hasPermission('news', 'create');
+      const canEdit = hasPermission('news', 'edit');
+      if (!id && !canCreate) {
+        alert('You do not have permission to create news articles.');
+        return;
+      }
+      if (id && !canEdit) {
+        alert('You do not have permission to edit news articles.');
+        return;
+      }
+
       document.getElementById('newsFormError').classList.add('hidden');
       if (id) {
         const r = newsData.find(x => x.id === id);
@@ -1155,6 +1561,20 @@
       const body     = document.getElementById('nfBody').value.trim();
       const status   = document.querySelector('input[name="nfStatus"]:checked')?.value || 'draft';
 
+      const canCreate = hasPermission('news', 'create');
+      const canEdit = hasPermission('news', 'edit');
+      if ((!id && !canCreate) || (id && !canEdit)) {
+        errEl.textContent = 'You do not have permission to save this article.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (status === 'published' && !canPublishArea('news', 'news')) {
+        errEl.textContent = 'You do not have permission to publish news.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
       if (!title) {
         errEl.textContent = 'Please enter a title.';
         errEl.classList.remove('hidden');
@@ -1208,6 +1628,10 @@
 
     // ── Toggle published / draft ───────────────────────────
     async function toggleArticleStatus(id, currentStatus) {
+      if (!canPublishArea('news', 'news')) {
+        alert('You do not have permission to publish or unpublish news.');
+        return;
+      }
       const newStatus = currentStatus === 'published' ? 'draft' : 'published';
       const { error } = await supabaseClient
         .from('news_articles')
@@ -1221,6 +1645,10 @@
 
     // ── Delete article ─────────────────────────────────────
     async function deleteArticle(id, title) {
+      if (!hasPermission('news', 'delete')) {
+        alert('You do not have permission to delete news articles.');
+        return;
+      }
       if (!confirm(`Delete "${title}"?\n\nThis cannot be undone.`)) return;
       const { error } = await supabaseClient.from('news_articles').delete().eq('id', id);
       if (error) { alert('Delete failed: ' + error.message); return; }
@@ -1271,6 +1699,9 @@
 
     function renderVacanciesTable() {
       const tbody = document.getElementById('vacTbody');
+      const canManage = document.getElementById('vacCount').dataset.vacManage === '1';
+      const canPublish = document.getElementById('vacCount').dataset.vacPublish === '1';
+
       tbody.innerHTML = vacanciesData.map(r => `
         <tr>
           <td class="td-bold" style="max-width:260px;">${esc(r.title)}</td>
@@ -1281,17 +1712,17 @@
           <td>${statusBadge(r.status)}</td>
           <td>
             <div class="row-actions">
-              <button class="btn-view btn-edit-vac" data-id="${r.id}">
+              ${canManage ? `<button class="btn-view btn-edit-vac" data-id="${r.id}">
                 <i class="fa-solid fa-pen"></i> Edit
-              </button>
-              <button class="btn-toggle-vac" data-id="${r.id}" data-status="${esc(r.status)}">
+              </button>` : ''}
+              ${(canManage && canPublish) ? `<button class="btn-toggle-vac" data-id="${r.id}" data-status="${esc(r.status)}">
                 ${r.status === 'open'
                   ? '<i class="fa-solid fa-eye-slash"></i> Close'
                   : '<i class="fa-solid fa-eye"></i> Open'}
-              </button>
-              <button class="btn-delete-vac" data-id="${r.id}" data-title="${esc(r.title)}">
+              </button>` : ''}
+              ${canManage ? `<button class="btn-delete-vac" data-id="${r.id}" data-title="${esc(r.title)}">
                 <i class="fa-solid fa-trash"></i>
-              </button>
+              </button>` : ''}
             </div>
           </td>
         </tr>
@@ -1307,6 +1738,11 @@
 
     // ── Open / close form ────────────────────────────────────
     function openVacancyForm(id = null) {
+      if (!hasPermission('jobs', 'manage_vacancies')) {
+        alert('You do not have permission to manage vacancies.');
+        return;
+      }
+
       document.getElementById('vacFormError').classList.add('hidden');
       if (id) {
         const r = vacanciesData.find(x => x.id === id);
@@ -1357,10 +1793,27 @@
       const description = document.getElementById('vfDescription').value.trim();
       const status      = document.querySelector('input[name="vfStatus"]:checked')?.value || 'closed';
 
+      if (!hasPermission('jobs', 'manage_vacancies')) {
+        errEl.textContent = 'You do not have permission to manage vacancies.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (status === 'open' && authzState.canPublish?.vacancies === false) {
+        errEl.textContent = 'You do not have permission to open vacancies.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
       if (!title) {
         errEl.textContent = 'Please enter a job title.';
         errEl.classList.remove('hidden');
         return;
+      }
+
+      if (status === 'closed') {
+        const shouldContinue = confirm('This vacancy is set to Closed and will not appear on the homepage or openings page. Save anyway?');
+        if (!shouldContinue) return;
       }
 
       saveBtn.disabled = true;
@@ -1408,6 +1861,10 @@
 
     // ── Toggle open / closed ──────────────────────────────────
     async function toggleVacancyStatus(id, currentStatus) {
+      if (!hasPermission('jobs', 'manage_vacancies') || authzState.canPublish?.vacancies === false) {
+        alert('You do not have permission to open or close vacancies.');
+        return;
+      }
       const newStatus = currentStatus === 'open' ? 'closed' : 'open';
       const { error } = await supabaseClient
         .from('vacancies')
@@ -1421,6 +1878,10 @@
 
     // ── Delete vacancy ────────────────────────────────────────
     async function deleteVacancy(id, title) {
+      if (!hasPermission('jobs', 'manage_vacancies')) {
+        alert('You do not have permission to delete vacancies.');
+        return;
+      }
       if (!confirm(`Delete "${title}"?\n\nThis cannot be undone.`)) return;
       const { error } = await supabaseClient.from('vacancies').delete().eq('id', id);
       if (error) { alert('Delete failed: ' + error.message); return; }
@@ -1430,6 +1891,1316 @@
       if (n === 0) { hide('vacTableWrap'); show('vacEmpty'); }
       else renderVacanciesTable();
     }
+
+    // ═══════════════════════════════════════════════════════
+    // GALLERY MANAGEMENT
+    // ═══════════════════════════════════════════════════════
+    let galleryData = [];
+    let galleryLoaded = false;
+    let galleryUploadFiles = [];
+
+    function slugifyFileName(name) {
+      return String(name || 'image')
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9._-]/g, '')
+        .replace(/-+/g, '-')
+        .slice(0, 80);
+    }
+
+    function isSetupError(err) {
+      const msg = String(err?.message || '').toLowerCase();
+      return msg.includes('gallery_images') || msg.includes('relation') || msg.includes('does not exist') || msg.includes('bucket');
+    }
+
+    function syncGalleryKpis() {
+      const total = galleryData.length;
+      const published = galleryData.filter(x => x.status === 'published').length;
+      const featured = galleryData.filter(x => x.featured === true).length;
+      const albums = new Set(galleryData.map(x => (x.album || '').trim()).filter(Boolean)).size;
+
+      document.getElementById('galleryTotalCount').textContent = String(total);
+      document.getElementById('galleryPublishedCount').textContent = String(published);
+      document.getElementById('galleryFeaturedCount').textContent = String(featured);
+      document.getElementById('galleryAlbumsCount').textContent = String(albums);
+    }
+
+    function syncGalleryAlbumFilter() {
+      const select = document.getElementById('galleryAlbumFilter');
+      const selected = select.value || 'all';
+      const albums = Array.from(new Set(galleryData.map(x => (x.album || '').trim()).filter(Boolean)))
+        .sort((a, b) => a.localeCompare(b));
+
+      select.innerHTML = '<option value="all">All albums</option>' + albums.map(a =>
+        `<option value="${esc(a)}">${esc(a)}</option>`
+      ).join('');
+
+      if (albums.includes(selected)) select.value = selected;
+      else select.value = 'all';
+    }
+
+    function applyGalleryFilters() {
+      const q = document.getElementById('gallerySearchInput').value.trim().toLowerCase();
+      const album = document.getElementById('galleryAlbumFilter').value;
+      const status = document.getElementById('galleryStatusFilter').value;
+      const sortBy = document.getElementById('gallerySortSelect').value;
+
+      const filtered = galleryData.filter(item => {
+        const haystack = [item.title, item.caption, item.album, item.alt_text]
+          .map(v => String(v || '').toLowerCase())
+          .join(' ');
+        const passQ = !q || haystack.includes(q);
+        const passAlbum = album === 'all' || String(item.album || '') === album;
+        const passStatus = status === 'all' || String(item.status || 'draft') === status;
+        return passQ && passAlbum && passStatus;
+      });
+
+      const sorted = filtered.sort((a, b) => {
+        if (sortBy === 'title-asc') return String(a.title || '').localeCompare(String(b.title || ''));
+        if (sortBy === 'title-desc') return String(b.title || '').localeCompare(String(a.title || ''));
+
+        const at = Date.parse(a.created_at || '') || 0;
+        const bt = Date.parse(b.created_at || '') || 0;
+        return sortBy === 'oldest' ? at - bt : bt - at;
+      });
+
+      return sorted;
+    }
+
+    function renderGalleryGrid() {
+      const grid = document.getElementById('galleryGrid');
+      const rows = applyGalleryFilters();
+      const canEdit = document.getElementById('galleryTotalCount').dataset.galleryEdit === '1';
+      const canDelete = document.getElementById('galleryTotalCount').dataset.galleryDelete === '1';
+      const canPublish = document.getElementById('galleryTotalCount').dataset.galleryPublish === '1';
+
+      if (rows.length === 0) {
+        hide('galleryGrid');
+        show('galleryEmpty');
+        return;
+      }
+
+      hide('galleryEmpty');
+      grid.innerHTML = rows.map(item => {
+        const status = item.status === 'published' ? 'published' : 'draft';
+        const imageUrl = item.image_url || item.url || '';
+        return `
+          <article class="gallery-image-card" data-id="${item.id}">
+            <div class="gallery-image-top">
+              ${imageUrl
+                ? `<img src="${esc(imageUrl)}" alt="${esc(item.alt_text || item.title || 'Gallery image')}" loading="lazy" />`
+                : '<div class="gallery-image-fallback"><i class="fa-solid fa-image"></i></div>'}
+              <div class="gallery-chip-row">
+                <span class="status-badge ${status === 'published' ? 'badge-green' : 'badge-muted'}">${status === 'published' ? 'Published' : 'Draft'}</span>
+                ${item.featured ? '<span class="status-badge badge-orange">Featured</span>' : ''}
+              </div>
+            </div>
+            <div class="gallery-image-body">
+              <h4>${esc(item.title || 'Untitled')}</h4>
+              <p>${esc(item.caption || 'No caption provided.')}</p>
+              <div class="gallery-meta-row">
+                <span>${item.album ? `<i class="fa-solid fa-folder-open"></i> ${esc(item.album)}` : '<i class="fa-regular fa-folder"></i> Unsorted'}</span>
+                <span><i class="fa-regular fa-calendar"></i> ${fmtDate(item.created_at || item.taken_on)}</span>
+              </div>
+              <div class="gallery-actions-row">
+                ${canEdit ? `<button class="btn-view btn-gallery-edit" data-id="${item.id}"><i class="fa-solid fa-pen"></i> Edit</button>` : ''}
+                ${canPublish ? `<button class="btn-toggle-status btn-gallery-status" data-id="${item.id}" data-status="${esc(status)}">
+                  ${status === 'published' ? '<i class="fa-solid fa-eye-slash"></i> Draft' : '<i class="fa-solid fa-eye"></i> Publish'}
+                </button>` : ''}
+                ${canPublish ? `<button class="btn-toggle-status btn-gallery-feature" data-id="${item.id}" data-featured="${item.featured ? '1' : '0'}">
+                  ${item.featured ? '<i class="fa-solid fa-star"></i> Unfeature' : '<i class="fa-regular fa-star"></i> Feature'}
+                </button>` : ''}
+                ${canDelete ? `<button class="btn-delete-article btn-gallery-delete" data-id="${item.id}" data-title="${esc(item.title || 'this image')}">
+                  <i class="fa-solid fa-trash"></i>
+                </button>` : ''}
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      show('galleryGrid');
+    }
+
+    async function loadGallery() {
+      galleryLoaded = false;
+      show('galleryLoading');
+      hide('galleryGrid');
+      hide('galleryEmpty');
+      hide('gallerySetupHint');
+
+      const { data, error } = await supabaseClient
+        .from('gallery_images')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      hide('galleryLoading');
+
+      if (error) {
+        console.error('Gallery load error:', error);
+        if (isSetupError(error)) {
+          show('gallerySetupHint');
+        } else {
+          show('galleryEmpty');
+          document.querySelector('#galleryEmpty p').textContent = 'Could not load gallery images right now.';
+        }
+        return;
+      }
+
+      galleryData = data || [];
+      galleryLoaded = true;
+      syncGalleryKpis();
+      syncGalleryAlbumFilter();
+      renderGalleryGrid();
+    }
+
+    function renderGalleryUploadList() {
+      const wrap = document.getElementById('galleryUploadList');
+      if (!galleryUploadFiles.length) {
+        wrap.innerHTML = '<p class="img-list-empty">No files selected yet.</p>';
+        return;
+      }
+
+      wrap.innerHTML = galleryUploadFiles.map((row, i) => `
+        <div class="gallery-upload-item">
+          <div class="gallery-upload-main">
+            <strong>${esc(row.file.name)}</strong>
+            <span>${Math.round(row.file.size / 1024)} KB</span>
+          </div>
+          <div class="editor-row-2">
+            <div class="editor-field" style="margin-bottom:0;">
+              <label>Title</label>
+              <input type="text" value="${esc(row.title)}" class="gallery-file-title" data-idx="${i}" />
+            </div>
+            <div class="editor-field" style="margin-bottom:0;">
+              <label>Alt Text</label>
+              <input type="text" value="${esc(row.alt_text)}" class="gallery-file-alt" data-idx="${i}" placeholder="Describe the photo for accessibility" />
+            </div>
+          </div>
+          <div class="editor-field" style="margin-bottom:0;">
+            <label>Caption</label>
+            <input type="text" value="${esc(row.caption)}" class="gallery-file-caption" data-idx="${i}" placeholder="Optional short caption" />
+          </div>
+          <button type="button" class="img-remove-btn gallery-file-remove" data-idx="${i}" title="Remove file">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+      `).join('');
+
+      wrap.querySelectorAll('.gallery-file-title').forEach(el => {
+        el.addEventListener('input', () => { galleryUploadFiles[+el.dataset.idx].title = el.value; });
+      });
+      wrap.querySelectorAll('.gallery-file-alt').forEach(el => {
+        el.addEventListener('input', () => { galleryUploadFiles[+el.dataset.idx].alt_text = el.value; });
+      });
+      wrap.querySelectorAll('.gallery-file-caption').forEach(el => {
+        el.addEventListener('input', () => { galleryUploadFiles[+el.dataset.idx].caption = el.value; });
+      });
+      wrap.querySelectorAll('.gallery-file-remove').forEach(el => {
+        el.addEventListener('click', () => {
+          galleryUploadFiles.splice(+el.dataset.idx, 1);
+          renderGalleryUploadList();
+        });
+      });
+    }
+
+    function ingestGalleryFiles(fileList) {
+      const files = Array.from(fileList || []);
+      const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+      files.forEach(file => {
+        if (!allowed.includes(file.type)) return;
+        if (file.size > 8 * 1024 * 1024) return;
+        const base = file.name.replace(/\.[^.]+$/, '').replace(/[-_]+/g, ' ').trim();
+        galleryUploadFiles.push({
+          file,
+          title: base || 'School Photo',
+          caption: '',
+          alt_text: base || 'School photo',
+        });
+      });
+
+      renderGalleryUploadList();
+    }
+
+    async function uploadGalleryFile(file) {
+      const ext = String(file.name.split('.').pop() || 'jpg').toLowerCase();
+      const clean = slugifyFileName(file.name.replace(/\.[^.]+$/, ''));
+      const path = `gallery/${Date.now()}_${Math.random().toString(36).slice(2)}_${clean}.${ext}`;
+
+      const { error: uploadError } = await supabaseClient.storage
+        .from('gallery-images')
+        .upload(path, file, { contentType: file.type, upsert: false });
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabaseClient.storage
+        .from('gallery-images')
+        .getPublicUrl(path);
+
+      return { publicUrl, path };
+    }
+
+    function openGalleryForm() {
+      if (!hasPermission('gallery', 'upload')) {
+        alert('You do not have permission to upload gallery images.');
+        return;
+      }
+
+      document.getElementById('galleryUploadForm').reset();
+      document.getElementById('galleryFormError').classList.add('hidden');
+      galleryUploadFiles = [];
+      renderGalleryUploadList();
+      hide('galleryListView');
+      show('galleryFormView');
+    }
+
+    function closeGalleryForm() {
+      hide('galleryFormView');
+      show('galleryListView');
+    }
+
+    async function toggleGalleryStatus(id, currentStatus) {
+      if (!canPublishArea('gallery', 'gallery')) {
+        alert('You do not have permission to publish gallery images.');
+        return;
+      }
+      const next = currentStatus === 'published' ? 'draft' : 'published';
+      const { error } = await supabaseClient
+        .from('gallery_images')
+        .update({ status: next })
+        .eq('id', id);
+      if (error) {
+        alert('Status update failed: ' + error.message);
+        return;
+      }
+      const row = galleryData.find(x => x.id === id);
+      if (row) row.status = next;
+      syncGalleryKpis();
+      renderGalleryGrid();
+    }
+
+    async function toggleGalleryFeatured(id, current) {
+      if (!canPublishArea('gallery', 'gallery')) {
+        alert('You do not have permission to feature gallery images.');
+        return;
+      }
+      const next = current !== '1';
+      const { error } = await supabaseClient
+        .from('gallery_images')
+        .update({ featured: next })
+        .eq('id', id);
+      if (error) {
+        alert('Featured update failed: ' + error.message);
+        return;
+      }
+      const row = galleryData.find(x => x.id === id);
+      if (row) row.featured = next;
+      syncGalleryKpis();
+      renderGalleryGrid();
+    }
+
+    async function editGalleryImage(id) {
+      if (!hasPermission('gallery', 'edit')) {
+        alert('You do not have permission to edit gallery images.');
+        return;
+      }
+
+      const row = galleryData.find(x => x.id === id);
+      if (!row) return;
+
+      const title = prompt('Image title', row.title || '');
+      if (title == null) return;
+      const caption = prompt('Caption (optional)', row.caption || '');
+      if (caption == null) return;
+      const album = prompt('Album (optional)', row.album || '');
+      if (album == null) return;
+      const altText = prompt('Alt text (optional)', row.alt_text || '');
+      if (altText == null) return;
+
+      const payload = {
+        title: title.trim() || null,
+        caption: caption.trim() || null,
+        album: album.trim() || null,
+        alt_text: altText.trim() || null,
+      };
+
+      const { error } = await supabaseClient
+        .from('gallery_images')
+        .update(payload)
+        .eq('id', id);
+
+      if (error) {
+        alert('Edit failed: ' + error.message);
+        return;
+      }
+
+      const idx = galleryData.findIndex(x => x.id === id);
+      if (idx !== -1) galleryData[idx] = { ...galleryData[idx], ...payload };
+      syncGalleryAlbumFilter();
+      renderGalleryGrid();
+    }
+
+    async function deleteGalleryImage(id, title) {
+      if (!hasPermission('gallery', 'delete')) {
+        alert('You do not have permission to delete gallery images.');
+        return;
+      }
+      if (!confirm(`Delete "${title}"?\n\nThis removes it from the gallery list.`)) return;
+
+      const row = galleryData.find(x => x.id === id);
+      const { error } = await supabaseClient
+        .from('gallery_images')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        alert('Delete failed: ' + error.message);
+        return;
+      }
+
+      if (row?.storage_path) {
+        await supabaseClient.storage.from('gallery-images').remove([row.storage_path]);
+      }
+
+      galleryData = galleryData.filter(x => x.id !== id);
+      syncGalleryKpis();
+      syncGalleryAlbumFilter();
+      renderGalleryGrid();
+    }
+
+    document.getElementById('btnNewGalleryImage').addEventListener('click', openGalleryForm);
+    document.getElementById('btnBackGallery').addEventListener('click', closeGalleryForm);
+    document.getElementById('btnCancelGalleryForm').addEventListener('click', closeGalleryForm);
+    document.getElementById('refreshGallery').addEventListener('click', loadGallery);
+    document.getElementById('gallerySearchInput').addEventListener('input', renderGalleryGrid);
+    document.getElementById('galleryAlbumFilter').addEventListener('change', renderGalleryGrid);
+    document.getElementById('galleryStatusFilter').addEventListener('change', renderGalleryGrid);
+    document.getElementById('gallerySortSelect').addEventListener('change', renderGalleryGrid);
+
+    const galleryDropzone = document.getElementById('galleryDropzone');
+    const galleryFileInput = document.getElementById('gfFiles');
+    galleryFileInput.addEventListener('change', e => ingestGalleryFiles(e.target.files));
+
+    galleryDropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      galleryDropzone.classList.add('dragover');
+    });
+    galleryDropzone.addEventListener('dragleave', () => {
+      galleryDropzone.classList.remove('dragover');
+    });
+    galleryDropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      galleryDropzone.classList.remove('dragover');
+      ingestGalleryFiles(e.dataTransfer.files);
+    });
+
+    document.getElementById('galleryUploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('galleryFormError');
+      const saveBtn = document.getElementById('btnSaveGallery');
+      const spinner = saveBtn.querySelector('.btn-spinner');
+      const label = saveBtn.querySelector('.btn-label');
+
+      errEl.classList.add('hidden');
+
+      if (!galleryUploadFiles.length) {
+        errEl.textContent = 'Please choose at least one image.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      const album = document.getElementById('gfAlbum').value.trim();
+      const takenOn = document.getElementById('gfDate').value || null;
+      const status = document.querySelector('input[name="gfStatus"]:checked')?.value || 'draft';
+      const featured = document.getElementById('gfFeatured').checked;
+
+      if (!hasPermission('gallery', 'upload')) {
+        errEl.textContent = 'You do not have permission to upload gallery images.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (status === 'published' && !canPublishArea('gallery', 'gallery')) {
+        errEl.textContent = 'You do not have permission to publish gallery images.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      saveBtn.disabled = true;
+      spinner.classList.remove('hidden');
+      label.style.display = 'none';
+
+      try {
+        for (const row of galleryUploadFiles) {
+          const { publicUrl, path } = await uploadGalleryFile(row.file);
+          const payload = {
+            title: row.title.trim() || null,
+            caption: row.caption.trim() || null,
+            alt_text: row.alt_text.trim() || null,
+            album: album || null,
+            image_url: publicUrl,
+            storage_path: path,
+            status,
+            featured,
+            taken_on: takenOn,
+          };
+
+          const { data, error } = await supabaseClient
+            .from('gallery_images')
+            .insert([payload])
+            .select();
+
+          if (error) throw error;
+          if (data?.[0]) galleryData.unshift(data[0]);
+        }
+
+        syncGalleryKpis();
+        syncGalleryAlbumFilter();
+        renderGalleryGrid();
+        closeGalleryForm();
+      } catch (err) {
+        errEl.textContent = 'Upload failed: ' + (err.message || err);
+        errEl.classList.remove('hidden');
+      } finally {
+        saveBtn.disabled = false;
+        spinner.classList.add('hidden');
+        label.style.display = '';
+      }
+    });
+
+    document.getElementById('galleryGrid').addEventListener('click', (e) => {
+      const statusBtn = e.target.closest('.btn-gallery-status');
+      if (statusBtn) {
+        toggleGalleryStatus(statusBtn.dataset.id, statusBtn.dataset.status);
+        return;
+      }
+
+      const featureBtn = e.target.closest('.btn-gallery-feature');
+      if (featureBtn) {
+        toggleGalleryFeatured(featureBtn.dataset.id, featureBtn.dataset.featured);
+        return;
+      }
+
+      const editBtn = e.target.closest('.btn-gallery-edit');
+      if (editBtn) {
+        editGalleryImage(editBtn.dataset.id);
+        return;
+      }
+
+      const deleteBtn = e.target.closest('.btn-gallery-delete');
+      if (deleteBtn) {
+        deleteGalleryImage(deleteBtn.dataset.id, deleteBtn.dataset.title || 'this image');
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // SETTINGS MANAGEMENT
+    // ═══════════════════════════════════════════════════════
+    let settingsLoaded = false;
+    let settingsProfileReady = true;
+    let currentSettingsUser = null;
+    let currentSettingsProfile = null;
+    let settingsPositionsData = [];
+    let settingsStaffData = [];
+
+    const OWNER_SUPERADMIN_EMAIL = 'shad@admin.com';
+
+    const ROLE_LABELS = {
+      superadmin: 'Superadmin',
+      admin: 'Admin',
+      staff: 'Staff',
+    };
+
+    const PHASE1_PERMISSION_GROUPS = [
+      { key: 'admissions', label: 'Admissions' },
+      { key: 'jobs',       label: 'Jobs' },
+      { key: 'news',       label: 'News' },
+      { key: 'gallery',    label: 'Gallery' },
+      { key: 'reports',    label: 'Reports' },
+      { key: 'settings',   label: 'Settings' },
+    ];
+
+    const ROLE_BASELINE = {
+      superadmin: {
+        permissions: {
+          admissions: { view: true, update: true, export: true },
+          jobs:       { view: true, update: true, export: true, manage_vacancies: true },
+          news:       { view: true, create: true, edit: true, publish: true, delete: true },
+          gallery:    { view: true, upload: true, edit: true, publish: true, delete: true },
+          reports:    { view: true, submit: true, review: true, approve: true },
+          settings:   { own: true, manage_staff: true, manage_roles: true },
+        },
+        can_publish: { news: true, gallery: true, vacancies: true, reports: true },
+      },
+      admin: {
+        permissions: {
+          admissions: { view: true, update: true, export: true },
+          jobs:       { view: true, update: true, export: true, manage_vacancies: true },
+          news:       { view: true, create: true, edit: true, publish: true, delete: true },
+          gallery:    { view: true, upload: true, edit: true, publish: true, delete: true },
+          reports:    { view: true, submit: false, review: true, approve: true },
+          settings:   { own: true, manage_staff: false, manage_roles: false },
+        },
+        can_publish: { news: true, gallery: true, vacancies: true, reports: true },
+      },
+      staff: {
+        permissions: {
+          admissions: { view: false, update: false, export: false },
+          jobs:       { view: false, update: false, export: false, manage_vacancies: false },
+          news:       { view: true, create: true, edit: true, publish: false, delete: false },
+          gallery:    { view: true, upload: true, edit: true, publish: false, delete: false },
+          reports:    { view: true, submit: true, review: false, approve: false },
+          settings:   { own: true, manage_staff: false, manage_roles: false },
+        },
+        can_publish: { news: false, gallery: false, vacancies: false, reports: false },
+      },
+    };
+
+    function isSettingsSetupError(err) {
+      const msg = String(err?.message || '').toLowerCase();
+      return msg.includes('admin_profiles') || msg.includes('relation') || msg.includes('does not exist');
+    }
+
+    function setButtonLoading(btn, loading) {
+      const spinner = btn.querySelector('.btn-spinner');
+      const label = btn.querySelector('.btn-label');
+      if (!spinner || !label) return;
+      btn.disabled = loading;
+      spinner.classList.toggle('hidden', !loading);
+      label.style.display = loading ? 'none' : '';
+    }
+
+    function setSettingsStatus(id, text, kind = '') {
+      const el = document.getElementById(id);
+      el.textContent = text || '';
+      el.className = `settings-inline-status${kind ? ` ${kind}` : ''}`;
+    }
+
+    function buildDefaultPreferences() {
+      return {
+        admissions: true,
+        jobs: true,
+        news: true,
+        gallery: true,
+      };
+    }
+
+    function generateTemporaryPassword(length = 12) {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*';
+      const random = new Uint32Array(length);
+      window.crypto.getRandomValues(random);
+      let out = '';
+      for (let i = 0; i < length; i++) out += chars[random[i] % chars.length];
+      return out;
+    }
+
+    function renderStaffList() {
+      const wrap = document.getElementById('settingsStaffList');
+      if (!settingsStaffData.length) {
+        wrap.innerHTML = '<p class="img-list-empty" style="padding:10px 0 2px;">No staff accounts created yet.</p>';
+        return;
+      }
+
+      wrap.innerHTML = `
+        <div class="settings-staff-table-wrap">
+          <table class="data-table settings-staff-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Password</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${settingsStaffData.map(r => `
+                <tr>
+                  <td class="td-bold">${esc(r.display_name || '—')}</td>
+                  <td>${esc(r.email || '—')}</td>
+                  <td><span class="year-pill">${esc((r.role || 'staff').toUpperCase())}</span></td>
+                  <td>${statusBadge(r.status || 'active')}</td>
+                  <td>${r.must_change_password ? '<span class="status-badge badge-orange">Change Required</span>' : '<span class="status-badge badge-green">Set</span>'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderPositionOptions() {
+      const select = document.getElementById('soPosition');
+      const current = select.value;
+      select.innerHTML = '<option value="">Unassigned</option>' + settingsPositionsData
+        .filter(p => p.active !== false)
+        .map(p => `<option value="${p.id}">${esc(p.name)}</option>`)
+        .join('');
+      if (settingsPositionsData.some(p => p.id === current)) select.value = current;
+    }
+
+    async function loadSettingsPositions() {
+      const { data, error } = await supabaseClient
+        .from('staff_positions')
+        .select('id,name,active,created_at')
+        .order('name', { ascending: true });
+
+      if (error) {
+        console.error('Positions load error:', error);
+        settingsPositionsData = [];
+      } else {
+        settingsPositionsData = data || [];
+      }
+      renderPositionOptions();
+    }
+
+    async function loadSettingsStaff() {
+      const { data, error } = await supabaseClient
+        .from('staff_profiles')
+        .select('id,email,display_name,role,status,must_change_password,created_at')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Staff load error:', error);
+        settingsStaffData = [];
+      } else {
+        settingsStaffData = data || [];
+      }
+      renderStaffList();
+    }
+
+    function normalizeRoleValue(role, email) {
+      if (String(email || '').toLowerCase() === OWNER_SUPERADMIN_EMAIL) return 'superadmin';
+      const r = String(role || '').trim().toLowerCase();
+      if (r === 'superadmin' || r === 'admin' || r === 'staff') return r;
+      return 'admin';
+    }
+
+    function hasPermission(group, action) {
+      if (!authzState.ready) return true;
+      return !!authzState.permissions?.[group]?.[action];
+    }
+
+    function canPublishArea(area, group = area) {
+      if (!authzState.ready) return true;
+      return hasPermission(group, 'publish') && authzState.canPublish?.[area] !== false;
+    }
+
+    function canAccessSection(sectionId) {
+      if (!authzState.ready) return true;
+      if (sectionId === 'overview') return true;
+      if (sectionId === 'admissions') return hasPermission('admissions', 'view');
+      if (sectionId === 'jobs') return hasPermission('jobs', 'view');
+      if (sectionId === 'news') return hasPermission('news', 'view');
+      if (sectionId === 'vacancies') return hasPermission('jobs', 'manage_vacancies');
+      if (sectionId === 'gallery') return hasPermission('gallery', 'view');
+      if (sectionId === 'settings') return hasPermission('settings', 'own');
+      return false;
+    }
+
+    function buildDefaultPermissions(role) {
+      return JSON.parse(JSON.stringify(ROLE_BASELINE[role]?.permissions || ROLE_BASELINE.admin.permissions));
+    }
+
+    function buildDefaultPublishRights(role) {
+      return { ...(ROLE_BASELINE[role]?.can_publish || ROLE_BASELINE.admin.can_publish) };
+    }
+
+    function mergeWithBaselinePermissions(role, permissions) {
+      const base = buildDefaultPermissions(role);
+      const incoming = permissions && typeof permissions === 'object' ? permissions : {};
+      Object.keys(base).forEach(group => {
+        if (incoming[group] && typeof incoming[group] === 'object') {
+          base[group] = { ...base[group], ...incoming[group] };
+        }
+      });
+      return base;
+    }
+
+    function mergeWithBaselinePublish(role, publish) {
+      return { ...buildDefaultPublishRights(role), ...(publish && typeof publish === 'object' ? publish : {}) };
+    }
+
+    function mergePermissionLayers(role, ...layers) {
+      const base = buildDefaultPermissions(role);
+      layers.forEach(layer => {
+        if (!layer || typeof layer !== 'object') return;
+        Object.keys(base).forEach(group => {
+          if (layer[group] && typeof layer[group] === 'object') {
+            base[group] = { ...base[group], ...layer[group] };
+          }
+        });
+      });
+      return base;
+    }
+
+    function mergePublishLayers(role, ...layers) {
+      return layers.reduce(
+        (acc, layer) => ({ ...acc, ...(layer && typeof layer === 'object' ? layer : {}) }),
+        buildDefaultPublishRights(role)
+      );
+    }
+
+    async function resolveAuthorization(user) {
+      const email = user?.email || '';
+
+      try {
+        const { data: adminProfile, error: adminErr } = await supabaseClient
+          .from('admin_profiles')
+          .select('role,permissions,can_publish')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (!adminErr && adminProfile) {
+          const role = normalizeRoleValue(adminProfile.role, email);
+          return {
+            role,
+            permissions: mergePermissionLayers(role, adminProfile.permissions),
+            canPublish: mergePublishLayers(role, adminProfile.can_publish),
+          };
+        }
+      } catch (err) {
+        console.warn('Authorization fallback to defaults (admin_profiles):', err);
+      }
+
+      try {
+        const { data: staffProfile, error: staffErr } = await supabaseClient
+          .from('staff_profiles')
+          .select('role,position_id,permissions_override,can_publish_override')
+          .eq('id', user.id)
+          .maybeSingle();
+
+        if (!staffErr && staffProfile) {
+          const role = normalizeRoleValue(staffProfile.role || 'staff', email);
+          let positionPerms = null;
+          let positionPublish = null;
+
+          if (staffProfile.position_id) {
+            const { data: posData, error: posErr } = await supabaseClient
+              .from('staff_positions')
+              .select('permissions,can_publish')
+              .eq('id', staffProfile.position_id)
+              .maybeSingle();
+
+            if (!posErr && posData) {
+              positionPerms = posData.permissions;
+              positionPublish = posData.can_publish;
+            }
+          }
+
+          return {
+            role,
+            permissions: mergePermissionLayers(role, positionPerms, staffProfile.permissions_override),
+            canPublish: mergePublishLayers(role, positionPublish, staffProfile.can_publish_override),
+          };
+        }
+      } catch (err) {
+        console.warn('Authorization fallback to defaults (staff_profiles):', err);
+      }
+
+      const role = normalizeRoleValue('admin', email);
+      return {
+        role,
+        permissions: buildDefaultPermissions(role),
+        canPublish: buildDefaultPublishRights(role),
+      };
+    }
+
+    function applyNavigationAuthorization() {
+      const items = document.querySelectorAll('.nav-item[data-section]');
+      items.forEach(btn => {
+        const section = btn.dataset.section;
+        const allowed = canAccessSection(section);
+        btn.classList.toggle('hidden', !allowed);
+        btn.disabled = !allowed;
+      });
+    }
+
+    function applyActionAuthorization() {
+      const canNewsCreate = hasPermission('news', 'create');
+      const canNewsEdit = hasPermission('news', 'edit');
+      const canNewsDelete = hasPermission('news', 'delete');
+      const canNewsPublish = canPublishArea('news', 'news');
+
+      document.getElementById('btnNewArticle').classList.toggle('hidden', !canNewsCreate);
+      document.querySelectorAll('input[name="nfStatus"][value="published"]').forEach(el => {
+        el.disabled = !canNewsPublish;
+      });
+
+      const canVacanciesManage = hasPermission('jobs', 'manage_vacancies');
+      const canVacanciesPublish = authzState.canPublish?.vacancies !== false;
+      document.getElementById('btnNewVacancy').classList.toggle('hidden', !canVacanciesManage);
+      document.querySelectorAll('input[name="vfStatus"][value="open"]').forEach(el => {
+        el.disabled = !(canVacanciesManage && canVacanciesPublish);
+      });
+
+      const canGalleryUpload = hasPermission('gallery', 'upload');
+      const canGalleryEdit = hasPermission('gallery', 'edit');
+      const canGalleryDelete = hasPermission('gallery', 'delete');
+      const canGalleryPublish = canPublishArea('gallery', 'gallery');
+
+      document.getElementById('btnNewGalleryImage').classList.toggle('hidden', !canGalleryUpload);
+      document.querySelectorAll('input[name="gfStatus"][value="published"]').forEach(el => {
+        el.disabled = !canGalleryPublish;
+      });
+
+      const canManageStaff = hasPermission('settings', 'manage_staff');
+      const staffForm = document.getElementById('settingsStaffForm');
+      const staffCard = staffForm?.closest('.settings-card');
+      if (staffCard) staffCard.classList.toggle('hidden', !canManageStaff);
+
+      const canJobsUpdate = hasPermission('jobs', 'update');
+      const canAdmissionsUpdate = hasPermission('admissions', 'update');
+      document.getElementById('drawerSaveStatus').disabled = !(canJobsUpdate || canAdmissionsUpdate);
+
+      const newsFormSaveBtn = document.getElementById('btnSaveArticle');
+      if (newsFormSaveBtn) newsFormSaveBtn.disabled = !(canNewsCreate || canNewsEdit);
+
+      const vacFormSaveBtn = document.getElementById('btnSaveVacancy');
+      if (vacFormSaveBtn) vacFormSaveBtn.disabled = !canVacanciesManage;
+
+      const gallerySaveBtn = document.getElementById('btnSaveGallery');
+      if (gallerySaveBtn) gallerySaveBtn.disabled = !canGalleryUpload;
+
+      const newsImgInput = document.getElementById('nfImgInput');
+      if (newsImgInput) newsImgInput.disabled = !(canNewsCreate || canNewsEdit);
+
+      document.getElementById('newsCount').dataset.newsDelete = canNewsDelete ? '1' : '0';
+      document.getElementById('newsCount').dataset.newsPublish = canNewsPublish ? '1' : '0';
+      document.getElementById('newsCount').dataset.newsEdit = canNewsEdit ? '1' : '0';
+
+      document.getElementById('vacCount').dataset.vacManage = canVacanciesManage ? '1' : '0';
+      document.getElementById('vacCount').dataset.vacPublish = (canVacanciesManage && canVacanciesPublish) ? '1' : '0';
+
+      document.getElementById('galleryTotalCount').dataset.galleryEdit = canGalleryEdit ? '1' : '0';
+      document.getElementById('galleryTotalCount').dataset.galleryDelete = canGalleryDelete ? '1' : '0';
+      document.getElementById('galleryTotalCount').dataset.galleryPublish = canGalleryPublish ? '1' : '0';
+    }
+
+    async function initializeAuthorization() {
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) return;
+
+      const resolved = await resolveAuthorization(user);
+      authzState = {
+        ready: true,
+        role: resolved.role,
+        permissions: resolved.permissions,
+        canPublish: resolved.canPublish,
+      };
+
+      applyNavigationAuthorization();
+      applyActionAuthorization();
+    }
+
+    function renderAccessModel(profile) {
+      const role = normalizeRoleValue(profile?.role, currentSettingsUser?.email);
+      const perms = mergeWithBaselinePermissions(role, profile?.permissions);
+      const publish = mergeWithBaselinePublish(role, profile?.can_publish);
+
+      document.getElementById('settingsRoleDisplay').textContent = ROLE_LABELS[role] || 'Admin';
+
+      const permWrap = document.getElementById('settingsPermissionPills');
+      permWrap.innerHTML = PHASE1_PERMISSION_GROUPS.map(group => {
+        const enabled = Object.values(perms[group.key] || {}).some(Boolean);
+        return `<span class="settings-permission-pill ${enabled ? 'on' : 'off'}">${esc(group.label)}</span>`;
+      }).join('');
+
+      const publishWrap = document.getElementById('settingsPublishPills');
+      publishWrap.innerHTML = Object.entries(publish).map(([key, allowed]) =>
+        `<span class="settings-publish-pill ${allowed ? 'on' : 'off'}">${esc(key)}: ${allowed ? 'Allowed' : 'Restricted'}</span>`
+      ).join('');
+    }
+
+    function readSettingsPreferencesFromUI() {
+      return {
+        admissions: document.getElementById('snAdmissions').checked,
+        jobs: document.getElementById('snJobs').checked,
+        news: document.getElementById('snNews').checked,
+        gallery: document.getElementById('snGallery').checked,
+      };
+    }
+
+    function writeSettingsPreferencesToUI(prefs) {
+      const p = { ...buildDefaultPreferences(), ...(prefs || {}) };
+      document.getElementById('snAdmissions').checked = !!p.admissions;
+      document.getElementById('snJobs').checked = !!p.jobs;
+      document.getElementById('snNews').checked = !!p.news;
+      document.getElementById('snGallery').checked = !!p.gallery;
+    }
+
+    async function fetchOrCreateAdminProfile(user) {
+      const { data, error } = await supabaseClient
+        .from('admin_profiles')
+        .select('*')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+
+      if (data) return data;
+
+      const payload = {
+        id: user.id,
+        email: user.email || '',
+        display_name: (user.user_metadata?.full_name || user.user_metadata?.name || '').trim() || null,
+        role: normalizeRoleValue('admin', user.email),
+        preferences: buildDefaultPreferences(),
+        permissions: buildDefaultPermissions(normalizeRoleValue('admin', user.email)),
+        can_publish: buildDefaultPublishRights(normalizeRoleValue('admin', user.email)),
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data: created, error: createErr } = await supabaseClient
+        .from('admin_profiles')
+        .insert([payload])
+        .select()
+        .single();
+
+      if (createErr) throw createErr;
+      return created;
+    }
+
+    function fillSettingsUI(user, profile) {
+      const role = normalizeRoleValue(profile?.role, user.email);
+      document.getElementById('spEmail').value = user.email || '';
+      document.getElementById('spDisplayName').value = profile?.display_name || '';
+      document.getElementById('spPhone').value = profile?.phone || '';
+      document.getElementById('spJobTitle').value = profile?.job_title || '';
+      document.getElementById('spRole').value = ROLE_LABELS[role] || 'Admin';
+      document.getElementById('ssLastSignIn').textContent = user.last_sign_in_at
+        ? new Date(user.last_sign_in_at).toLocaleString('en-GB', { dateStyle: 'full', timeStyle: 'short' })
+        : '—';
+      document.getElementById('ssUserId').textContent = user.id || '—';
+      writeSettingsPreferencesToUI(profile?.preferences);
+      renderAccessModel({ ...profile, role });
+    }
+
+    async function loadSettings() {
+      settingsLoaded = false;
+      settingsProfileReady = true;
+      show('settingsLoading');
+      hide('settingsGrid');
+      hide('settingsSetupHint');
+
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      if (!user) {
+        window.location.replace('index.html');
+        return;
+      }
+
+      currentSettingsUser = user;
+      setSettingsStatus('settingsProfileStatus', '');
+      setSettingsStatus('settingsPasswordStatus', '');
+      setSettingsStatus('settingsNotificationsStatus', '');
+      setSettingsStatus('settingsSessionStatus', '');
+
+      try {
+        currentSettingsProfile = await fetchOrCreateAdminProfile(user);
+      } catch (err) {
+        console.error('Settings profile load error:', err);
+        if (isSettingsSetupError(err)) {
+          settingsProfileReady = false;
+          show('settingsSetupHint');
+          currentSettingsProfile = {
+            display_name: user.user_metadata?.full_name || '',
+            role: normalizeRoleValue('admin', user.email),
+            preferences: buildDefaultPreferences(),
+            permissions: buildDefaultPermissions(normalizeRoleValue('admin', user.email)),
+            can_publish: buildDefaultPublishRights(normalizeRoleValue('admin', user.email)),
+          };
+        } else {
+          show('settingsSetupHint');
+          document.querySelector('#settingsSetupHint p').textContent = 'Could not load settings right now. Please try again.';
+        }
+      }
+
+      fillSettingsUI(user, currentSettingsProfile);
+      if (hasPermission('settings', 'manage_staff')) {
+        await Promise.all([loadSettingsPositions(), loadSettingsStaff()]);
+      } else {
+        settingsPositionsData = [];
+        settingsStaffData = [];
+      }
+      if (!document.getElementById('soTempPassword').value) {
+        document.getElementById('soTempPassword').value = generateTemporaryPassword();
+      }
+      hide('settingsLoading');
+      show('settingsGrid');
+      settingsLoaded = true;
+    }
+
+    document.getElementById('settingsProfileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setSettingsStatus('settingsProfileStatus', '');
+
+      if (!settingsProfileReady) {
+        setSettingsStatus('settingsProfileStatus', 'Admin profiles table is not set up yet.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('settingsProfileSaveBtn');
+      setButtonLoading(btn, true);
+
+      const payload = {
+        id: currentSettingsUser.id,
+        email: currentSettingsUser.email || '',
+        display_name: document.getElementById('spDisplayName').value.trim() || null,
+        phone: document.getElementById('spPhone').value.trim() || null,
+        job_title: document.getElementById('spJobTitle').value.trim() || null,
+        role: normalizeRoleValue(currentSettingsProfile?.role || 'admin', currentSettingsUser.email),
+        preferences: currentSettingsProfile?.preferences || buildDefaultPreferences(),
+        permissions: mergeWithBaselinePermissions(
+          normalizeRoleValue(currentSettingsProfile?.role || 'admin', currentSettingsUser.email),
+          currentSettingsProfile?.permissions
+        ),
+        can_publish: mergeWithBaselinePublish(
+          normalizeRoleValue(currentSettingsProfile?.role || 'admin', currentSettingsUser.email),
+          currentSettingsProfile?.can_publish
+        ),
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data, error } = await supabaseClient
+        .from('admin_profiles')
+        .upsert(payload)
+        .select()
+        .single();
+
+      setButtonLoading(btn, false);
+
+      if (error) {
+        setSettingsStatus('settingsProfileStatus', 'Profile save failed: ' + error.message, 'error');
+        return;
+      }
+
+      currentSettingsProfile = data;
+      renderAccessModel(data);
+      setSettingsStatus('settingsProfileStatus', 'Profile saved successfully.', 'success');
+    });
+
+    document.getElementById('settingsNotificationsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setSettingsStatus('settingsNotificationsStatus', '');
+
+      if (!settingsProfileReady) {
+        setSettingsStatus('settingsNotificationsStatus', 'Admin profiles table is not set up yet.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('settingsNotificationsSaveBtn');
+      setButtonLoading(btn, true);
+
+      const preferences = readSettingsPreferencesFromUI();
+      const payload = {
+        id: currentSettingsUser.id,
+        email: currentSettingsUser.email || '',
+        display_name: currentSettingsProfile?.display_name || null,
+        phone: currentSettingsProfile?.phone || null,
+        job_title: currentSettingsProfile?.job_title || null,
+        role: normalizeRoleValue(currentSettingsProfile?.role || 'admin', currentSettingsUser.email),
+        preferences,
+        permissions: mergeWithBaselinePermissions(
+          normalizeRoleValue(currentSettingsProfile?.role || 'admin', currentSettingsUser.email),
+          currentSettingsProfile?.permissions
+        ),
+        can_publish: mergeWithBaselinePublish(
+          normalizeRoleValue(currentSettingsProfile?.role || 'admin', currentSettingsUser.email),
+          currentSettingsProfile?.can_publish
+        ),
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data, error } = await supabaseClient
+        .from('admin_profiles')
+        .upsert(payload)
+        .select()
+        .single();
+
+      setButtonLoading(btn, false);
+
+      if (error) {
+        setSettingsStatus('settingsNotificationsStatus', 'Preferences save failed: ' + error.message, 'error');
+        return;
+      }
+
+      currentSettingsProfile = data;
+      renderAccessModel(data);
+      setSettingsStatus('settingsNotificationsStatus', 'Preferences updated.', 'success');
+    });
+
+    document.getElementById('settingsPasswordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setSettingsStatus('settingsPasswordStatus', '');
+
+      const newPassword = document.getElementById('ssNewPassword').value;
+      const confirmPassword = document.getElementById('ssConfirmPassword').value;
+
+      if (newPassword.length < 8) {
+        setSettingsStatus('settingsPasswordStatus', 'Password must be at least 8 characters.', 'error');
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        setSettingsStatus('settingsPasswordStatus', 'Passwords do not match.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('settingsPasswordSaveBtn');
+      setButtonLoading(btn, true);
+
+      const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+
+      setButtonLoading(btn, false);
+
+      if (error) {
+        setSettingsStatus('settingsPasswordStatus', 'Password update failed: ' + error.message, 'error');
+        return;
+      }
+
+      document.getElementById('settingsPasswordForm').reset();
+      setSettingsStatus('settingsPasswordStatus', 'Password updated successfully.', 'success');
+    });
+
+    document.getElementById('btnSignOutOthers').addEventListener('click', async () => {
+      setSettingsStatus('settingsSessionStatus', '');
+      const { error } = await supabaseClient.auth.signOut({ scope: 'others' });
+      if (error) {
+        setSettingsStatus('settingsSessionStatus', 'Could not sign out other sessions: ' + error.message, 'error');
+        return;
+      }
+      setSettingsStatus('settingsSessionStatus', 'Other sessions were signed out.', 'success');
+    });
+
+    document.getElementById('btnSignOutCurrent').addEventListener('click', async () => {
+      await supabaseClient.auth.signOut();
+      window.location.replace('index.html');
+    });
+
+    document.getElementById('btnGenerateTempPassword').addEventListener('click', () => {
+      document.getElementById('soTempPassword').value = generateTemporaryPassword();
+    });
+
+    document.getElementById('settingsStaffForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      setSettingsStatus('settingsStaffStatus', '');
+
+      if (!hasPermission('settings', 'manage_staff')) {
+        setSettingsStatus('settingsStaffStatus', 'You do not have permission to onboard staff.', 'error');
+        return;
+      }
+
+      const name = document.getElementById('soName').value.trim();
+      const email = document.getElementById('soEmail').value.trim().toLowerCase();
+      const role = document.getElementById('soRole').value;
+      const positionId = document.getElementById('soPosition').value || null;
+      const temporaryPassword = document.getElementById('soTempPassword').value;
+
+      if (!name || !email || !temporaryPassword) {
+        setSettingsStatus('settingsStaffStatus', 'Name, email, and temporary password are required.', 'error');
+        return;
+      }
+
+      const { data: sessionData } = await supabaseClient.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) {
+        setSettingsStatus('settingsStaffStatus', 'Session expired. Please sign in again.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('settingsStaffSaveBtn');
+      setButtonLoading(btn, true);
+
+      try {
+        const response = await fetch(`${ADMIN_API_BASE_URL}/api/staff/create`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            email,
+            displayName: name,
+            positionId,
+            role,
+            temporaryPassword,
+          }),
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || 'Could not create staff account');
+        }
+
+        setSettingsStatus('settingsStaffStatus', 'Staff account created successfully. Password change required on first login.', 'success');
+        document.getElementById('settingsStaffForm').reset();
+        document.getElementById('soTempPassword').value = generateTemporaryPassword();
+        await loadSettingsStaff();
+      } catch (err) {
+        setSettingsStatus('settingsStaffStatus', 'Staff onboarding failed: ' + (err.message || err), 'error');
+      } finally {
+        setButtonLoading(btn, false);
+      }
+    });
+
+    document.getElementById('firstLoginPasswordForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const statusEl = document.getElementById('firstLoginStatus');
+      const btn = document.getElementById('firstLoginSaveBtn');
+      const newPassword = document.getElementById('flNewPassword').value;
+      const confirmPassword = document.getElementById('flConfirmPassword').value;
+
+      statusEl.textContent = '';
+      statusEl.className = 'settings-inline-status';
+
+      if (newPassword.length < 8) {
+        statusEl.textContent = 'Password must be at least 8 characters.';
+        statusEl.className = 'settings-inline-status error';
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        statusEl.textContent = 'Passwords do not match.';
+        statusEl.className = 'settings-inline-status error';
+        return;
+      }
+
+      setButtonLoading(btn, true);
+
+      const { data: userData } = await supabaseClient.auth.getUser();
+      const user = userData?.user;
+
+      const { error: authErr } = await supabaseClient.auth.updateUser({ password: newPassword });
+      if (authErr) {
+        setButtonLoading(btn, false);
+        statusEl.textContent = 'Password update failed: ' + authErr.message;
+        statusEl.className = 'settings-inline-status error';
+        return;
+      }
+
+      if (user?.id) {
+        const { error: profileErr } = await supabaseClient
+          .from('staff_profiles')
+          .update({
+            must_change_password: false,
+            last_password_change_at: new Date().toISOString(),
+          })
+          .eq('id', user.id);
+
+        if (profileErr) {
+          setButtonLoading(btn, false);
+          statusEl.textContent = 'Password was changed, but profile update failed: ' + profileErr.message;
+          statusEl.className = 'settings-inline-status error';
+          return;
+        }
+      }
+
+      firstLoginRequired = false;
+      document.getElementById('firstLoginModal').classList.remove('show');
+      document.body.style.overflow = '';
+      document.getElementById('firstLoginPasswordForm').reset();
+      setButtonLoading(btn, false);
+    });
 
     // ═══════════════════════════════════════════════════════
     // SIDEBAR NAVIGATION
@@ -1449,6 +3220,16 @@
     const topbarTitle = document.getElementById('topbarTitle');
 
     function switchSection(sectionId) {
+      if (!canAccessSection(sectionId)) {
+        const fallback = ['overview', 'news', 'gallery', 'settings', 'jobs', 'admissions', 'vacancies']
+          .find(s => canAccessSection(s));
+        if (!fallback) {
+          alert('You do not have access to any dashboard section.');
+          return;
+        }
+        sectionId = fallback;
+      }
+
       navItems.forEach(btn => btn.classList.toggle('active', btn.dataset.section === sectionId));
       panels.forEach(panel => panel.classList.toggle('active', panel.id === `section-${sectionId}`));
       topbarTitle.textContent = sectionTitles[sectionId] || sectionId;
@@ -1458,7 +3239,19 @@
       if (sectionId === 'jobs'       && !jobsLoaded)       loadJobs();
       if (sectionId === 'news'       && !newsLoaded)       loadNews();
       if (sectionId === 'vacancies'  && !vacanciesLoaded)  loadVacancies();
+      if (sectionId === 'gallery'    && !galleryLoaded)    loadGallery();
+      if (sectionId === 'settings'   && !settingsLoaded)   loadSettings();
     }
+
+    loadUser();
+    initializeAuthorization().then(() => {
+      const activeSection = document.querySelector('.nav-item.active')?.dataset.section || 'overview';
+      if (!canAccessSection(activeSection)) switchSection('overview');
+      applyActionAuthorization();
+      if (newsLoaded) renderNewsTable();
+      if (vacanciesLoaded) renderVacanciesTable();
+      if (galleryLoaded) renderGalleryGrid();
+    });
 
     navItems.forEach(btn => btn.addEventListener('click', () => switchSection(btn.dataset.section)));
 
