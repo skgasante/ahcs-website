@@ -36,23 +36,29 @@ ALTER TABLE admission_enquiries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE job_applications DISABLE ROW LEVEL SECURITY;
 
 -- Create policies to allow inserts (adjust as needed for your security requirements)
+DROP POLICY IF EXISTS "Allow public inserts to admission_enquiries" ON admission_enquiries;
 CREATE POLICY "Allow public inserts to admission_enquiries" ON admission_enquiries
   FOR INSERT WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Allow public inserts to job_applications" ON job_applications;
 CREATE POLICY "Allow public inserts to job_applications" ON job_applications
   FOR INSERT WITH CHECK (true);
 
 -- Storage policies for CV uploads
 -- Allow public access to cv-uploads bucket
+DROP POLICY IF EXISTS "Allow public uploads to cv-uploads" ON storage.objects;
 CREATE POLICY "Allow public uploads to cv-uploads" ON storage.objects
   FOR INSERT WITH CHECK (bucket_id = 'cv-uploads');
 
+DROP POLICY IF EXISTS "Allow public reads from cv-uploads" ON storage.objects;
 CREATE POLICY "Allow public reads from cv-uploads" ON storage.objects
   FOR SELECT USING (bucket_id = 'cv-uploads');
 
+DROP POLICY IF EXISTS "Allow public updates to cv-uploads" ON storage.objects;
 CREATE POLICY "Allow public updates to cv-uploads" ON storage.objects
   FOR UPDATE USING (bucket_id = 'cv-uploads');
 
+DROP POLICY IF EXISTS "Allow public deletes from cv-uploads" ON storage.objects;
 CREATE POLICY "Allow public deletes from cv-uploads" ON storage.objects
   FOR DELETE USING (bucket_id = 'cv-uploads');
 
@@ -67,10 +73,12 @@ CREATE POLICY "Allow public deletes from cv-uploads" ON storage.objects
 -- ──────────────────────────────────────────────────────────────
 
 -- Allow logged-in admins to READ admissions enquiries
+DROP POLICY IF EXISTS "Allow authenticated reads on admission_enquiries" ON admission_enquiries;
 CREATE POLICY "Allow authenticated reads on admission_enquiries" ON admission_enquiries
   FOR SELECT TO authenticated USING (true);
 
 -- Allow logged-in admins to UPDATE admissions enquiries (e.g. status)
+DROP POLICY IF EXISTS "Allow authenticated updates on admission_enquiries" ON admission_enquiries;
 CREATE POLICY "Allow authenticated updates on admission_enquiries" ON admission_enquiries
   FOR UPDATE TO authenticated USING (true);
 
@@ -94,6 +102,12 @@ CREATE TABLE IF NOT EXISTS news_articles (
 );
 
 ALTER TABLE news_articles ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public can read published news" ON news_articles;
+DROP POLICY IF EXISTS "Authenticated can read all news" ON news_articles;
+DROP POLICY IF EXISTS "Authenticated can insert news" ON news_articles;
+DROP POLICY IF EXISTS "Authenticated can update news" ON news_articles;
+DROP POLICY IF EXISTS "Authenticated can delete news" ON news_articles;
 
 -- Public (anon) can only read published articles
 CREATE POLICY "Public can read published news" ON news_articles
@@ -127,6 +141,10 @@ ALTER TABLE news_articles
 -- Create a "news-images" storage bucket in Supabase Storage (public bucket),
 -- then run these policies:
 
+DROP POLICY IF EXISTS "news-images authenticated upload" ON storage.objects;
+DROP POLICY IF EXISTS "news-images public read" ON storage.objects;
+DROP POLICY IF EXISTS "news-images authenticated delete" ON storage.objects;
+
 -- Authenticated admins can upload images
 CREATE POLICY "news-images authenticated upload" ON storage.objects
   FOR INSERT TO authenticated WITH CHECK (bucket_id = 'news-images');
@@ -155,6 +173,12 @@ CREATE TABLE IF NOT EXISTS vacancies (
 );
 
 ALTER TABLE vacancies ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public can read open vacancies" ON vacancies;
+DROP POLICY IF EXISTS "Authenticated can read all vacancies" ON vacancies;
+DROP POLICY IF EXISTS "Authenticated can insert vacancies" ON vacancies;
+DROP POLICY IF EXISTS "Authenticated can update vacancies" ON vacancies;
+DROP POLICY IF EXISTS "Authenticated can delete vacancies" ON vacancies;
 
 -- Public (anon) can only read open vacancies
 CREATE POLICY "Public can read open vacancies" ON vacancies
@@ -276,33 +300,28 @@ CREATE POLICY "gallery-images authenticated delete" ON storage.objects
 -- ──────────────────────────────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS admin_profiles (
-  id           uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  email        TEXT        NOT NULL,
-  display_name TEXT,
-  phone        TEXT,
-  job_title    TEXT,
-  role         TEXT        DEFAULT 'admin',
-  preferences  JSONB       DEFAULT '{"admissions":true,"jobs":true,"news":true,"gallery":true}',
-  permissions  JSONB       DEFAULT '{"admissions":{"view":true,"update":true,"export":true},"jobs":{"view":true,"update":true,"export":true,"manage_vacancies":true},"news":{"view":true,"create":true,"edit":true,"publish":true,"delete":true},"gallery":{"view":true,"upload":true,"edit":true,"publish":true,"delete":true},"reports":{"view":true,"submit":false,"review":true,"approve":true},"settings":{"own":true,"manage_staff":false,"manage_roles":false}}',
-  can_publish  JSONB       DEFAULT '{"news":true,"gallery":true,"vacancies":true,"reports":true}',
-  created_at   TIMESTAMPTZ DEFAULT NOW(),
-  updated_at   TIMESTAMPTZ DEFAULT NOW()
+  id                      uuid        PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  email                   TEXT        NOT NULL,
+  display_name            TEXT,
+  phone                   TEXT,
+  job_title               TEXT,
+  role                    TEXT        DEFAULT 'admin',
+  preferences             JSONB       DEFAULT '{"admissions":true,"jobs":true,"news":true,"gallery":true}',
+  permissions             JSONB       DEFAULT '{"admissions":{"view":true,"update":true,"export":true},"jobs":{"view":true,"update":true,"export":true,"manage_vacancies":true},"news":{"view":true,"create":true,"edit":true,"publish":true,"delete":true},"gallery":{"view":true,"upload":true,"edit":true,"publish":true,"delete":true},"reports":{"view":true,"submit":false,"review":true,"approve":true},"settings":{"own":true,"manage_staff":false,"manage_roles":false}}',
+  can_publish             JSONB       DEFAULT '{"news":true,"gallery":true,"vacancies":true,"reports":true}',
+  must_change_password    BOOLEAN     NOT NULL DEFAULT false,
+  temp_password_set_at    TIMESTAMPTZ,
+  last_password_change_at TIMESTAMPTZ,
+  created_at              TIMESTAMPTZ DEFAULT NOW(),
+  updated_at              TIMESTAMPTZ DEFAULT NOW()
 );
 
-ALTER TABLE admin_profiles
-  ADD COLUMN IF NOT EXISTS permissions JSONB DEFAULT '{"admissions":{"view":true,"update":true,"export":true},"jobs":{"view":true,"update":true,"export":true,"manage_vacancies":true},"news":{"view":true,"create":true,"edit":true,"publish":true,"delete":true},"gallery":{"view":true,"upload":true,"edit":true,"publish":true,"delete":true},"reports":{"view":true,"submit":false,"review":true,"approve":true},"settings":{"own":true,"manage_staff":false,"manage_roles":false}}';
-
-ALTER TABLE admin_profiles
-  ADD COLUMN IF NOT EXISTS can_publish JSONB DEFAULT '{"news":true,"gallery":true,"vacancies":true,"reports":true}';
-
-ALTER TABLE admin_profiles
-  ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN NOT NULL DEFAULT false;
-
-ALTER TABLE admin_profiles
-  ADD COLUMN IF NOT EXISTS temp_password_set_at TIMESTAMPTZ;
-
-ALTER TABLE admin_profiles
-  ADD COLUMN IF NOT EXISTS last_password_change_at TIMESTAMPTZ;
+-- Ensure columns exist on databases created before these columns were added
+ALTER TABLE admin_profiles ADD COLUMN IF NOT EXISTS permissions             JSONB       DEFAULT '{"admissions":{"view":true,"update":true,"export":true},"jobs":{"view":true,"update":true,"export":true,"manage_vacancies":true},"news":{"view":true,"create":true,"edit":true,"publish":true,"delete":true},"gallery":{"view":true,"upload":true,"edit":true,"publish":true,"delete":true},"reports":{"view":true,"submit":false,"review":true,"approve":true},"settings":{"own":true,"manage_staff":false,"manage_roles":false}}';
+ALTER TABLE admin_profiles ADD COLUMN IF NOT EXISTS can_publish             JSONB       DEFAULT '{"news":true,"gallery":true,"vacancies":true,"reports":true}';
+ALTER TABLE admin_profiles ADD COLUMN IF NOT EXISTS must_change_password    BOOLEAN     NOT NULL DEFAULT false;
+ALTER TABLE admin_profiles ADD COLUMN IF NOT EXISTS temp_password_set_at    TIMESTAMPTZ;
+ALTER TABLE admin_profiles ADD COLUMN IF NOT EXISTS last_password_change_at TIMESTAMPTZ;
 
 -- Phase 1 role baseline: superadmin, admin, staff
 DO $$
