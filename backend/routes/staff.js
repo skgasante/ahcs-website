@@ -3,6 +3,29 @@ const { supabase } = require('../supabase');
 
 const router = express.Router();
 
+const ADMIN_DEFAULT_PREFERENCES = {
+  admissions: true,
+  jobs: true,
+  news: true,
+  gallery: true,
+};
+
+const ADMIN_DEFAULT_PERMISSIONS = {
+  admissions: { view: true, update: true, export: true },
+  jobs: { view: true, update: true, export: true, manage_vacancies: true },
+  news: { view: true, create: true, edit: true, publish: true, delete: true },
+  gallery: { view: true, upload: true, edit: true, publish: true, delete: true },
+  reports: { view: true, submit: false, review: true, approve: true },
+  settings: { own: true, manage_staff: false, manage_roles: false },
+};
+
+const ADMIN_DEFAULT_PUBLISH = {
+  news: true,
+  gallery: true,
+  vacancies: true,
+  reports: true,
+};
+
 async function requireAdmin(req, res, next) {
   try {
     const authHeader = req.headers.authorization || '';
@@ -82,6 +105,7 @@ router.post('/create', requireAdmin, async (req, res) => {
     }
 
     const userId = createdAuth.user.id;
+    const nowIso = new Date().toISOString();
 
     const { data: insertedProfile, error: insertProfileErr } = await supabase
       .from('staff_profiles')
@@ -95,7 +119,7 @@ router.post('/create', requireAdmin, async (req, res) => {
           must_change_password: true,
           status: 'active',
           created_by: req.authUser.id,
-          temp_password_set_at: new Date().toISOString(),
+          temp_password_set_at: nowIso,
         },
       ])
       .select('id,email,display_name,role,position_id,must_change_password,status,created_at')
@@ -105,6 +129,28 @@ router.post('/create', requireAdmin, async (req, res) => {
       // Roll back auth user if profile insert fails.
       await supabase.auth.admin.deleteUser(userId);
       return res.status(400).json({ success: false, message: insertProfileErr.message || 'Failed to create staff profile.' });
+    }
+
+    if (safeRole === 'admin') {
+      const { error: adminProfileErr } = await supabase
+        .from('admin_profiles')
+        .upsert({
+          id: userId,
+          email: normalizedEmail,
+          display_name: String(displayName || '').trim() || null,
+          role: 'admin',
+          preferences: ADMIN_DEFAULT_PREFERENCES,
+          permissions: ADMIN_DEFAULT_PERMISSIONS,
+          can_publish: ADMIN_DEFAULT_PUBLISH,
+          must_change_password: true,
+          temp_password_set_at: nowIso,
+          updated_at: nowIso,
+        });
+
+      if (adminProfileErr) {
+        await supabase.auth.admin.deleteUser(userId);
+        return res.status(400).json({ success: false, message: adminProfileErr.message || 'Failed to create admin profile.' });
+      }
     }
 
     res.status(201).json({

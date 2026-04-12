@@ -871,33 +871,34 @@
       </div>
     </aside>
 
-    <!-- ══ FIRST LOGIN PASSWORD CHANGE ═══════════════════════ -->
-    <div class="first-login-modal" id="firstLoginModal" aria-modal="true" role="dialog" aria-label="Change temporary password">
-      <div class="first-login-card">
-        <div class="first-login-head">
-          <h3>Set Your New Password</h3>
-          <p>This account was created with a temporary password. You must set a new password to continue.</p>
-        </div>
-        <form id="firstLoginPasswordForm" novalidate>
-          <div class="editor-field">
-            <label for="flNewPassword">New Password</label>
-            <input type="password" id="flNewPassword" minlength="8" placeholder="At least 8 characters" required />
-          </div>
-          <div class="editor-field">
-            <label for="flConfirmPassword">Confirm New Password</label>
-            <input type="password" id="flConfirmPassword" minlength="8" placeholder="Repeat your new password" required />
-          </div>
-          <div class="settings-inline-status" id="firstLoginStatus"></div>
-          <button type="submit" class="btn-editor-save" id="firstLoginSaveBtn" style="width:100%;">
-            <span class="btn-label">Update Password</span>
-            <div class="btn-spinner hidden"></div>
-          </button>
-        </form>
-      </div>
-    </div>
-
   </div>
   <!-- /admin-shell -->
+
+  <!-- ══ FIRST LOGIN PASSWORD CHANGE ═══════════════════════ -->
+  <div class="first-login-modal" id="firstLoginModal" aria-modal="true" role="dialog" aria-label="Change temporary password">
+    <div class="first-login-card">
+      <div class="first-login-head">
+        <span class="first-login-kicker">Security Check</span>
+        <h3>Set Your New Password</h3>
+        <p>This account was created with a temporary password. Set a new password before you continue using the dashboard.</p>
+      </div>
+      <form id="firstLoginPasswordForm" novalidate>
+        <div class="editor-field">
+          <label for="flNewPassword">New Password</label>
+          <input type="password" id="flNewPassword" minlength="8" placeholder="At least 8 characters" required />
+        </div>
+        <div class="editor-field">
+          <label for="flConfirmPassword">Confirm New Password</label>
+          <input type="password" id="flConfirmPassword" minlength="8" placeholder="Repeat your new password" required />
+        </div>
+        <div class="settings-inline-status" id="firstLoginStatus"></div>
+        <button type="submit" class="btn-editor-save" id="firstLoginSaveBtn" style="width:100%;">
+          <span class="btn-label">Update Password</span>
+          <div class="btn-spinner hidden"></div>
+        </button>
+      </form>
+    </div>
+  </div>
 
   <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -949,20 +950,15 @@
       document.getElementById('userEmail').textContent  = email;
       document.getElementById('userAvatar').textContent = initials;
 
-      const { data: staffProfile, error: staffErr } = await supabaseClient
-        .from('staff_profiles')
-        .select('id,must_change_password')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (!staffErr && staffProfile?.must_change_password) {
-        firstLoginRequired = true;
-        document.getElementById('firstLoginModal').classList.add('show');
-        document.body.style.overflow = 'hidden';
+      const requirement = await fetchPasswordChangeRequirement();
+      if (requirement.required) {
+        firstLoginSource = requirement.source;
+        openFirstLoginModal();
       }
     }
     const ADMIN_API_BASE_URL = 'https://ahcs-website-production.up.railway.app';
     let firstLoginRequired = false;
+    let firstLoginSource = null;
     let authzState = {
       ready: false,
       role: 'admin',
@@ -973,6 +969,85 @@
     document.getElementById('topbarDate').textContent = new Date().toLocaleDateString('en-GB', {
       weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
     });
+
+    function openFirstLoginModal() {
+      firstLoginRequired = true;
+      document.getElementById('firstLoginModal').classList.add('show');
+      document.body.classList.add('modal-open');
+      document.body.style.overflow = 'hidden';
+      window.setTimeout(() => document.getElementById('flNewPassword')?.focus(), 30);
+    }
+
+    function closeFirstLoginModal() {
+      firstLoginRequired = false;
+      firstLoginSource = null;
+      document.getElementById('firstLoginModal').classList.remove('show');
+      document.body.classList.remove('modal-open');
+      document.body.style.overflow = '';
+      document.getElementById('firstLoginPasswordForm').reset();
+      const statusEl = document.getElementById('firstLoginStatus');
+      statusEl.textContent = '';
+      statusEl.className = 'settings-inline-status';
+    }
+
+    async function fetchPasswordChangeRequirement() {
+      try {
+        const { data, error } = await supabaseClient.rpc('get_own_password_change_requirement');
+        if (!error) {
+          const row = Array.isArray(data) ? data[0] : data;
+          return {
+            required: !!row?.required,
+            source: row?.source || null,
+          };
+        }
+        console.warn('Password requirement RPC fallback:', error);
+      } catch (err) {
+        console.warn('Password requirement RPC unavailable:', err);
+      }
+
+      const [{ data: staffProfile }, { data: adminProfile }] = await Promise.all([
+        supabaseClient
+          .from('staff_profiles')
+          .select('id,must_change_password')
+          .maybeSingle(),
+        supabaseClient
+          .from('admin_profiles')
+          .select('id,must_change_password')
+          .maybeSingle(),
+      ]);
+
+      if (adminProfile?.must_change_password) {
+        return { required: true, source: 'admin' };
+      }
+      if (staffProfile?.must_change_password) {
+        return { required: true, source: 'staff' };
+      }
+      return { required: false, source: null };
+    }
+
+    async function clearPasswordChangeRequirement() {
+      try {
+        const { error } = await supabaseClient.rpc('complete_own_password_change');
+        if (!error) return;
+        console.warn('Password completion RPC fallback:', error);
+      } catch (err) {
+        console.warn('Password completion RPC unavailable:', err);
+      }
+
+      const { data: userData } = await supabaseClient.auth.getUser();
+      const userId = userData?.user?.id;
+      if (!userId) return;
+
+      const payload = {
+        must_change_password: false,
+        last_password_change_at: new Date().toISOString(),
+      };
+
+      await Promise.allSettled([
+        supabaseClient.from('staff_profiles').update(payload).eq('id', userId),
+        supabaseClient.from('admin_profiles').update(payload).eq('id', userId),
+      ]);
+    }
 
     // ═══════════════════════════════════════════════════════
     // STATUS CONFIG
@@ -3178,27 +3253,9 @@
         return;
       }
 
-      if (user?.id) {
-        const { error: profileErr } = await supabaseClient
-          .from('staff_profiles')
-          .update({
-            must_change_password: false,
-            last_password_change_at: new Date().toISOString(),
-          })
-          .eq('id', user.id);
+      await clearPasswordChangeRequirement();
 
-        if (profileErr) {
-          setButtonLoading(btn, false);
-          statusEl.textContent = 'Password was changed, but profile update failed: ' + profileErr.message;
-          statusEl.className = 'settings-inline-status error';
-          return;
-        }
-      }
-
-      firstLoginRequired = false;
-      document.getElementById('firstLoginModal').classList.remove('show');
-      document.body.style.overflow = '';
-      document.getElementById('firstLoginPasswordForm').reset();
+      closeFirstLoginModal();
       setButtonLoading(btn, false);
     });
 

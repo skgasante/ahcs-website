@@ -295,6 +295,15 @@ ALTER TABLE admin_profiles
 ALTER TABLE admin_profiles
   ADD COLUMN IF NOT EXISTS can_publish JSONB DEFAULT '{"news":true,"gallery":true,"vacancies":true,"reports":true}';
 
+ALTER TABLE admin_profiles
+  ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN NOT NULL DEFAULT false;
+
+ALTER TABLE admin_profiles
+  ADD COLUMN IF NOT EXISTS temp_password_set_at TIMESTAMPTZ;
+
+ALTER TABLE admin_profiles
+  ADD COLUMN IF NOT EXISTS last_password_change_at TIMESTAMPTZ;
+
 -- Phase 1 role baseline: superadmin, admin, staff
 DO $$
 BEGIN
@@ -343,6 +352,59 @@ SET email = EXCLUDED.email,
     updated_at = NOW();
 
 ALTER TABLE admin_profiles ENABLE ROW LEVEL SECURITY;
+
+CREATE OR REPLACE FUNCTION public.get_own_password_change_requirement()
+RETURNS TABLE(required boolean, source text)
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  RETURN QUERY
+  WITH flags AS (
+    SELECT 'admin'::text AS source, COALESCE(ap.must_change_password, false) AS required
+    FROM admin_profiles ap
+    WHERE ap.id = auth.uid()
+    UNION ALL
+    SELECT 'staff'::text AS source, COALESCE(sp.must_change_password, false) AS required
+    FROM staff_profiles sp
+    WHERE sp.id = auth.uid()
+  )
+  SELECT
+    COALESCE(bool_or(flags.required), false) AS required,
+    CASE
+      WHEN COALESCE(bool_or(flags.required AND flags.source = 'admin'), false) THEN 'admin'
+      WHEN COALESCE(bool_or(flags.required AND flags.source = 'staff'), false) THEN 'staff'
+      ELSE NULL
+    END AS source
+  FROM flags;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.complete_own_password_change()
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  UPDATE admin_profiles
+  SET must_change_password = false,
+      last_password_change_at = NOW(),
+      updated_at = NOW()
+  WHERE id = auth.uid();
+
+  UPDATE staff_profiles
+  SET must_change_password = false,
+      last_password_change_at = NOW(),
+      updated_at = NOW()
+  WHERE id = auth.uid();
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.get_own_password_change_requirement() TO authenticated;
+GRANT EXECUTE ON FUNCTION public.complete_own_password_change() TO authenticated;
 
 DROP POLICY IF EXISTS "Authenticated can read own admin profile" ON admin_profiles;
 DROP POLICY IF EXISTS "Authenticated can insert own admin profile" ON admin_profiles;

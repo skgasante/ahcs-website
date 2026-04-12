@@ -1588,6 +1588,7 @@ a   { text-decoration: none; color: inherit; }
   position: fixed;
   inset: 0;
   background: rgba(7, 19, 35, .58);
+  backdrop-filter: blur(6px);
   z-index: 500;
   display: none;
   align-items: center;
@@ -1598,27 +1599,48 @@ a   { text-decoration: none; color: inherit; }
   display: flex;
 }
 .first-login-card {
-  width: min(520px, 100%);
+  width: min(520px, calc(100vw - 32px));
   background: var(--white);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 22px;
-  box-shadow: 0 16px 48px rgba(14,40,65,.22);
+  border-radius: 18px;
+  padding: 26px;
+  box-shadow: 0 24px 64px rgba(14,40,65,.28);
+  max-height: calc(100vh - 40px);
+  overflow: auto;
 }
 .first-login-head {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
+}
+.first-login-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(15,158,213,.1);
+  color: var(--blue);
+  font-family: var(--font-head);
+  font-size: .74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
 }
 .first-login-head h3 {
   font-family: var(--font-head);
-  font-size: 1.2rem;
+  font-size: 1.45rem;
   font-weight: 800;
   color: var(--navy);
-  margin-bottom: 5px;
+  margin-bottom: 7px;
 }
 .first-login-head p {
   color: var(--muted);
-  font-size: .86rem;
+  font-size: .92rem;
   line-height: 1.55;
+}
+
+body.modal-open {
+  overflow: hidden;
 }
 
 .settings-session-list {
