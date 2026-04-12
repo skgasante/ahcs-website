@@ -1491,6 +1491,92 @@ a   { text-decoration: none; color: inherit; }
    SETTINGS
 ══════════════════════════════════════ */
 .settings-grid {
+
+  /* ── Staff Onboarding – Permissions Panel ──────────────────────── */
+  .so-perm-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
+  }
+  .so-perm-toggle-btn {
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: .78rem;
+    font-family: var(--font-body);
+    color: var(--muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: color .2s, border-color .2s;
+  }
+  .so-perm-toggle-btn:hover { color: var(--blue); border-color: var(--blue); }
+  .so-perm-chevron { transition: transform .2s; }
+  .so-perm-body { margin-top: 10px; }
+  .so-perm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .so-perm-section {
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: var(--off);
+  }
+  .so-perm-section-name {
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+  .so-perm-check-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px 10px;
+  }
+  .so-perm-check-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: .82rem;
+    color: var(--navy);
+    cursor: pointer;
+    user-select: none;
+  }
+  .so-perm-check-item input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    accent-color: var(--blue);
+  }
+  .so-perm-publish-row {
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+  .so-perm-pub-label {
+    font-size: .7rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    min-width: 76px;
+  }
+  .so-perm-pub-checks {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px 14px;
+  }
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;

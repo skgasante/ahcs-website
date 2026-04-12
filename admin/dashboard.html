@@ -778,10 +778,11 @@
 
                 <div class="editor-row-2">
                   <div class="editor-field">
-                    <label for="soPosition">Position</label>
-                    <select id="soPosition">
-                      <option value="">Unassigned</option>
-                    </select>
+                    <label for="soPositionTitle">Position / Job Title</label>
+                    <input type="text" id="soPositionTitle" list="soPositionSuggestions"
+                      placeholder="e.g. Class Teacher" autocomplete="off" />
+                    <datalist id="soPositionSuggestions"></datalist>
+                    <input type="hidden" id="soPositionId" />
                   </div>
                   <div class="editor-field">
                     <label for="soRole">Account Role</label>
@@ -789,6 +790,23 @@
                       <option value="staff">Staff</option>
                       <option value="admin">Admin</option>
                     </select>
+                  </div>
+                </div>
+
+                <div class="editor-field">
+                  <div class="so-perm-toggle-row">
+                    <label>Permissions</label>
+                    <button type="button" class="so-perm-toggle-btn" id="soPermToggleBtn">
+                      <i class="fa-solid fa-sliders"></i> Customise
+                      <i class="fa-solid fa-chevron-down so-perm-chevron" id="soPermChevron"></i>
+                    </button>
+                  </div>
+                  <div class="so-perm-body hidden" id="soPermBody">
+                    <div class="so-perm-grid" id="soPermGrid"></div>
+                    <div class="so-perm-publish-row">
+                      <span class="so-perm-pub-label">Can Publish</span>
+                      <div id="soPublishChecks" class="so-perm-pub-checks"></div>
+                    </div>
                   </div>
                 </div>
 
@@ -2531,6 +2549,86 @@
       },
     };
 
+    // Permission sections used by the staff onboarding permissions panel
+    const ONBOARD_PERMISSION_SECTIONS = [
+      { key: 'admissions', label: 'Admissions', actions: [
+        { key: 'view', label: 'View' }, { key: 'update', label: 'Update' }, { key: 'export', label: 'Export' },
+      ]},
+      { key: 'jobs', label: 'Jobs', actions: [
+        { key: 'view', label: 'View' }, { key: 'update', label: 'Update' }, { key: 'export', label: 'Export' }, { key: 'manage_vacancies', label: 'Vacancies' },
+      ]},
+      { key: 'news', label: 'News', actions: [
+        { key: 'view', label: 'View' }, { key: 'create', label: 'Create' }, { key: 'edit', label: 'Edit' }, { key: 'publish', label: 'Publish' }, { key: 'delete', label: 'Delete' },
+      ]},
+      { key: 'gallery', label: 'Gallery', actions: [
+        { key: 'view', label: 'View' }, { key: 'upload', label: 'Upload' }, { key: 'edit', label: 'Edit' }, { key: 'publish', label: 'Publish' }, { key: 'delete', label: 'Delete' },
+      ]},
+      { key: 'reports', label: 'Reports', actions: [
+        { key: 'view', label: 'View' }, { key: 'submit', label: 'Submit' }, { key: 'review', label: 'Review' }, { key: 'approve', label: 'Approve' },
+      ]},
+      { key: 'settings', label: 'Settings', actions: [
+        { key: 'manage_staff', label: 'Manage Staff' }, { key: 'manage_roles', label: 'Manage Roles' },
+      ]},
+    ];
+    const ONBOARD_PUBLISH_AREAS = ['news', 'gallery', 'vacancies', 'reports'];
+
+    function initOnboardPermissionsPanel() {
+      const grid = document.getElementById('soPermGrid');
+      if (!grid) return;
+      grid.innerHTML = ONBOARD_PERMISSION_SECTIONS.map(s =>
+        `<div class="so-perm-section">
+          <div class="so-perm-section-name">${esc(s.label)}</div>
+          <div class="so-perm-check-list">${s.actions.map(a =>
+            `<label class="so-perm-check-item">
+              <input type="checkbox" id="so_perm_${s.key}_${a.key}" data-group="${s.key}" data-action="${a.key}" />
+              <span>${esc(a.label)}</span>
+            </label>`
+          ).join('')}</div>
+        </div>`
+      ).join('');
+      const pubChecks = document.getElementById('soPublishChecks');
+      if (pubChecks) {
+        pubChecks.innerHTML = ONBOARD_PUBLISH_AREAS.map(area =>
+          `<label class="so-perm-check-item">
+            <input type="checkbox" id="so_pub_${area}" data-pub="${area}" />
+            <span>${area.charAt(0).toUpperCase() + area.slice(1)}</span>
+          </label>`
+        ).join('');
+      }
+    }
+
+    function fillOnboardPermissionsFromObj(permissions, canPublish) {
+      ONBOARD_PERMISSION_SECTIONS.forEach(s => {
+        s.actions.forEach(a => {
+          const el = document.getElementById(`so_perm_${s.key}_${a.key}`);
+          if (el) el.checked = !!permissions?.[s.key]?.[a.key];
+        });
+      });
+      ONBOARD_PUBLISH_AREAS.forEach(area => {
+        const el = document.getElementById(`so_pub_${area}`);
+        if (el) el.checked = !!canPublish?.[area];
+      });
+    }
+
+    function readOnboardPermissionsFromUI() {
+      const permissions = {};
+      ONBOARD_PERMISSION_SECTIONS.forEach(s => {
+        permissions[s.key] = { own: s.key === 'settings' ? true : undefined };
+        s.actions.forEach(a => {
+          const el = document.getElementById(`so_perm_${s.key}_${a.key}`);
+          permissions[s.key][a.key] = el ? el.checked : false;
+        });
+        if (s.key !== 'settings') delete permissions[s.key].own;
+        else permissions[s.key].own = true;
+      });
+      const canPublish = {};
+      ONBOARD_PUBLISH_AREAS.forEach(area => {
+        const el = document.getElementById(`so_pub_${area}`);
+        canPublish[area] = el ? el.checked : false;
+      });
+      return { permissions, canPublish };
+    }
+
     function isSettingsSetupError(err) {
       const msg = String(err?.message || '').toLowerCase();
       return msg.includes('admin_profiles') || msg.includes('relation') || msg.includes('does not exist');
@@ -2605,19 +2703,19 @@
     }
 
     function renderPositionOptions() {
-      const select = document.getElementById('soPosition');
-      const current = select.value;
-      select.innerHTML = '<option value="">Unassigned</option>' + settingsPositionsData
+    function renderPositionDatalist() {
+      const dl = document.getElementById('soPositionSuggestions');
+      if (!dl) return;
+      dl.innerHTML = settingsPositionsData
         .filter(p => p.active !== false)
-        .map(p => `<option value="${p.id}">${esc(p.name)}</option>`)
+        .map(p => `<option value="${esc(p.name)}"></option>`)
         .join('');
-      if (settingsPositionsData.some(p => p.id === current)) select.value = current;
     }
 
     async function loadSettingsPositions() {
       const { data, error } = await supabaseClient
         .from('staff_positions')
-        .select('id,name,active,created_at')
+        .select('id,name,active,permissions,can_publish,created_at')
         .order('name', { ascending: true });
 
       if (error) {
@@ -2626,7 +2724,7 @@
       } else {
         settingsPositionsData = data || [];
       }
-      renderPositionOptions();
+      renderPositionDatalist();
     }
 
     async function loadSettingsStaff() {
@@ -3000,6 +3098,11 @@
       if (!document.getElementById('soTempPassword').value) {
         document.getElementById('soTempPassword').value = generateTemporaryPassword();
       }
+      // Build the permissions checkbox panel on first load
+      if (!document.getElementById('soPermGrid')?.children.length) {
+        initOnboardPermissionsPanel();
+        fillOnboardPermissionsFromObj(ROLE_BASELINE.staff.permissions, ROLE_BASELINE.staff.can_publish);
+      }
       hide('settingsLoading');
       show('settingsGrid');
       settingsLoaded = true;
@@ -3151,6 +3254,29 @@
       window.location.replace('index.html');
     });
 
+    // Position title auto-fill: when typed text matches an existing position, populate permissions
+    document.getElementById('soPositionTitle').addEventListener('input', function () {
+      const typed = this.value.trim().toLowerCase();
+      const match = settingsPositionsData.find(p => p.name.toLowerCase() === typed);
+      const hiddenId = document.getElementById('soPositionId');
+      if (match) {
+        hiddenId.value = match.id;
+        fillOnboardPermissionsFromObj(match.permissions, match.can_publish);
+      } else {
+        hiddenId.value = '';
+        fillOnboardPermissionsFromObj(ROLE_BASELINE.staff.permissions, ROLE_BASELINE.staff.can_publish);
+      }
+    });
+
+    // Permissions panel collapse toggle
+    document.getElementById('soPermToggleBtn').addEventListener('click', function () {
+      const body = document.getElementById('soPermBody');
+      const chevron = document.getElementById('soPermChevron');
+      const isOpen = !body.classList.contains('hidden');
+      body.classList.toggle('hidden', isOpen);
+      chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+    });
+
     document.getElementById('btnGenerateTempPassword').addEventListener('click', () => {
       document.getElementById('soTempPassword').value = generateTemporaryPassword();
     });
@@ -3167,8 +3293,9 @@
       const name = document.getElementById('soName').value.trim();
       const email = document.getElementById('soEmail').value.trim().toLowerCase();
       const role = document.getElementById('soRole').value;
-      const positionId = document.getElementById('soPosition').value || null;
+      const positionId = document.getElementById('soPositionId').value || null;
       const temporaryPassword = document.getElementById('soTempPassword').value;
+      const { permissions: permissionsOverride, canPublish: canPublishOverride } = readOnboardPermissionsFromUI();
 
       if (!name || !email || !temporaryPassword) {
         setSettingsStatus('settingsStaffStatus', 'Name, email, and temporary password are required.', 'error');
@@ -3198,6 +3325,8 @@
             positionId,
             role,
             temporaryPassword,
+                      permissionsOverride,
+                      canPublishOverride,
           }),
         });
 
@@ -3208,6 +3337,10 @@
 
         setSettingsStatus('settingsStaffStatus', 'Staff account created successfully. Password change required on first login.', 'success');
         document.getElementById('settingsStaffForm').reset();
+          document.getElementById('soPositionId').value = '';
+          document.getElementById('soPermBody').classList.add('hidden');
+          document.getElementById('soPermChevron').style.transform = '';
+          fillOnboardPermissionsFromObj(ROLE_BASELINE.staff.permissions, ROLE_BASELINE.staff.can_publish);
         document.getElementById('soTempPassword').value = generateTemporaryPassword();
         await loadSettingsStaff();
       } catch (err) {

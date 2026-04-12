@@ -72,7 +72,13 @@ router.post('/create', requireAdmin, async (req, res) => {
       positionId,
       role = 'staff',
       temporaryPassword,
+      permissionsOverride,
+      canPublishOverride,
     } = req.body;
+    const safePermissionsOverride = (permissionsOverride && typeof permissionsOverride === 'object' && !Array.isArray(permissionsOverride))
+      ? permissionsOverride : null;
+    const safeCanPublishOverride = (canPublishOverride && typeof canPublishOverride === 'object' && !Array.isArray(canPublishOverride))
+      ? canPublishOverride : null;
 
     const normalizedEmail = String(email || '').trim().toLowerCase();
     const safeRole = String(role || 'staff').trim().toLowerCase();
@@ -120,6 +126,8 @@ router.post('/create', requireAdmin, async (req, res) => {
           status: 'active',
           created_by: req.authUser.id,
           temp_password_set_at: nowIso,
+                  permissions_override: safePermissionsOverride,
+                  can_publish_override: safeCanPublishOverride,
         },
       ])
       .select('id,email,display_name,role,position_id,must_change_password,status,created_at')
