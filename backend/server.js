@@ -13,6 +13,8 @@ const allowedOrigins = [
   'https://skgasante.github.io',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
+  'http://localhost:5500',
+  'http://127.0.0.1:5500',
   'http://localhost:3001',
   'http://127.0.0.1:3001',
 ];
@@ -47,6 +49,9 @@ app.use(fileUpload({
 app.use('/api/admissions', require('./routes/admissions'));
 app.use('/api/jobs', require('./routes/jobs'));
 app.use('/api/staff', require('./routes/staff'));
+app.use('/api/reports', require('./routes/reports'));
+app.use('/api/attendance', require('./routes/attendance'));
+app.use('/api/admin/emergency', require('./routes/admin-emergency'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

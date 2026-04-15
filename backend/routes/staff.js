@@ -1,5 +1,10 @@
 const express = require('express');
 const { supabase } = require('../supabase');
+const {
+  requireAuth,
+  requirePermission,
+  logAudit,
+} = require('../authz');
 
 const router = express.Router();
 
@@ -26,51 +31,30 @@ const ADMIN_DEFAULT_PUBLISH = {
   reports: true,
 };
 
-async function requireAdmin(req, res, next) {
-  try {
-    const authHeader = req.headers.authorization || '';
-    const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+const NON_TEACHING_EMPTY_PERMISSIONS = {
+  admissions: { view: false, update: false, export: false },
+  jobs: { view: false, update: false, export: false, manage_vacancies: false },
+  news: { view: false, create: false, edit: false, publish: false, delete: false },
+  gallery: { view: false, upload: false, edit: false, publish: false, delete: false },
+  reports: { view: false, submit: false, review: false, approve: false },
+  settings: { own: true, manage_staff: false, manage_roles: false },
+};
 
-    if (!token) {
-      return res.status(401).json({ success: false, message: 'Missing auth token' });
-    }
+const NON_TEACHING_EMPTY_PUBLISH = {
+  news: false,
+  gallery: false,
+  vacancies: false,
+  reports: false,
+};
 
-    const { data: userData, error: userErr } = await supabase.auth.getUser(token);
-    if (userErr || !userData?.user) {
-      return res.status(401).json({ success: false, message: 'Invalid session token' });
-    }
-
-    const { data: profile, error: profileErr } = await supabase
-      .from('admin_profiles')
-      .select('id,role')
-      .eq('id', userData.user.id)
-      .maybeSingle();
-
-    if (profileErr) {
-      return res.status(500).json({ success: false, message: 'Could not validate admin role' });
-    }
-
-    const role = String(profile?.role || '').toLowerCase();
-    if (!profile || (role !== 'admin' && role !== 'superadmin')) {
-      return res.status(403).json({ success: false, message: 'Only admin users can perform this action' });
-    }
-
-    req.authUser = userData.user;
-    req.authRole = role;
-    next();
-  } catch (error) {
-    console.error('requireAdmin error:', error);
-    res.status(500).json({ success: false, message: 'Authorization check failed' });
-  }
-}
-
-router.post('/create', requireAdmin, async (req, res) => {
+router.post('/create', requireAuth, requirePermission('settings', 'manage_staff', 'Only staff managers can create accounts.'), async (req, res) => {
   try {
     const {
       email,
       displayName,
       positionId,
       role = 'staff',
+      accountType = 'teaching',
       temporaryPassword,
       permissionsOverride,
       canPublishOverride,
@@ -82,6 +66,7 @@ router.post('/create', requireAdmin, async (req, res) => {
 
     const normalizedEmail = String(email || '').trim().toLowerCase();
     const safeRole = String(role || 'staff').trim().toLowerCase();
+    const safeAccountType = String(accountType || 'teaching').trim().toLowerCase();
     const password = String(temporaryPassword || '');
 
     if (!normalizedEmail || !normalizedEmail.includes('@')) {
@@ -95,6 +80,17 @@ router.post('/create', requireAdmin, async (req, res) => {
     if (!['staff', 'admin'].includes(safeRole)) {
       return res.status(400).json({ success: false, message: 'Invalid staff role.' });
     }
+
+    if (!['teaching', 'non_teaching'].includes(safeAccountType)) {
+      return res.status(400).json({ success: false, message: 'Invalid account type.' });
+    }
+
+    const resolvedPermissionsOverride = safeRole === 'staff' && safeAccountType === 'non_teaching'
+      ? (safePermissionsOverride || NON_TEACHING_EMPTY_PERMISSIONS)
+      : safePermissionsOverride;
+    const resolvedCanPublishOverride = safeRole === 'staff' && safeAccountType === 'non_teaching'
+      ? (safeCanPublishOverride || NON_TEACHING_EMPTY_PUBLISH)
+      : safeCanPublishOverride;
 
     const { data: createdAuth, error: createAuthErr } = await supabase.auth.admin.createUser({
       email: normalizedEmail,
@@ -113,25 +109,36 @@ router.post('/create', requireAdmin, async (req, res) => {
     const userId = createdAuth.user.id;
     const nowIso = new Date().toISOString();
 
-    const { data: insertedProfile, error: insertProfileErr } = await supabase
+    const staffProfilePayload = {
+      id: userId,
+      email: normalizedEmail,
+      display_name: String(displayName || '').trim() || null,
+      role: safeRole,
+      staff_type: safeRole === 'staff' ? safeAccountType : 'teaching',
+      position_id: positionId || null,
+      must_change_password: true,
+      status: 'active',
+      created_by: req.authUser.id,
+      temp_password_set_at: nowIso,
+      permissions_override: resolvedPermissionsOverride,
+      can_publish_override: resolvedCanPublishOverride,
+    };
+
+    let { data: insertedProfile, error: insertProfileErr } = await supabase
       .from('staff_profiles')
-      .insert([
-        {
-          id: userId,
-          email: normalizedEmail,
-          display_name: String(displayName || '').trim() || null,
-          role: safeRole,
-          position_id: positionId || null,
-          must_change_password: true,
-          status: 'active',
-          created_by: req.authUser.id,
-          temp_password_set_at: nowIso,
-                  permissions_override: safePermissionsOverride,
-                  can_publish_override: safeCanPublishOverride,
-        },
-      ])
+      .insert([staffProfilePayload])
       .select('id,email,display_name,role,position_id,must_change_password,status,created_at')
       .single();
+
+    if (insertProfileErr && String(insertProfileErr.message || '').toLowerCase().includes('staff_type')) {
+      const legacyPayload = { ...staffProfilePayload };
+      delete legacyPayload.staff_type;
+      ({ data: insertedProfile, error: insertProfileErr } = await supabase
+        .from('staff_profiles')
+        .insert([legacyPayload])
+        .select('id,email,display_name,role,position_id,must_change_password,status,created_at')
+        .single());
+    }
 
     if (insertProfileErr) {
       // Roll back auth user if profile insert fails.
@@ -160,6 +167,14 @@ router.post('/create', requireAdmin, async (req, res) => {
         return res.status(400).json({ success: false, message: adminProfileErr.message || 'Failed to create admin profile.' });
       }
     }
+
+    await logAudit(req, 'staff.created', 'staff_profile', insertedProfile.id, {
+      role: insertedProfile.role,
+      account_type: safeRole === 'staff' ? safeAccountType : 'teaching',
+      email: insertedProfile.email,
+      position_id: insertedProfile.position_id,
+      must_change_password: insertedProfile.must_change_password,
+    });
 
     res.status(201).json({
       success: true,

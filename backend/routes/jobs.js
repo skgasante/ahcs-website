@@ -1,6 +1,7 @@
 const express = require('express');
 const { supabase } = require('../supabase');
 const { Resend } = require('resend');
+const { requireAuth, requirePermission } = require('../authz');
 const router = express.Router();
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -169,7 +170,7 @@ router.post('/', async (req, res) => {
 });
 
 // GET /api/jobs - Get all job applications (for admin use)
-router.get('/', async (req, res) => {
+router.get('/', requireAuth, requirePermission('jobs', 'view', 'You do not have permission to view job applications.'), async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('job_applications')

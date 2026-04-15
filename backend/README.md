@@ -30,6 +30,10 @@ Node.js/Express backend server for Annan House Community School website, handlin
 
 - **Admission Enquiries**: Handle admission form submissions
 - **Job Applications**: Process job applications with CV uploads
+- **Staff Onboarding**: Create staff accounts with temporary passwords and first-login reset
+- **Teacher Reports Workflow**: Draft, submit, review, approve/needs-changes, archive
+- **Audit Logging**: Track critical role/permission/content/status updates
+- **Emergency Recovery**: Owner-only lockout and role-repair controls
 - **Supabase Integration**: Database storage and file uploads
 - **CORS Support**: Cross-origin requests enabled
 - **File Upload**: CV uploads with validation (PDF, DOC, DOCX, max 5MB)
@@ -46,6 +50,18 @@ Node.js/Express backend server for Annan House Community School website, handlin
 
 ### Health Check
 - `GET /api/health` - Server health status
+
+### Staff and Access
+- `POST /api/staff/create` - Create staff account (permission: settings.manage_staff)
+
+### Teacher Reports
+- `GET /api/reports` - List reports (own reports for teachers, all for reviewers)
+- `POST /api/reports` - Create report draft/submit
+- `PATCH /api/reports/:id` - Update report content, status, and review comments
+
+### Owner Emergency Controls
+- `POST /api/admin/emergency/unlock-account` - Reset lockout flags
+- `POST /api/admin/emergency/repair-role` - Repair user role mapping
 
 ## Frontend Integration
 
@@ -75,4 +91,5 @@ The backend expects these tables in your Supabase database:
 - File uploads are limited to 5MB
 - Only PDF, DOC, and DOCX files are accepted for CVs
 - Input validation is implemented on the server
-- Consider adding authentication for admin endpoints in production
+- Admin APIs enforce role/permission checks via backend middleware
+- Database RLS should mirror UI/backend authorization for direct Supabase access

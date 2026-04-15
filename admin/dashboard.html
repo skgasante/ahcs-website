@@ -65,8 +65,53 @@
           <i class="fa-solid fa-images"></i>
           Gallery
         </button>
+        <button class="nav-item" data-section="calendar">
+          <i class="fa-solid fa-calendar-days"></i>
+          Calendar
+        </button>
+        <button class="nav-item" data-section="fees">
+          <i class="fa-solid fa-file-invoice-dollar"></i>
+          Fees & Billing
+        </button>
+        <button class="nav-item" data-section="students">
+          <i class="fa-solid fa-graduation-cap"></i>
+          Student Records
+        </button>
+        <button class="nav-item" data-section="academic">
+          <i class="fa-solid fa-book"></i>
+          Academic & Grades
+        </button>
+        <button class="nav-item" data-section="reports">
+          <i class="fa-solid fa-file-lines"></i>
+          Reports
+        </button>
+
+        <button class="nav-item" data-section="attendance">
+          <i class="fa-solid fa-user-check"></i>
+          Attendance
+        </button>
+
+        <button class="nav-item" data-section="assessment">
+          <i class="fa-solid fa-list-check"></i>
+          Assessment
+        </button>
+
+        <button class="nav-item" data-section="parent-comms">
+          <i class="fa-solid fa-comments"></i>
+          Parent Comms
+        </button>
 
         <div class="nav-section-label">System</div>
+
+        <button class="nav-item" data-section="audit">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          Audit Log
+        </button>
+
+        <button class="nav-item" data-section="staff">
+          <i class="fa-solid fa-users-gear"></i>
+          Staff Catalogue
+        </button>
 
         <button class="nav-item" data-section="settings">
           <i class="fa-solid fa-gear"></i>
@@ -149,6 +194,128 @@
             <i class="fa-solid fa-chart-line"></i>
             <h3>Recent activity coming soon</h3>
             <p>Detailed charts and activity feeds will appear here in a future stage.</p>
+          </div>
+        </section>
+
+        <!-- ── Attendance ──────────────────────────────────── -->
+        <section class="section-panel" id="section-attendance">
+          <div class="section-header section-header-flex">
+            <div>
+              <h2>Attendance</h2>
+              <p>Submit daily class attendance and review existing records.</p>
+            </div>
+            <div class="toolbar-actions">
+              <button class="toolbar-btn" id="refreshAttendance">
+                <i class="fa-solid fa-rotate-right"></i> Refresh
+              </button>
+              <button class="toolbar-btn toolbar-btn-primary" id="btnNewAttendance">
+                <i class="fa-solid fa-plus"></i> New Record
+              </button>
+            </div>
+          </div>
+
+          <div id="attendanceListView">
+            <div class="table-toolbar">
+              <span class="record-count" id="attendanceCount"></span>
+            </div>
+
+            <div class="table-loading" id="attendanceLoading">
+              <div class="tbl-spinner"></div>
+              <span>Loading attendance records&hellip;</span>
+            </div>
+
+            <div class="table-empty hidden" id="attendanceEmpty">
+              <i class="fa-solid fa-user-check"></i>
+              <p>No attendance records found yet.</p>
+            </div>
+
+            <div class="table-wrap hidden" id="attendanceTableWrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Class</th>
+                    <th>Students</th>
+                    <th>Submitted By</th>
+                    <th>Updated</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="attendanceTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="article-editor-shell hidden" id="attendanceFormView">
+            <div class="article-editor-header">
+              <button class="btn-back" id="btnBackAttendance">
+                <i class="fa-solid fa-arrow-left"></i> Back to Attendance
+              </button>
+              <div class="article-editor-headings">
+                <div>
+                  <h2 id="attendanceFormHeading">New Attendance Record</h2>
+                  <p id="attendanceFormSubtitle">Capture one class attendance entry for the selected date.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="article-editor-card">
+              <form id="attendanceForm" novalidate>
+                <input type="hidden" id="afId" />
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="afClassLabel">Class <span class="field-req">*</span></label>
+                    <input type="text" id="afClassLabel" placeholder="e.g. Primary 4" required />
+                  </div>
+                  <div class="editor-field">
+                    <label for="afDate">Attendance Date <span class="field-req">*</span></label>
+                    <input type="date" id="afDate" required />
+                  </div>
+                </div>
+
+                <div class="editor-field">
+                  <label for="afRecords">Records <span class="field-req">*</span></label>
+                  <textarea id="afRecords" rows="12" placeholder="One line per student: Name, present|absent|late|excused, optional note" required></textarea>
+                </div>
+
+                <div class="editor-actions">
+                  <div class="editor-error hidden" id="attendanceFormError"></div>
+                  <div class="editor-btns">
+                    <button type="button" class="btn-editor-cancel" id="btnCancelAttendanceForm">Cancel</button>
+                    <button type="submit" class="btn-editor-save" id="btnSaveAttendance">
+                      <span class="btn-label">Save Attendance</span>
+                      <div class="btn-spinner hidden"></div>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Assessment (Phase 3 Scaffold) ──────────────── -->
+        <section class="section-panel" id="section-assessment">
+          <div class="section-header">
+            <h2>Assessment</h2>
+            <p>Phase 3 scaffold: assessment module UI placeholder connected to RLS contracts.</p>
+          </div>
+          <div class="placeholder-card">
+            <i class="fa-solid fa-list-check"></i>
+            <h3>Assessment Module Coming Next</h3>
+            <p>This module will track class-level assessment summaries and controlled updates by teaching staff.</p>
+          </div>
+        </section>
+
+        <!-- ── Parent Comms (Phase 3 Scaffold) ────────────── -->
+        <section class="section-panel" id="section-parent-comms">
+          <div class="section-header">
+            <h2>Parent Communications</h2>
+            <p>Phase 3 scaffold: teacher-parent communication UI placeholder for portal integration.</p>
+          </div>
+          <div class="placeholder-card">
+            <i class="fa-solid fa-comments"></i>
+            <h3>Parent Comms Module Coming Next</h3>
+            <p>This module will compose and send controlled parent messages, then sync with portal delivery logs.</p>
           </div>
         </section>
 
@@ -633,11 +800,635 @@
           </div>
         </section>
 
+        <!-- ── Calendar ──────────────────────────────────────── -->
+        <section class="section-panel" id="section-calendar">
+          <div id="calendarListView">
+            <div class="section-header section-header-flex">
+              <div>
+                <h2>School Calendar</h2>
+                <p>Manage term dates, holidays, and school events.</p>
+              </div>
+              <button class="btn-primary-action" id="btnNewCalendarEvent">
+                <i class="fa-solid fa-plus"></i> New Event
+              </button>
+            </div>
+            <div class="table-toolbar">
+              <span class="record-count" id="calendarCount"></span>
+              <div class="gallery-toolbar-filters" style="margin-left:auto; display:flex; gap:10px;">
+                <select id="calendarCategoryFilter">
+                  <option value="all">All categories</option>
+                  <option value="term">Term Dates</option>
+                  <option value="holiday">Holidays</option>
+                  <option value="event">School Events</option>
+                </select>
+                <select id="calendarStatusFilter">
+                  <option value="all">All statuses</option>
+                  <option value="published">Published</option>
+                  <option value="draft">Draft</option>
+                </select>
+                <button class="toolbar-btn" id="refreshCalendar">
+                  <i class="fa-solid fa-rotate-right"></i> Refresh
+                </button>
+              </div>
+            </div>
+            <div class="table-loading" id="calendarLoading">
+              <div class="tbl-spinner"></div>
+              <span>Loading calendar events&hellip;</span>
+            </div>
+            <div class="table-empty hidden" id="calendarEmpty">
+              <i class="fa-solid fa-calendar-days"></i>
+              <p>No events found. Click <strong>New Event</strong> to get started.</p>
+            </div>
+            <div class="table-wrap hidden" id="calendarTableWrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="calendarTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Calendar Form -->
+          <div id="calendarFormView" class="hidden">
+            <div class="section-header section-header-flex">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <button class="btn-icon-back" id="btnBackCalendar" aria-label="Back to list">
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div>
+                  <h2 id="calendarFormHeading">New Event</h2>
+                  <p id="calendarFormSubtitle">Add an event to the school calendar.</p>
+                </div>
+              </div>
+            </div>
+            <div class="article-editor-card">
+              <form id="calendarEventForm" novalidate>
+                <input type="hidden" id="cfId" />
+                <div class="editor-field">
+                  <label for="cfTitle">Event Title <span class="field-req">*</span></label>
+                  <input type="text" id="cfTitle" placeholder="e.g. Term 1 Resumption" required />
+                </div>
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="cfDate">Event Date <span class="field-req">*</span></label>
+                    <input type="date" id="cfDate" required />
+                  </div>
+                  <div class="editor-field">
+                    <label for="cfDateLabel">Display Date <span class="field-hint">— e.g. "Monday, 4th Jan"</span></label>
+                    <input type="text" id="cfDateLabel" placeholder="Optional display label" />
+                  </div>
+                </div>
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="cfCategory">Category</label>
+                    <select id="cfCategory">
+                      <option value="event">School Event</option>
+                      <option value="term">Term Date</option>
+                      <option value="holiday">Holiday / Break</option>
+                    </select>
+                  </div>
+                  <div class="editor-field">
+                    <label for="cfLocation">Location</label>
+                    <input type="text" id="cfLocation" placeholder="e.g. School Hall" />
+                  </div>
+                </div>
+                <div class="editor-field">
+                  <label for="cfDescription">Description</label>
+                  <textarea id="cfDescription" rows="4" placeholder="Optional details about the event..."></textarea>
+                </div>
+                <div class="editor-field">
+                  <label>Status</label>
+                  <div class="status-radio-group">
+                    <label class="status-radio-option">
+                      <input type="radio" name="cfStatus" value="draft" checked />
+                      <span class="radio-pill pill-draft">Draft</span>
+                    </label>
+                    <label class="status-radio-option">
+                      <input type="radio" name="cfStatus" value="published" />
+                      <span class="radio-pill pill-published">Published</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="editor-actions">
+                  <div class="editor-error hidden" id="calendarFormError"></div>
+                  <div class="editor-btns">
+                    <button type="button" class="btn-editor-cancel" id="btnCancelCalendarForm">Cancel</button>
+                    <button type="submit" class="btn-editor-save" id="btnSaveCalendar">
+                      <span class="btn-label">Save Event</span>
+                      <div class="btn-spinner hidden"></div>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Fees & Billing (Admin Only) ────────────────── -->
+        <section class="section-panel" id="section-fees">
+          <div id="feesMainView">
+            <div class="section-header section-header-flex">
+              <div>
+                <h2>Fees & Billing</h2>
+                <p>Manage fee structures, student ledgers, and billing notices.</p>
+              </div>
+              <div class="toolbar-actions" style="display:flex;gap:10px;">
+                <button class="btn-primary-action" id="btnNewFeeStructure">
+                  <i class="fa-solid fa-plus"></i> New Fee Structure
+                </button>
+                <button class="btn-primary-action" id="btnRecordPayment" style="background:var(--p-primary);border-color:var(--p-primary);">
+                  <i class="fa-solid fa-hand-holding-dollar"></i> Record Payment
+                </button>
+              </div>
+            </div>
+
+            <div class="tabs-row">
+              <button class="tab-btn active" data-fee-tab="structures">Fee Structures</button>
+              <button class="tab-btn" data-fee-tab="ledgers">Student Ledgers</button>
+              <button class="tab-btn" data-fee-tab="notices">Billing Notices</button>
+            </div>
+
+            <!-- Fee Structures Tab -->
+            <div id="fee-tab-structures" class="fee-tab-content">
+              <div class="table-loading" id="feesLoading">
+                <div class="tbl-spinner"></div>
+                <span>Loading fee structures&hellip;</span>
+              </div>
+              <div class="table-empty hidden" id="feesEmpty">
+                <i class="fa-solid fa-file-invoice"></i>
+                <p>No fee structures defined yet.</p>
+              </div>
+              <div class="table-wrap hidden" id="feesTableWrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Amount</th>
+                      <th>Academic Year</th>
+                      <th>Due Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="feeStructuresTbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Student Ledgers Tab -->
+            <div id="fee-tab-ledgers" class="fee-tab-content hidden">
+              <div class="table-toolbar">
+                <div class="gallery-search-wrap" style="flex:1;">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                  <input type="text" id="ledgerSearchInput" placeholder="Search student name..." />
+                </div>
+                <button class="toolbar-btn" id="refreshLedgers">
+                  <i class="fa-solid fa-rotate-right"></i> Refresh
+                </button>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Class</th>
+                      <th>Total Charges</th>
+                      <th>Total Paid</th>
+                      <th>Balance</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ledgersTbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Notices Tab -->
+            <div id="fee-tab-notices" class="fee-tab-content hidden">
+              <div class="article-editor-card" style="margin-top:0;">
+                <form id="feeNoticeForm">
+                  <div class="editor-field">
+                    <label>Send To</label>
+                    <select id="fnRecipientType">
+                      <option value="all">All Parents</option>
+                      <option value="class">Specific Class</option>
+                      <option value="individual">Specific Student/Parent</option>
+                    </select>
+                  </div>
+                  <div class="editor-field hidden" id="fnClassGroup">
+                    <label>Select Class</label>
+                    <input type="text" id="fnClass" placeholder="e.g. Nursery 1" />
+                  </div>
+                  <div class="editor-field">
+                    <label>Notice Title</label>
+                    <input type="text" id="fnTitle" placeholder="e.g. Fee Reminder: Term 1 2026" required />
+                  </div>
+                  <div class="editor-field">
+                    <label>Message</label>
+                    <textarea id="fnMessage" rows="5" placeholder="Dear Parents, this is a reminder regarding..." required></textarea>
+                  </div>
+                  <div class="editor-actions">
+                    <button type="submit" class="btn-editor-save">
+                      <i class="fa-solid fa-paper-plane"></i> Send Portal Notice
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fee Structure Form -->
+          <div id="feeStructureFormView" class="hidden">
+             <!-- Similar structure to other forms, omitted for brevity but I will implement in JS -->
+          </div>
+        </section>
+
+        <!-- ── Student Clearance (Staff/Admin) ────────────── -->
+        <section class="section-panel" id="section-clearance">
+          <div class="section-header">
+            <h2>Financial Clearance</h2>
+            <p>Verify student clearance status for exams, trips, or graduation.</p>
+          </div>
+          <div class="table-toolbar">
+            <div class="gallery-search-wrap" style="flex:1;">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="text" id="clearanceSearchInput" placeholder="Search student..." />
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Class</th>
+                  <th>Status</th>
+                  <th>Last Update</th>
+                </tr>
+              </thead>
+              <tbody id="clearanceTbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ── Student Records ────────────────────────────── -->
+        <section class="section-panel" id="section-students">
+          <div id="studentsListView">
+            <div class="section-header section-header-flex">
+              <div>
+                <h2>Student Records</h2>
+                <p>Manage student profiles, class assignments, and parent links.</p>
+              </div>
+              <button class="btn-primary-action" id="btnNewStudent">
+                <i class="fa-solid fa-plus"></i> Add Student
+              </button>
+            </div>
+            <div class="table-toolbar">
+              <div class="gallery-search-wrap" style="flex:1;">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="studentSearchInput" placeholder="Search by name or code..." />
+              </div>
+              <button class="toolbar-btn" id="refreshStudents">
+                <i class="fa-solid fa-rotate-right"></i> Refresh
+              </button>
+            </div>
+            <div class="table-loading" id="studentsLoading">
+              <div class="tbl-spinner"></div>
+              <span>Loading students&hellip;</span>
+            </div>
+            <div class="table-empty hidden" id="studentsEmpty">
+              <i class="fa-solid fa-graduation-cap"></i>
+              <p>No students found. Click <strong>Add Student</strong> to get started.</p>
+            </div>
+            <div class="table-wrap hidden" id="studentsTableWrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Class</th>
+                    <th>Status</th>
+                    <th>Parents</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="studentsTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Student Form -->
+          <div id="studentFormView" class="hidden">
+            <div class="section-header section-header-flex">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <button class="btn-icon-back" id="btnBackStudents" aria-label="Back to list">
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div>
+                  <h2 id="studentFormHeading">Add Student</h2>
+                  <p id="studentFormSubtitle">Create a new student profile.</p>
+                </div>
+              </div>
+            </div>
+            <div class="article-editor-card">
+              <form id="studentForm" novalidate>
+                <input type="hidden" id="sfId" />
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="sfFirstName">First Name <span class="field-req">*</span></label>
+                    <input type="text" id="sfFirstName" required />
+                  </div>
+                  <div class="editor-field">
+                    <label for="sfLastName">Last Name <span class="field-req">*</span></label>
+                    <input type="text" id="sfLastName" required />
+                  </div>
+                </div>
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="sfCode">Student Code (Optional)</label>
+                    <input type="text" id="sfCode" placeholder="e.g. AHCS-2026-001" />
+                  </div>
+                  <div class="editor-field">
+                    <label for="sfDOB">Date of Birth</label>
+                    <input type="date" id="sfDOB" />
+                  </div>
+                </div>
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="sfClassName">Assigned Class</label>
+                    <input type="text" id="sfClassName" placeholder="e.g. Year 1" />
+                  </div>
+                  <div class="editor-field">
+                    <label for="sfStatus">Status</label>
+                    <select id="sfStatus">
+                      <option value="active">Active</option>
+                      <option value="graduated">Graduated</option>
+                      <option value="left">Left</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="editor-field">
+                  <label>Linked Parents <span class="field-hint">— search existing parent accounts</span></label>
+                  <div id="linkedParentsList" style="margin-bottom:10px;"></div>
+                  <div style="display:flex; gap:10px;">
+                    <input type="text" id="parentSearchInput" placeholder="Search parents by name or email..." style="flex:1; padding:8px 12px; border:1px solid var(--border); border-radius:6px;" />
+                    <button type="button" class="toolbar-btn" id="btnAddParentLink">
+                      <i class="fa-solid fa-plus"></i> Link
+                    </button>
+                  </div>
+                  <div id="parentSearchResults" class="search-results-overlay hidden"></div>
+                </div>
+
+                <div class="editor-actions">
+                  <div class="editor-error hidden" id="studentFormError"></div>
+                  <div class="editor-btns">
+                    <button type="button" class="btn-editor-cancel" id="btnCancelStudentForm">Cancel</button>
+                    <button type="submit" class="btn-editor-save" id="btnSaveStudent">
+                      <span class="btn-label">Save Student</span>
+                      <div class="btn-spinner hidden"></div>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Academic & Grades ────────────────────────── -->
+        <section class="section-panel" id="section-academic">
+          <div class="section-header section-header-flex">
+            <div>
+              <h2>Academic Performance</h2>
+              <p>Manage subjects, academic sessions, and enter student results.</p>
+            </div>
+            <div class="toolbar-actions" style="display:flex; gap:10px;">
+              <button class="toolbar-btn" id="btnManageSubjects"><i class="fa-solid fa-tags"></i> Subjects</button>
+              <button class="toolbar-btn" id="btnManageSessions"><i class="fa-solid fa-clock"></i> Sessions</button>
+            </div>
+          </div>
+
+          <div class="academic-controls-card">
+            <div class="editor-row-3">
+              <div class="editor-field">
+                <label>Academic Session</label>
+                <select id="acSessionSelect"><option value="">Select Session...</option></select>
+              </div>
+              <div class="editor-field">
+                <label>Class</label>
+                <select id="acClassSelect"><option value="">Select Class...</option></select>
+              </div>
+              <div class="editor-field">
+                <label>Subject</label>
+                <select id="acSubjectSelect"><option value="">Select Subject...</option></select>
+              </div>
+            </div>
+            <div style="text-align:right; margin-top:10px;">
+              <button class="btn-primary-action" id="btnLoadGradeBook" style="padding:10px 24px;">
+                <i class="fa-solid fa-list-check"></i> Load Grade Book
+              </button>
+            </div>
+          </div>
+
+          <div id="gradeBookView" class="hidden" style="margin-top:30px;">
+            <div class="section-header section-header-flex">
+              <h3 id="gradeBookTitle">Grade Book</h3>
+              <button class="btn-primary-action" id="btnSaveAllGrades" style="background:var(--p-primary);border-color:var(--p-primary);">
+                <i class="fa-solid fa-floppy-disk"></i> Save All Changes
+              </button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Student</th>
+                    <th>Assessment Type</th>
+                    <th>Score</th>
+                    <th>Max</th>
+                    <th>Comments</th>
+                  </tr>
+                </thead>
+                <tbody id="gradeBookTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Teacher Reports ─────────────────────────────── -->
+        <section class="section-panel" id="section-reports">
+          <div id="reportsListView">
+            <div class="section-header section-header-flex">
+              <div>
+                <h2>Teacher Reports</h2>
+                <p>Draft, submit, review, and archive teacher reports by role permissions.</p>
+              </div>
+              <button class="btn-primary-action" id="btnNewReport">
+                <i class="fa-solid fa-plus"></i> New Report
+              </button>
+            </div>
+
+            <div class="table-toolbar">
+              <span class="record-count" id="reportsCount"></span>
+              <button class="toolbar-btn" id="refreshReports">
+                <i class="fa-solid fa-rotate-right"></i> Refresh
+              </button>
+            </div>
+
+            <div class="table-loading" id="reportsLoading">
+              <div class="tbl-spinner"></div>
+              <span>Loading reports&hellip;</span>
+            </div>
+
+            <div class="table-empty hidden" id="reportsEmpty">
+              <i class="fa-solid fa-file-lines"></i>
+              <p>No reports found yet.</p>
+            </div>
+
+            <div class="table-wrap hidden" id="reportsTableWrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Updated</th>
+                    <th>Title</th>
+                    <th>Class</th>
+                    <th>Term</th>
+                    <th>Status</th>
+                    <th>Owner</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="reportsTbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="reportsFormView" class="hidden">
+            <div class="section-header section-header-flex">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <button class="btn-icon-back" id="btnBackReports" aria-label="Back to reports">
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <div>
+                  <h2 id="reportsFormHeading">New Report</h2>
+                  <p id="reportsFormSubtitle">Create a draft or submit for review.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="article-editor-card">
+              <form id="reportsForm" novalidate>
+                <input type="hidden" id="rfId" />
+                <div class="editor-field">
+                  <label for="rfTitle">Title <span class="field-req">*</span></label>
+                  <input type="text" id="rfTitle" placeholder="e.g. Term 2 Progress Summary" required />
+                </div>
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="rfClassName">Class <span class="field-req">*</span></label>
+                    <input type="text" id="rfClassName" placeholder="e.g. Primary 4" required />
+                  </div>
+                  <div class="editor-field">
+                    <label for="rfTermLabel">Term <span class="field-req">*</span></label>
+                    <input type="text" id="rfTermLabel" placeholder="e.g. 2026 Term 2" required />
+                  </div>
+                </div>
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="rfStudentCount">Student Count</label>
+                    <input type="number" id="rfStudentCount" min="0" step="1" placeholder="e.g. 28" />
+                  </div>
+                  <div class="editor-field">
+                    <label for="rfStatus">Status</label>
+                    <select id="rfStatus">
+                      <option value="draft">Draft</option>
+                      <option value="submitted">Submitted</option>
+                      <option value="under_review">Under Review</option>
+                      <option value="approved">Approved</option>
+                      <option value="needs_changes">Needs Changes</option>
+                      <option value="archived">Archived</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="editor-field">
+                  <label for="rfBody">Report Body <span class="field-req">*</span></label>
+                  <textarea id="rfBody" rows="14" placeholder="Write the report details here..." required></textarea>
+                </div>
+                <div class="editor-field">
+                  <label for="rfReviewComment">Review Comment</label>
+                  <textarea id="rfReviewComment" rows="4" placeholder="Admin review notes and revision requests..."></textarea>
+                </div>
+                <div class="editor-actions">
+                  <div class="editor-error hidden" id="reportsFormError"></div>
+                  <div class="editor-btns">
+                    <button type="button" class="btn-editor-cancel" id="btnCancelReportForm">Cancel</button>
+                    <button type="submit" class="btn-editor-save" id="btnSaveReport">
+                      <span class="btn-label">Save Report</span>
+                      <div class="btn-spinner hidden"></div>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Audit Log ───────────────────────────────────── -->
+        <section class="section-panel" id="section-audit">
+          <div class="section-header section-header-flex">
+            <div>
+              <h2>Audit Log</h2>
+              <p>Track role, permission, status, and content changes.</p>
+            </div>
+            <button class="toolbar-btn" id="refreshAudit">
+              <i class="fa-solid fa-rotate-right"></i> Refresh
+            </button>
+          </div>
+
+          <div class="table-toolbar">
+            <span class="record-count" id="auditCount"></span>
+            <div class="gallery-toolbar-filters">
+              <input type="text" id="auditActionFilter" placeholder="Filter action (e.g. report.updated)" />
+              <input type="text" id="auditTargetFilter" placeholder="Filter target type (e.g. teacher_report)" />
+            </div>
+          </div>
+
+          <div class="table-loading" id="auditLoading">
+            <div class="tbl-spinner"></div>
+            <span>Loading audit events&hellip;</span>
+          </div>
+
+          <div class="table-empty hidden" id="auditEmpty">
+            <i class="fa-solid fa-shield-halved"></i>
+            <p>No audit records found.</p>
+          </div>
+
+          <div class="table-wrap hidden" id="auditTableWrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Actor</th>
+                  <th>Role</th>
+                  <th>Action</th>
+                  <th>Target</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="auditTbody"></tbody>
+            </table>
+          </div>
+        </section>
+
         <!-- ── Settings ──────────────────────────────────────── -->
         <section class="section-panel" id="section-settings">
           <div class="section-header">
             <h2>Settings</h2>
-            <p>Manage your admin account, security preferences, and notification defaults.</p>
+            <p>Manage your account, security preferences, and notification defaults.</p>
           </div>
 
           <div class="table-loading" id="settingsLoading">
@@ -693,27 +1484,6 @@
 
             <div class="settings-card">
               <div class="settings-card-head">
-                <h3><i class="fa-solid fa-user-shield"></i> Access Model</h3>
-                <p>Phase 1 governance baseline for roles, permissions, and publishing authority.</p>
-              </div>
-              <div class="settings-access-summary">
-                <div class="settings-session-item">
-                  <div class="settings-session-label">Current Role</div>
-                  <div class="settings-session-value" id="settingsRoleDisplay">&mdash;</div>
-                </div>
-                <div class="settings-access-block">
-                  <div class="settings-access-title">Permission Groups</div>
-                  <div class="settings-permission-pills" id="settingsPermissionPills"></div>
-                </div>
-                <div class="settings-access-block">
-                  <div class="settings-access-title">Publish Permissions</div>
-                  <div class="settings-publish-pills" id="settingsPublishPills"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="settings-card">
-              <div class="settings-card-head">
                 <h3><i class="fa-solid fa-shield-halved"></i> Security</h3>
                 <p>Protect your account with a strong password and session hygiene.</p>
               </div>
@@ -761,6 +1531,38 @@
 
             <div class="settings-card">
               <div class="settings-card-head">
+                <h3><i class="fa-solid fa-user-clock"></i> Session</h3>
+                <p>Review active account session details and sign-out options.</p>
+              </div>
+              <div class="settings-session-list">
+                <div class="settings-session-item">
+                  <div class="settings-session-label">Last sign-in</div>
+                  <div class="settings-session-value" id="ssLastSignIn">&mdash;</div>
+                </div>
+                <div class="settings-session-item">
+                  <div class="settings-session-label">User ID</div>
+                  <div class="settings-session-value" id="ssUserId">&mdash;</div>
+                </div>
+              </div>
+              <div class="editor-btns" style="justify-content:flex-start; margin-top:14px;">
+                <button type="button" class="btn-editor-cancel" id="btnSignOutOthers">Sign Out Other Sessions</button>
+                <button type="button" class="btn-editor-save" id="btnSignOutCurrent">Sign Out This Session</button>
+              </div>
+              <div class="settings-inline-status" id="settingsSessionStatus"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ── Staff Catalogue ─────────────────────────────── -->
+        <section class="section-panel" id="section-staff">
+          <div class="section-header">
+            <h2>Staff Catalogue</h2>
+            <p>Create staff accounts, suspend/disable access, and manage permission overrides.</p>
+          </div>
+
+          <div class="settings-grid" id="staffGrid">
+            <div class="settings-card">
+              <div class="settings-card-head">
                 <h3><i class="fa-solid fa-user-plus"></i> Staff Onboarding</h3>
                 <p>Create staff accounts, assign positions, and enforce first-login password change.</p>
               </div>
@@ -791,6 +1593,17 @@
                       <option value="admin">Admin</option>
                     </select>
                   </div>
+                </div>
+
+                <div class="editor-row-2">
+                  <div class="editor-field">
+                    <label for="soAccountType">Account Type</label>
+                    <select id="soAccountType">
+                      <option value="teaching">Teaching</option>
+                      <option value="non_teaching">Non-Teaching</option>
+                    </select>
+                  </div>
+                  <div class="editor-field"></div>
                 </div>
 
                 <div class="editor-field">
@@ -830,30 +1643,34 @@
                   </button>
                 </div>
               </form>
-
-              <div class="settings-staff-list" id="settingsStaffList"></div>
             </div>
 
             <div class="settings-card">
               <div class="settings-card-head">
-                <h3><i class="fa-solid fa-user-clock"></i> Session</h3>
-                <p>Review active account session details and sign-out options.</p>
+                <h3><i class="fa-solid fa-users"></i> Staff Catalogue</h3>
+                <p>Review account status and modify per-user overrides.</p>
               </div>
-              <div class="settings-session-list">
-                <div class="settings-session-item">
-                  <div class="settings-session-label">Last sign-in</div>
-                  <div class="settings-session-value" id="ssLastSignIn">&mdash;</div>
-                </div>
-                <div class="settings-session-item">
-                  <div class="settings-session-label">User ID</div>
-                  <div class="settings-session-value" id="ssUserId">&mdash;</div>
-                </div>
+              <div class="settings-staff-list" id="settingsStaffList"></div>
+            </div>
+
+            <div class="settings-card hidden" id="staffOverrideCard">
+              <div class="settings-card-head">
+                <h3><i class="fa-solid fa-sliders"></i> Staff Override Editor</h3>
+                <p id="staffOverrideTarget">Select a staff account from the catalogue to edit permission overrides.</p>
               </div>
-              <div class="editor-btns" style="justify-content:flex-start; margin-top:14px;">
-                <button type="button" class="btn-editor-cancel" id="btnSignOutOthers">Sign Out Other Sessions</button>
-                <button type="button" class="btn-editor-save" id="btnSignOutCurrent">Sign Out This Session</button>
+              <div class="so-perm-grid" id="staffOverridePermGrid"></div>
+              <div class="so-perm-publish-row" style="margin-top:8px;">
+                <span class="so-perm-pub-label">Can Publish</span>
+                <div id="staffOverridePublishChecks" class="so-perm-pub-checks"></div>
               </div>
-              <div class="settings-inline-status" id="settingsSessionStatus"></div>
+              <div class="settings-inline-status" id="staffOverrideStatus" style="margin-top:12px;"></div>
+              <div class="editor-btns" style="justify-content:flex-start; margin-top:8px;">
+                <button type="button" class="btn-editor-cancel" id="staffOverrideCancelBtn">Cancel</button>
+                <button type="button" class="btn-editor-save" id="staffOverrideSaveBtn">
+                  <span class="btn-label">Save Overrides</span>
+                  <div class="btn-spinner hidden"></div>
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -980,6 +1797,7 @@
     let authzState = {
       ready: false,
       role: 'admin',
+      currentUserId: null,
       permissions: {},
       canPublish: {},
     };
@@ -1079,12 +1897,19 @@
       'contacted':         'badge-orange',
       'assessment booked': 'badge-purple',
       'shortlisted':       'badge-purple',
+      'under review':      'badge-purple',
       'reviewed':          'badge-muted',
       'offer made':        'badge-green',
+      'approved':          'badge-green',
+      'needs changes':     'badge-orange',
       'declined':          'badge-red',
       'rejected':          'badge-red',
+      'error':             'badge-red',
       'published':         'badge-green',
       'draft':             'badge-muted',
+      'submitted':         'badge-blue',
+      'archived':          'badge-muted',
+      'success':           'badge-green',
       'open':              'badge-green',
       'closed':            'badge-muted',
     };
@@ -2487,6 +3312,612 @@
     });
 
     // ═══════════════════════════════════════════════════════
+    // ATTENDANCE MANAGEMENT
+    // ═══════════════════════════════════════════════════════
+    let attendanceData = [];
+    let attendanceLoaded = false;
+    let currentAttendanceRecord = null;
+
+    function parseAttendanceRecords(input) {
+      return String(input || '')
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => {
+          const [studentRaw, statusRaw, ...noteRaw] = line.split(',').map(part => part.trim());
+          return {
+            student: studentRaw || '',
+            status: ['present', 'absent', 'late', 'excused'].includes((statusRaw || '').toLowerCase())
+              ? statusRaw.toLowerCase()
+              : 'present',
+            note: noteRaw.join(', ').trim() || null,
+          };
+        })
+        .filter(row => row.student);
+    }
+
+    function formatAttendanceRecords(records) {
+      return (Array.isArray(records) ? records : []).map(row => {
+        const student = String(row?.student || '').trim();
+        if (!student) return '';
+        const status = String(row?.status || 'present').trim().toLowerCase() || 'present';
+        const note = String(row?.note || '').trim();
+        return note ? `${student}, ${status}, ${note}` : `${student}, ${status}`;
+      }).filter(Boolean).join('\n');
+    }
+
+    function attendanceSummary(records) {
+      const list = Array.isArray(records) ? records : [];
+      const total = list.length;
+      const present = list.filter(row => String(row?.status || '').toLowerCase() === 'present').length;
+      return `${present}/${total} present`;
+    }
+
+    function openAttendanceForm(record = null) {
+      currentAttendanceRecord = record;
+      hide('attendanceListView');
+      show('attendanceFormView');
+      hide('attendanceFormError');
+      document.getElementById('attendanceFormError').textContent = '';
+
+      const canSubmit = hasPermission('reports', 'submit');
+      const canReview = hasPermission('reports', 'review');
+      const isOwner = record ? record.submitted_by === authzState.currentUserId : true;
+      const canEdit = !record ? canSubmit : (isOwner ? canSubmit : canReview);
+
+      document.getElementById('afId').value = record?.id || '';
+      document.getElementById('afClassLabel').value = record?.class_label || '';
+      document.getElementById('afDate').value = record?.attendance_on || new Date().toISOString().slice(0, 10);
+      document.getElementById('afRecords').value = formatAttendanceRecords(record?.records || []);
+
+      ['afClassLabel', 'afDate', 'afRecords'].forEach(id => {
+        document.getElementById(id).disabled = !canEdit;
+      });
+      document.getElementById('btnSaveAttendance').disabled = !canEdit;
+
+      document.getElementById('attendanceFormHeading').textContent = record ? 'Edit Attendance Record' : 'New Attendance Record';
+      document.getElementById('attendanceFormSubtitle').textContent = record
+        ? 'Update class/date or student entries and save changes.'
+        : 'Enter one student per line using: Name, status, optional note.';
+    }
+
+    function closeAttendanceForm() {
+      currentAttendanceRecord = null;
+      show('attendanceListView');
+      hide('attendanceFormView');
+      document.getElementById('attendanceForm').reset();
+      hide('attendanceFormError');
+    }
+
+    function renderAttendanceTable() {
+      const tbody = document.getElementById('attendanceTbody');
+      const canView = hasPermission('reports', 'view');
+      const canSubmit = hasPermission('reports', 'submit');
+      const canReview = hasPermission('reports', 'review');
+
+      if (!canView) {
+        hide('attendanceTableWrap');
+        show('attendanceEmpty');
+        document.getElementById('attendanceEmpty').innerHTML = '<i class="fa-solid fa-lock"></i><p>You do not have permission to view attendance.</p>';
+        document.getElementById('attendanceCount').textContent = 'No permission';
+        return;
+      }
+
+      document.getElementById('attendanceEmpty').innerHTML = '<i class="fa-solid fa-user-check"></i><p>No attendance records found yet.</p>';
+
+      const count = attendanceData.length;
+      document.getElementById('attendanceCount').textContent = `${count} ${count === 1 ? 'record' : 'records'}`;
+
+      if (!count) {
+        hide('attendanceTableWrap');
+        show('attendanceEmpty');
+        return;
+      }
+
+      hide('attendanceEmpty');
+      show('attendanceTableWrap');
+
+      tbody.innerHTML = attendanceData.map(row => {
+        const isOwner = row.submitted_by === authzState.currentUserId;
+        const canEdit = isOwner ? canSubmit : canReview;
+        return `
+          <tr>
+            <td class="td-date">${fmtDate(row.attendance_on)}</td>
+            <td class="td-bold">${esc(row.class_label || '—')}</td>
+            <td>${esc(attendanceSummary(row.records))}</td>
+            <td>${esc(row.submitted_by_email || row.submitted_by || '—')}</td>
+            <td>${fmtDate(row.updated_at)}</td>
+            <td>
+              <button class="btn-view" data-attendance-open="${row.id}"><i class="fa-solid fa-eye"></i> Open</button>
+              ${canEdit ? `<button class="btn-view" data-attendance-edit="${row.id}"><i class="fa-solid fa-pen"></i> Edit</button>` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.querySelectorAll('[data-attendance-open]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = attendanceData.find(r => r.id === btn.dataset.attendanceOpen);
+          if (item) openAttendanceForm(item);
+        });
+      });
+      tbody.querySelectorAll('[data-attendance-edit]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = attendanceData.find(r => r.id === btn.dataset.attendanceEdit);
+          if (item) openAttendanceForm(item);
+        });
+      });
+    }
+
+    async function loadAttendance() {
+      attendanceLoaded = false;
+      show('attendanceLoading');
+      hide('attendanceTableWrap');
+      hide('attendanceEmpty');
+
+      try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        if (!token) throw new Error('Session expired. Please sign in again.');
+
+        const response = await fetch(`${ADMIN_API_BASE_URL}/api/attendance`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || 'Could not load attendance records.');
+        }
+
+        attendanceData = Array.isArray(result.data) ? result.data : [];
+      } catch (error) {
+        attendanceData = [];
+        show('attendanceEmpty');
+        document.getElementById('attendanceCount').textContent = 'Could not load records';
+        document.getElementById('attendanceEmpty').innerHTML = `<i class="fa-solid fa-circle-info"></i><p>${esc(error.message || 'Could not load attendance records.')}</p>`;
+      }
+
+      hide('attendanceLoading');
+      attendanceLoaded = true;
+      renderAttendanceTable();
+    }
+
+    document.getElementById('btnNewAttendance').addEventListener('click', () => {
+      if (!hasPermission('reports', 'submit')) {
+        alert('You do not have permission to submit attendance records.');
+        return;
+      }
+      openAttendanceForm();
+    });
+    document.getElementById('refreshAttendance').addEventListener('click', loadAttendance);
+    document.getElementById('btnBackAttendance').addEventListener('click', closeAttendanceForm);
+    document.getElementById('btnCancelAttendanceForm').addEventListener('click', closeAttendanceForm);
+
+    document.getElementById('attendanceForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const errorEl = document.getElementById('attendanceFormError');
+      const saveBtn = document.getElementById('btnSaveAttendance');
+      const spinner = saveBtn.querySelector('.btn-spinner');
+      const label = saveBtn.querySelector('.btn-label');
+
+      hide('attendanceFormError');
+      errorEl.textContent = '';
+
+      const id = document.getElementById('afId').value.trim();
+      const classLabel = document.getElementById('afClassLabel').value.trim();
+      const attendanceOn = document.getElementById('afDate').value;
+      const records = parseAttendanceRecords(document.getElementById('afRecords').value);
+
+      if (!classLabel) {
+        errorEl.textContent = 'Class is required.';
+        show('attendanceFormError');
+        return;
+      }
+      if (!attendanceOn) {
+        errorEl.textContent = 'Attendance date is required.';
+        show('attendanceFormError');
+        return;
+      }
+      if (!records.length) {
+        errorEl.textContent = 'Add at least one student attendance line.';
+        show('attendanceFormError');
+        return;
+      }
+
+      saveBtn.disabled = true;
+      spinner.classList.remove('hidden');
+      label.style.display = 'none';
+
+      try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        if (!token) throw new Error('Session expired. Please sign in again.');
+
+        const payload = { classLabel, attendanceOn, records };
+        const isEdit = !!id;
+        const response = await fetch(`${ADMIN_API_BASE_URL}/api/attendance${isEdit ? `/${id}` : ''}`, {
+          method: isEdit ? 'PATCH' : 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || 'Could not save attendance record.');
+        }
+
+        await loadAttendance();
+        closeAttendanceForm();
+      } catch (error) {
+        errorEl.textContent = error.message || 'Could not save attendance record.';
+        show('attendanceFormError');
+      } finally {
+        saveBtn.disabled = false;
+        spinner.classList.add('hidden');
+        label.style.display = '';
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // REPORTS MANAGEMENT
+    // ═══════════════════════════════════════════════════════
+    let reportsData = [];
+    let reportsLoaded = false;
+    let currentReportRecord = null;
+
+    const REPORT_STATUS_LABELS = {
+      draft: 'Draft',
+      submitted: 'Submitted',
+      under_review: 'Under Review',
+      approved: 'Approved',
+      needs_changes: 'Needs Changes',
+      archived: 'Archived',
+    };
+
+    function reportStatusLabel(status) {
+      return REPORT_STATUS_LABELS[status] || 'Draft';
+    }
+
+    function openReportsForm(record = null) {
+      currentReportRecord = record;
+      hide('reportsListView');
+      show('reportsFormView');
+      hide('reportsFormError');
+      document.getElementById('reportsFormError').textContent = '';
+
+      const canReview = hasPermission('reports', 'review');
+      const canSubmit = hasPermission('reports', 'submit');
+      const canApprove = hasPermission('reports', 'approve');
+      const isOwner = record ? record.submitted_by === authzState.currentUserId : true;
+
+      document.getElementById('rfId').value = record?.id || '';
+      document.getElementById('rfTitle').value = record?.title || '';
+      document.getElementById('rfClassName').value = record?.class_name || '';
+      document.getElementById('rfTermLabel').value = record?.term_label || '';
+      document.getElementById('rfStudentCount').value = record?.student_count ?? '';
+      document.getElementById('rfBody').value = record?.report_body || '';
+      document.getElementById('rfReviewComment').value = record?.review_comment || '';
+      document.getElementById('rfStatus').value = record?.status || 'draft';
+
+      const isEditableByOwner = isOwner && (record?.status === 'draft' || record?.status === 'needs_changes' || !record?.status);
+      const canEditContent = !record ? canSubmit : (isEditableByOwner || (canReview && !isOwner));
+
+      ['rfTitle', 'rfClassName', 'rfTermLabel', 'rfStudentCount', 'rfBody'].forEach(id => {
+        document.getElementById(id).disabled = !canEditContent;
+      });
+      document.getElementById('rfReviewComment').disabled = !(canReview || canApprove);
+
+      const statusSelect = document.getElementById('rfStatus');
+      const statusOptions = Array.from(statusSelect.options);
+      statusOptions.forEach(opt => {
+        const value = opt.value;
+        if (value === 'approved') {
+          opt.disabled = !canApprove;
+          return;
+        }
+        if (value === 'under_review' || value === 'needs_changes' || value === 'archived') {
+          opt.disabled = !(canReview || canApprove);
+          return;
+        }
+        if (value === 'submitted') {
+          opt.disabled = !canSubmit;
+          return;
+        }
+        opt.disabled = !canSubmit && !(canReview || canApprove);
+      });
+
+      document.getElementById('reportsFormHeading').textContent = record ? 'Edit Report' : 'New Report';
+      document.getElementById('reportsFormSubtitle').textContent = record
+        ? 'Update details, status, and review notes based on your permissions.'
+        : 'Create a draft, then submit when ready for review.';
+    }
+
+    function closeReportsForm() {
+      currentReportRecord = null;
+      show('reportsListView');
+      hide('reportsFormView');
+      document.getElementById('reportsForm').reset();
+      hide('reportsFormError');
+    }
+
+    function renderReportsTable() {
+      const tbody = document.getElementById('reportsTbody');
+      const canReview = hasPermission('reports', 'review');
+      const canSubmit = hasPermission('reports', 'submit');
+      const canView = hasPermission('reports', 'view');
+
+      if (!canView) {
+        hide('reportsTableWrap');
+        show('reportsEmpty');
+        document.getElementById('reportsEmpty').innerHTML = '<i class="fa-solid fa-lock"></i><p>You do not have permission to view reports.</p>';
+        document.getElementById('reportsCount').textContent = 'No permission';
+        return;
+      }
+
+      document.getElementById('reportsEmpty').innerHTML = '<i class="fa-solid fa-file-lines"></i><p>No reports found yet.</p>';
+
+      const count = reportsData.length;
+      document.getElementById('reportsCount').textContent = `${count} ${count === 1 ? 'report' : 'reports'}`;
+
+      if (!count) {
+        hide('reportsTableWrap');
+        show('reportsEmpty');
+        return;
+      }
+
+      hide('reportsEmpty');
+      show('reportsTableWrap');
+
+      tbody.innerHTML = reportsData.map(row => {
+        const isOwner = row.submitted_by === authzState.currentUserId;
+        const canEdit = isOwner ? canSubmit : canReview;
+        return `
+          <tr>
+            <td class="td-date">${fmtDate(row.updated_at)}</td>
+            <td class="td-bold">${esc(row.title)}</td>
+            <td>${esc(row.class_name)}</td>
+            <td>${esc(row.term_label)}</td>
+            <td>${statusBadge(reportStatusLabel(row.status))}</td>
+            <td>${esc(row.submitted_by_email || '—')}</td>
+            <td>
+              <button class="btn-view" data-report-open="${row.id}"><i class="fa-solid fa-eye"></i> Open</button>
+              ${canEdit ? `<button class="btn-view" data-report-edit="${row.id}"><i class="fa-solid fa-pen"></i> Edit</button>` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.querySelectorAll('[data-report-open]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = reportsData.find(r => r.id === btn.dataset.reportOpen);
+          if (item) openReportsForm(item);
+        });
+      });
+      tbody.querySelectorAll('[data-report-edit]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const item = reportsData.find(r => r.id === btn.dataset.reportEdit);
+          if (item) openReportsForm(item);
+        });
+      });
+    }
+
+    async function loadReports() {
+      reportsLoaded = false;
+      show('reportsLoading');
+      hide('reportsTableWrap');
+      hide('reportsEmpty');
+
+      try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        if (!token) throw new Error('Session expired. Please sign in again.');
+
+        const response = await fetch(`${ADMIN_API_BASE_URL}/api/reports`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || 'Could not load reports.');
+        }
+
+        reportsData = Array.isArray(result.data) ? result.data : [];
+      } catch (error) {
+        reportsData = [];
+        show('reportsEmpty');
+        document.getElementById('reportsCount').textContent = 'Could not load reports';
+        document.getElementById('reportsEmpty').innerHTML = `<i class="fa-solid fa-circle-info"></i><p>${esc(error.message || 'Could not load reports.')}</p>`;
+      }
+
+      hide('reportsLoading');
+      reportsLoaded = true;
+      renderReportsTable();
+    }
+
+    document.getElementById('btnNewReport').addEventListener('click', () => {
+      if (!hasPermission('reports', 'submit')) {
+        alert('You do not have permission to create reports.');
+        return;
+      }
+      openReportsForm();
+    });
+    document.getElementById('refreshReports').addEventListener('click', loadReports);
+    document.getElementById('btnBackReports').addEventListener('click', closeReportsForm);
+    document.getElementById('btnCancelReportForm').addEventListener('click', closeReportsForm);
+
+    document.getElementById('reportsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const errorEl = document.getElementById('reportsFormError');
+      hide('reportsFormError');
+      errorEl.textContent = '';
+
+      const id = document.getElementById('rfId').value.trim();
+      const payload = {
+        title: document.getElementById('rfTitle').value.trim(),
+        className: document.getElementById('rfClassName').value.trim(),
+        termLabel: document.getElementById('rfTermLabel').value.trim(),
+        studentCount: Number(document.getElementById('rfStudentCount').value || 0),
+        reportBody: document.getElementById('rfBody').value.trim(),
+        status: document.getElementById('rfStatus').value,
+        reviewComment: document.getElementById('rfReviewComment').value.trim(),
+      };
+
+      if (!payload.title || !payload.className || !payload.termLabel || !payload.reportBody) {
+        errorEl.textContent = 'Title, class, term, and report body are required.';
+        show('reportsFormError');
+        return;
+      }
+
+      const btn = document.getElementById('btnSaveReport');
+      setButtonLoading(btn, true);
+
+      try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        if (!token) throw new Error('Session expired. Please sign in again.');
+
+        const response = await fetch(
+          id ? `${ADMIN_API_BASE_URL}/api/reports/${id}` : `${ADMIN_API_BASE_URL}/api/reports`,
+          {
+            method: id ? 'PATCH' : 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(payload),
+          }
+        );
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.message || 'Could not save report.');
+        }
+
+        closeReportsForm();
+        await loadReports();
+      } catch (error) {
+        errorEl.textContent = error.message || 'Could not save report.';
+        show('reportsFormError');
+      } finally {
+        setButtonLoading(btn, false);
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════
+    // AUDIT LOG MANAGEMENT
+    // ═══════════════════════════════════════════════════════
+    let auditLoaded = false;
+    let auditData = [];
+
+    function truncateText(value, maxLen = 140) {
+      const s = String(value || '');
+      if (s.length <= maxLen) return s;
+      return `${s.slice(0, maxLen - 3)}...`;
+    }
+
+    function applyAuditFilters(data) {
+      const actionFilter = document.getElementById('auditActionFilter').value.trim().toLowerCase();
+      const targetFilter = document.getElementById('auditTargetFilter').value.trim().toLowerCase();
+
+      return data.filter(row => {
+        const action = String(row.action || '').toLowerCase();
+        const target = String(row.target_type || '').toLowerCase();
+
+        if (actionFilter && !action.includes(actionFilter)) return false;
+        if (targetFilter && !target.includes(targetFilter)) return false;
+        return true;
+      });
+    }
+
+    function renderAuditTable() {
+      const canManageRoles = hasPermission('settings', 'manage_roles');
+      const canManageStaff = hasPermission('settings', 'manage_staff');
+      const canView = canManageRoles || canManageStaff;
+
+      if (!canView) {
+        hide('auditTableWrap');
+        show('auditEmpty');
+        document.getElementById('auditCount').textContent = 'No permission';
+        document.getElementById('auditEmpty').innerHTML = '<i class="fa-solid fa-lock"></i><p>You do not have permission to view audit logs.</p>';
+        return;
+      }
+
+      document.getElementById('auditEmpty').innerHTML = '<i class="fa-solid fa-shield-halved"></i><p>No audit records found.</p>';
+
+      const filtered = applyAuditFilters(auditData);
+      document.getElementById('auditCount').textContent = `${filtered.length} ${filtered.length === 1 ? 'event' : 'events'}`;
+
+      if (!filtered.length) {
+        hide('auditTableWrap');
+        show('auditEmpty');
+        return;
+      }
+
+      hide('auditEmpty');
+      show('auditTableWrap');
+
+      const tbody = document.getElementById('auditTbody');
+      tbody.innerHTML = filtered.map(row => {
+        const detailText = truncateText(JSON.stringify(row.details || {}));
+        const titleText = esc(JSON.stringify(row.details || {}, null, 2));
+        return `
+          <tr>
+            <td class="td-date">${fmtDate(row.created_at)} ${new Date(row.created_at).toLocaleTimeString('en-GB')}</td>
+            <td class="td-bold">${esc(row.actor_email || 'system')}</td>
+            <td>${esc(row.actor_role || '—')}</td>
+            <td><span class="year-pill">${esc(row.action || '—')}</span></td>
+            <td>${esc(row.target_type || '—')}${row.target_id ? `:${esc(row.target_id)}` : ''}</td>
+            <td><span title="${titleText}">${esc(detailText)}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function loadAudit() {
+      auditLoaded = false;
+      show('auditLoading');
+      hide('auditTableWrap');
+      hide('auditEmpty');
+
+      try {
+        const canManageRoles = hasPermission('settings', 'manage_roles');
+        const canManageStaff = hasPermission('settings', 'manage_staff');
+        if (!(canManageRoles || canManageStaff)) {
+          auditData = [];
+          hide('auditLoading');
+          renderAuditTable();
+          auditLoaded = true;
+          return;
+        }
+
+        const { data, error } = await supabaseClient
+          .from('audit_logs')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(300);
+
+        if (error) throw error;
+        auditData = data || [];
+      } catch (error) {
+        auditData = [];
+        show('auditEmpty');
+        document.getElementById('auditCount').textContent = 'Could not load audit log';
+        document.getElementById('auditEmpty').innerHTML = `<i class="fa-solid fa-circle-info"></i><p>${esc(error.message || 'Could not load audit records.')}</p>`;
+      }
+
+      hide('auditLoading');
+      auditLoaded = true;
+      renderAuditTable();
+    }
+
+    document.getElementById('refreshAudit').addEventListener('click', loadAudit);
+    document.getElementById('auditActionFilter').addEventListener('input', renderAuditTable);
+    document.getElementById('auditTargetFilter').addEventListener('input', renderAuditTable);
+
+    // ═══════════════════════════════════════════════════════
     // SETTINGS MANAGEMENT
     // ═══════════════════════════════════════════════════════
     let settingsLoaded = false;
@@ -2504,15 +3935,6 @@
       staff: 'Staff',
     };
 
-    const PHASE1_PERMISSION_GROUPS = [
-      { key: 'admissions', label: 'Admissions' },
-      { key: 'jobs',       label: 'Jobs' },
-      { key: 'news',       label: 'News' },
-      { key: 'gallery',    label: 'Gallery' },
-      { key: 'reports',    label: 'Reports' },
-      { key: 'settings',   label: 'Settings' },
-    ];
-
     const ROLE_BASELINE = {
       superadmin: {
         permissions: {
@@ -2520,10 +3942,12 @@
           jobs:       { view: true, update: true, export: true, manage_vacancies: true },
           news:       { view: true, create: true, edit: true, publish: true, delete: true },
           gallery:    { view: true, upload: true, edit: true, publish: true, delete: true },
+          calendar:   { view: true, create: true, edit: true, publish: true, delete: true },
+          fees:       { view: true, manage: true, record_payment: true, notify: true },
           reports:    { view: true, submit: true, review: true, approve: true },
           settings:   { own: true, manage_staff: true, manage_roles: true },
         },
-        can_publish: { news: true, gallery: true, vacancies: true, reports: true },
+        can_publish: { news: true, gallery: true, calendar: true, vacancies: true, reports: true },
       },
       admin: {
         permissions: {
@@ -2531,10 +3955,11 @@
           jobs:       { view: true, update: true, export: true, manage_vacancies: true },
           news:       { view: true, create: true, edit: true, publish: true, delete: true },
           gallery:    { view: true, upload: true, edit: true, publish: true, delete: true },
+          calendar:   { view: true, create: true, edit: true, publish: true, delete: true },
           reports:    { view: true, submit: false, review: true, approve: true },
-          settings:   { own: true, manage_staff: false, manage_roles: false },
+          settings:   { own: true, manage_staff: true, manage_roles: false },
         },
-        can_publish: { news: true, gallery: true, vacancies: true, reports: true },
+        can_publish: { news: true, gallery: true, calendar: true, vacancies: true, reports: true },
       },
       staff: {
         permissions: {
@@ -2542,12 +3967,42 @@
           jobs:       { view: false, update: false, export: false, manage_vacancies: false },
           news:       { view: true, create: true, edit: true, publish: false, delete: false },
           gallery:    { view: true, upload: true, edit: true, publish: false, delete: false },
+          calendar:   { view: true, create: true, edit: true, publish: false, delete: false },
           reports:    { view: true, submit: true, review: false, approve: false },
           settings:   { own: true, manage_staff: false, manage_roles: false },
         },
-        can_publish: { news: false, gallery: false, vacancies: false, reports: false },
+        can_publish: { news: false, gallery: false, calendar: false, vacancies: false, reports: false },
       },
     };
+
+    const DUTY_BASELINE = {
+      teaching: {
+        permissions: {
+          admissions: { view: false, update: false, export: false },
+          jobs:       { view: false, update: false, export: false, manage_vacancies: false },
+          news:       { view: true, create: true, edit: true, publish: false, delete: false },
+          gallery:    { view: true, upload: true, edit: true, publish: false, delete: false },
+          calendar:   { view: true, create: true, edit: true, publish: false, delete: false },
+          reports:    { view: true, submit: true, review: false, approve: false },
+          settings:   { own: true, manage_staff: false, manage_roles: false },
+        },
+        can_publish: { news: false, gallery: false, calendar: false, vacancies: false, reports: false },
+      },
+      non_teaching: {
+        permissions: {
+          admissions: { view: false, update: false, export: false },
+          jobs:       { view: false, update: false, export: false, manage_vacancies: false },
+          news:       { view: false, create: false, edit: false, publish: false, delete: false },
+          gallery:    { view: false, upload: false, edit: false, publish: false, delete: false },
+          calendar:   { view: false, create: false, edit: false, publish: false, delete: false },
+          reports:    { view: false, submit: false, review: false, approve: false },
+          settings:   { own: true, manage_staff: false, manage_roles: false },
+        },
+        can_publish: { news: false, gallery: false, calendar: false, vacancies: false, reports: false },
+      },
+    };
+
+    let currentStaffOverrideId = null;
 
     // Permission sections used by the staff onboarding permissions panel
     const ONBOARD_PERMISSION_SECTIONS = [
@@ -2563,6 +4018,9 @@
       { key: 'gallery', label: 'Gallery', actions: [
         { key: 'view', label: 'View' }, { key: 'upload', label: 'Upload' }, { key: 'edit', label: 'Edit' }, { key: 'publish', label: 'Publish' }, { key: 'delete', label: 'Delete' },
       ]},
+      { key: 'calendar', label: 'Calendar', actions: [
+        { key: 'view', label: 'View' }, { key: 'create', label: 'Create' }, { key: 'edit', label: 'Edit' }, { key: 'publish', label: 'Publish' }, { key: 'delete', label: 'Delete' },
+      ]},
       { key: 'reports', label: 'Reports', actions: [
         { key: 'view', label: 'View' }, { key: 'submit', label: 'Submit' }, { key: 'review', label: 'Review' }, { key: 'approve', label: 'Approve' },
       ]},
@@ -2570,7 +4028,7 @@
         { key: 'manage_staff', label: 'Manage Staff' }, { key: 'manage_roles', label: 'Manage Roles' },
       ]},
     ];
-    const ONBOARD_PUBLISH_AREAS = ['news', 'gallery', 'vacancies', 'reports'];
+    const ONBOARD_PUBLISH_AREAS = ['news', 'gallery', 'calendar', 'vacancies', 'reports'];
 
     function initOnboardPermissionsPanel() {
       const grid = document.getElementById('soPermGrid');
@@ -2595,6 +4053,61 @@
           </label>`
         ).join('');
       }
+    }
+
+    function buildEmptyPermissionTemplate() {
+      const permissions = {};
+      ONBOARD_PERMISSION_SECTIONS.forEach(section => {
+        permissions[section.key] = {};
+        section.actions.forEach(action => {
+          permissions[section.key][action.key] = false;
+        });
+        if (section.key === 'settings') permissions[section.key].own = true;
+      });
+      const canPublish = {};
+      ONBOARD_PUBLISH_AREAS.forEach(area => {
+        canPublish[area] = false;
+      });
+      return { permissions, canPublish };
+    }
+
+    function getMatchedPositionByName() {
+      const typed = (document.getElementById('soPositionTitle')?.value || '').trim().toLowerCase();
+      if (!typed) return null;
+      return settingsPositionsData.find(p => p.name.toLowerCase() === typed) || null;
+    }
+
+    function getOnboardDefaultAccess(role, accountType, matchedPosition = null) {
+      if (role === 'admin') {
+        return {
+          permissions: buildDefaultPermissions('admin'),
+          canPublish: buildDefaultPublishRights('admin'),
+        };
+      }
+
+      if (accountType === 'non_teaching') {
+        return buildEmptyPermissionTemplate();
+      }
+
+      if (matchedPosition) {
+        return {
+          permissions: mergeWithBaselinePermissions('staff', matchedPosition.permissions),
+          canPublish: mergeWithBaselinePublish('staff', matchedPosition.can_publish),
+        };
+      }
+
+      return {
+        permissions: buildDefaultPermissions('staff'),
+        canPublish: buildDefaultPublishRights('staff'),
+      };
+    }
+
+    function applyOnboardDefaultsFromCurrentSelection() {
+      const role = document.getElementById('soRole')?.value || 'staff';
+      const accountType = document.getElementById('soAccountType')?.value || 'teaching';
+      const match = getMatchedPositionByName();
+      const defaults = getOnboardDefaultAccess(role, accountType, match);
+      fillOnboardPermissionsFromObj(defaults.permissions, defaults.canPublish);
     }
 
     function fillOnboardPermissionsFromObj(permissions, canPublish) {
@@ -2682,8 +4195,10 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Role</th>
+                <th>Type</th>
                 <th>Status</th>
                 <th>Password</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -2692,14 +4207,149 @@
                   <td class="td-bold">${esc(r.display_name || '—')}</td>
                   <td>${esc(r.email || '—')}</td>
                   <td><span class="year-pill">${esc((r.role || 'staff').toUpperCase())}</span></td>
+                  <td>${esc((r.staff_type || 'teaching').replace('_', ' '))}</td>
                   <td>${statusBadge(r.status || 'active')}</td>
                   <td>${r.must_change_password ? '<span class="status-badge badge-orange">Change Required</span>' : '<span class="status-badge badge-green">Set</span>'}</td>
+                  <td>
+                    <button class="btn-view" data-staff-status="${r.id}" data-next-status="active">Activate</button>
+                    <button class="btn-view" data-staff-status="${r.id}" data-next-status="suspended">Suspend</button>
+                    <button class="btn-view" data-staff-status="${r.id}" data-next-status="inactive">Disable</button>
+                    <button class="btn-view" data-staff-edit="${r.id}"><i class="fa-solid fa-sliders"></i> Edit Overrides</button>
+                  </td>
                 </tr>
               `).join('')}
             </tbody>
           </table>
         </div>
       `;
+
+      wrap.querySelectorAll('[data-staff-status]').forEach(btn => {
+        btn.addEventListener('click', () => updateStaffStatus(btn.dataset.staffStatus, btn.dataset.nextStatus));
+      });
+      wrap.querySelectorAll('[data-staff-edit]').forEach(btn => {
+        btn.addEventListener('click', () => editStaffOverrides(btn.dataset.staffEdit));
+      });
+    }
+
+    async function updateStaffStatus(staffId, nextStatus) {
+      if (!['active', 'suspended', 'inactive'].includes(nextStatus)) return;
+
+      const { error } = await supabaseClient
+        .from('staff_profiles')
+        .update({ status: nextStatus, updated_at: new Date().toISOString() })
+        .eq('id', staffId);
+
+      if (error) {
+        alert('Status update failed: ' + error.message);
+        return;
+      }
+
+      await loadSettingsStaff();
+    }
+
+    function initStaffOverridePanel() {
+      const grid = document.getElementById('staffOverridePermGrid');
+      if (!grid || grid.children.length) return;
+
+      grid.innerHTML = ONBOARD_PERMISSION_SECTIONS.map(s =>
+        `<div class="so-perm-section">
+          <div class="so-perm-section-name">${esc(s.label)}</div>
+          <div class="so-perm-check-list">${s.actions.map(a =>
+            `<label class="so-perm-check-item">
+              <input type="checkbox" id="se_perm_${s.key}_${a.key}" />
+              <span>${esc(a.label)}</span>
+            </label>`
+          ).join('')}</div>
+        </div>`
+      ).join('');
+
+      const pubChecks = document.getElementById('staffOverridePublishChecks');
+      if (pubChecks) {
+        pubChecks.innerHTML = ONBOARD_PUBLISH_AREAS.map(area =>
+          `<label class="so-perm-check-item">
+            <input type="checkbox" id="se_pub_${area}" />
+            <span>${area.charAt(0).toUpperCase() + area.slice(1)}</span>
+          </label>`
+        ).join('');
+      }
+    }
+
+    function fillStaffOverrideEditor(permissions, canPublish) {
+      ONBOARD_PERMISSION_SECTIONS.forEach(s => {
+        s.actions.forEach(a => {
+          const el = document.getElementById(`se_perm_${s.key}_${a.key}`);
+          if (el) el.checked = !!permissions?.[s.key]?.[a.key];
+        });
+      });
+      ONBOARD_PUBLISH_AREAS.forEach(area => {
+        const el = document.getElementById(`se_pub_${area}`);
+        if (el) el.checked = !!canPublish?.[area];
+      });
+    }
+
+    function readStaffOverrideEditor() {
+      const permissions = {};
+      ONBOARD_PERMISSION_SECTIONS.forEach(s => {
+        permissions[s.key] = { own: s.key === 'settings' ? true : undefined };
+        s.actions.forEach(a => {
+          const el = document.getElementById(`se_perm_${s.key}_${a.key}`);
+          permissions[s.key][a.key] = el ? el.checked : false;
+        });
+        if (s.key !== 'settings') delete permissions[s.key].own;
+        else permissions[s.key].own = true;
+      });
+
+      const canPublish = {};
+      ONBOARD_PUBLISH_AREAS.forEach(area => {
+        const el = document.getElementById(`se_pub_${area}`);
+        canPublish[area] = el ? el.checked : false;
+      });
+
+      return { permissions, canPublish };
+    }
+
+    function closeStaffOverrideEditor() {
+      currentStaffOverrideId = null;
+      hide('staffOverrideCard');
+      setSettingsStatus('staffOverrideStatus', '');
+    }
+
+    function editStaffOverrides(staffId) {
+      const row = settingsStaffData.find(x => x.id === staffId);
+      if (!row) return;
+
+      currentStaffOverrideId = row.id;
+      document.getElementById('staffOverrideTarget').textContent = `Editing overrides for ${row.display_name || row.email}`;
+      fillStaffOverrideEditor(row.permissions_override || {}, row.can_publish_override || {});
+      setSettingsStatus('staffOverrideStatus', '');
+      show('staffOverrideCard');
+    }
+
+    async function saveStaffOverrideEditor() {
+      if (!currentStaffOverrideId) return;
+
+      const btn = document.getElementById('staffOverrideSaveBtn');
+      setButtonLoading(btn, true);
+      setSettingsStatus('staffOverrideStatus', '');
+
+      const { permissions, canPublish } = readStaffOverrideEditor();
+      const { error } = await supabaseClient
+        .from('staff_profiles')
+        .update({
+          permissions_override: permissions,
+          can_publish_override: canPublish,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', currentStaffOverrideId);
+
+      setButtonLoading(btn, false);
+      if (error) {
+        setSettingsStatus('staffOverrideStatus', 'Override update failed: ' + error.message, 'error');
+        return;
+      }
+
+      setSettingsStatus('staffOverrideStatus', 'Overrides updated successfully.', 'success');
+      await loadSettingsStaff();
     }
 
     function renderPositionDatalist() {
@@ -2727,10 +4377,17 @@
     }
 
     async function loadSettingsStaff() {
-      const { data, error } = await supabaseClient
+      let { data, error } = await supabaseClient
         .from('staff_profiles')
-        .select('id,email,display_name,role,status,must_change_password,created_at')
+        .select('id,email,display_name,role,staff_type,status,must_change_password,permissions_override,can_publish_override,created_at')
         .order('created_at', { ascending: false });
+
+      if (error && String(error.message || '').toLowerCase().includes('staff_type')) {
+        ({ data, error } = await supabaseClient
+          .from('staff_profiles')
+          .select('id,email,display_name,role,status,must_change_password,permissions_override,can_publish_override,created_at')
+          .order('created_at', { ascending: false }));
+      }
 
       if (error) {
         console.error('Staff load error:', error);
@@ -2766,6 +4423,12 @@
       if (sectionId === 'news') return hasPermission('news', 'view');
       if (sectionId === 'vacancies') return hasPermission('jobs', 'manage_vacancies');
       if (sectionId === 'gallery') return hasPermission('gallery', 'view');
+      if (sectionId === 'reports') return hasPermission('reports', 'view');
+      if (sectionId === 'attendance') return hasPermission('reports', 'view');
+      if (sectionId === 'assessment') return hasPermission('reports', 'view');
+      if (sectionId === 'parent-comms') return hasPermission('reports', 'view');
+      if (sectionId === 'audit') return hasPermission('settings', 'manage_roles') || hasPermission('settings', 'manage_staff');
+      if (sectionId === 'staff') return hasPermission('settings', 'manage_staff');
       if (sectionId === 'settings') return hasPermission('settings', 'own');
       return false;
     }
@@ -2776,6 +4439,16 @@
 
     function buildDefaultPublishRights(role) {
       return { ...(ROLE_BASELINE[role]?.can_publish || ROLE_BASELINE.admin.can_publish) };
+    }
+
+    function buildDutyPermissions(staffType) {
+      const key = String(staffType || 'teaching').trim().toLowerCase();
+      return JSON.parse(JSON.stringify(DUTY_BASELINE[key]?.permissions || DUTY_BASELINE.teaching.permissions));
+    }
+
+    function buildDutyPublishRights(staffType) {
+      const key = String(staffType || 'teaching').trim().toLowerCase();
+      return { ...(DUTY_BASELINE[key]?.can_publish || DUTY_BASELINE.teaching.can_publish) };
     }
 
     function mergeWithBaselinePermissions(role, permissions) {
@@ -2836,18 +4509,28 @@
       }
 
       try {
-        const { data: staffProfile, error: staffErr } = await supabaseClient
+        let { data: staffProfile, error: staffErr } = await supabaseClient
           .from('staff_profiles')
-          .select('role,position_id,permissions_override,can_publish_override')
+          .select('role,staff_type,position_id,permissions_override,can_publish_override')
           .eq('id', user.id)
           .maybeSingle();
 
+        if (staffErr && String(staffErr.message || '').toLowerCase().includes('staff_type')) {
+          ({ data: staffProfile, error: staffErr } = await supabaseClient
+            .from('staff_profiles')
+            .select('role,position_id,permissions_override,can_publish_override')
+            .eq('id', user.id)
+            .maybeSingle());
+        }
+
         if (!staffErr && staffProfile) {
           const role = normalizeRoleValue(staffProfile.role || 'staff', email);
+          const staffType = String(staffProfile.staff_type || 'teaching').trim().toLowerCase();
+          const isStaff = role === 'staff';
           let positionPerms = null;
           let positionPublish = null;
 
-          if (staffProfile.position_id) {
+          if (staffProfile.position_id && !(isStaff && staffType === 'non_teaching')) {
             const { data: posData, error: posErr } = await supabaseClient
               .from('staff_positions')
               .select('permissions,can_publish')
@@ -2860,10 +4543,13 @@
             }
           }
 
+          const baselinePerms = isStaff ? buildDutyPermissions(staffType) : buildDefaultPermissions(role);
+          const baselinePublish = isStaff ? buildDutyPublishRights(staffType) : buildDefaultPublishRights(role);
+
           return {
             role,
-            permissions: mergePermissionLayers(role, positionPerms, staffProfile.permissions_override),
-            canPublish: mergePublishLayers(role, positionPublish, staffProfile.can_publish_override),
+            permissions: mergePermissionLayers(role, baselinePerms, positionPerms, staffProfile.permissions_override),
+            canPublish: mergePublishLayers(role, baselinePublish, positionPublish, staffProfile.can_publish_override),
           };
         }
       } catch (err) {
@@ -2916,10 +4602,8 @@
         el.disabled = !canGalleryPublish;
       });
 
-      const canManageStaff = hasPermission('settings', 'manage_staff');
-      const staffForm = document.getElementById('settingsStaffForm');
-      const staffCard = staffForm?.closest('.settings-card');
-      if (staffCard) staffCard.classList.toggle('hidden', !canManageStaff);
+      const canReportsSubmit = hasPermission('reports', 'submit');
+      document.getElementById('btnNewReport').classList.toggle('hidden', !canReportsSubmit);
 
       const canJobsUpdate = hasPermission('jobs', 'update');
       const canAdmissionsUpdate = hasPermission('admissions', 'update');
@@ -2947,6 +4631,8 @@
       document.getElementById('galleryTotalCount').dataset.galleryEdit = canGalleryEdit ? '1' : '0';
       document.getElementById('galleryTotalCount').dataset.galleryDelete = canGalleryDelete ? '1' : '0';
       document.getElementById('galleryTotalCount').dataset.galleryPublish = canGalleryPublish ? '1' : '0';
+
+      document.getElementById('reportsCount').dataset.reportsSubmit = canReportsSubmit ? '1' : '0';
     }
 
     async function initializeAuthorization() {
@@ -2957,31 +4643,13 @@
       authzState = {
         ready: true,
         role: resolved.role,
+        currentUserId: user.id,
         permissions: resolved.permissions,
         canPublish: resolved.canPublish,
       };
 
       applyNavigationAuthorization();
       applyActionAuthorization();
-    }
-
-    function renderAccessModel(profile) {
-      const role = normalizeRoleValue(profile?.role, currentSettingsUser?.email);
-      const perms = mergeWithBaselinePermissions(role, profile?.permissions);
-      const publish = mergeWithBaselinePublish(role, profile?.can_publish);
-
-      document.getElementById('settingsRoleDisplay').textContent = ROLE_LABELS[role] || 'Admin';
-
-      const permWrap = document.getElementById('settingsPermissionPills');
-      permWrap.innerHTML = PHASE1_PERMISSION_GROUPS.map(group => {
-        const enabled = Object.values(perms[group.key] || {}).some(Boolean);
-        return `<span class="settings-permission-pill ${enabled ? 'on' : 'off'}">${esc(group.label)}</span>`;
-      }).join('');
-
-      const publishWrap = document.getElementById('settingsPublishPills');
-      publishWrap.innerHTML = Object.entries(publish).map(([key, allowed]) =>
-        `<span class="settings-publish-pill ${allowed ? 'on' : 'off'}">${esc(key)}: ${allowed ? 'Allowed' : 'Restricted'}</span>`
-      ).join('');
     }
 
     function readSettingsPreferencesFromUI() {
@@ -3045,7 +4713,21 @@
         : '—';
       document.getElementById('ssUserId').textContent = user.id || '—';
       writeSettingsPreferencesToUI(profile?.preferences);
-      renderAccessModel({ ...profile, role });
+    }
+
+    async function loadStaffWorkspace() {
+      if (!hasPermission('settings', 'manage_staff')) return;
+
+      await Promise.all([loadSettingsPositions(), loadSettingsStaff()]);
+      initStaffOverridePanel();
+      if (!document.getElementById('soTempPassword').value) {
+        document.getElementById('soTempPassword').value = generateTemporaryPassword();
+      }
+      if (!document.getElementById('soPermGrid')?.children.length) {
+        initOnboardPermissionsPanel();
+      }
+      applyOnboardDefaultsFromCurrentSelection();
+      closeStaffOverrideEditor();
     }
 
     async function loadSettings() {
@@ -3088,20 +4770,6 @@
       }
 
       fillSettingsUI(user, currentSettingsProfile);
-      if (hasPermission('settings', 'manage_staff')) {
-        await Promise.all([loadSettingsPositions(), loadSettingsStaff()]);
-      } else {
-        settingsPositionsData = [];
-        settingsStaffData = [];
-      }
-      if (!document.getElementById('soTempPassword').value) {
-        document.getElementById('soTempPassword').value = generateTemporaryPassword();
-      }
-      // Build the permissions checkbox panel on first load
-      if (!document.getElementById('soPermGrid')?.children.length) {
-        initOnboardPermissionsPanel();
-        fillOnboardPermissionsFromObj(ROLE_BASELINE.staff.permissions, ROLE_BASELINE.staff.can_publish);
-      }
       hide('settingsLoading');
       show('settingsGrid');
       settingsLoaded = true;
@@ -3152,7 +4820,6 @@
       }
 
       currentSettingsProfile = data;
-      renderAccessModel(data);
       setSettingsStatus('settingsProfileStatus', 'Profile saved successfully.', 'success');
     });
 
@@ -3202,7 +4869,6 @@
       }
 
       currentSettingsProfile = data;
-      renderAccessModel(data);
       setSettingsStatus('settingsNotificationsStatus', 'Preferences updated.', 'success');
     });
 
@@ -3255,16 +4921,30 @@
 
     // Position title auto-fill: when typed text matches an existing position, populate permissions
     document.getElementById('soPositionTitle').addEventListener('input', function () {
-      const typed = this.value.trim().toLowerCase();
-      const match = settingsPositionsData.find(p => p.name.toLowerCase() === typed);
+      const match = getMatchedPositionByName();
       const hiddenId = document.getElementById('soPositionId');
       if (match) {
         hiddenId.value = match.id;
-        fillOnboardPermissionsFromObj(match.permissions, match.can_publish);
       } else {
         hiddenId.value = '';
-        fillOnboardPermissionsFromObj(ROLE_BASELINE.staff.permissions, ROLE_BASELINE.staff.can_publish);
       }
+      applyOnboardDefaultsFromCurrentSelection();
+    });
+
+    document.getElementById('soRole').addEventListener('change', () => {
+      const role = document.getElementById('soRole').value;
+      const accountTypeEl = document.getElementById('soAccountType');
+      if (role === 'admin') {
+        accountTypeEl.value = 'teaching';
+        accountTypeEl.disabled = true;
+      } else {
+        accountTypeEl.disabled = false;
+      }
+      applyOnboardDefaultsFromCurrentSelection();
+    });
+
+    document.getElementById('soAccountType').addEventListener('change', () => {
+      applyOnboardDefaultsFromCurrentSelection();
     });
 
     // Permissions panel collapse toggle
@@ -3280,6 +4960,9 @@
       document.getElementById('soTempPassword').value = generateTemporaryPassword();
     });
 
+    document.getElementById('staffOverrideCancelBtn').addEventListener('click', closeStaffOverrideEditor);
+    document.getElementById('staffOverrideSaveBtn').addEventListener('click', saveStaffOverrideEditor);
+
     document.getElementById('settingsStaffForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       setSettingsStatus('settingsStaffStatus', '');
@@ -3292,6 +4975,7 @@
       const name = document.getElementById('soName').value.trim();
       const email = document.getElementById('soEmail').value.trim().toLowerCase();
       const role = document.getElementById('soRole').value;
+      const accountType = document.getElementById('soAccountType').value;
       const positionId = document.getElementById('soPositionId').value || null;
       const temporaryPassword = document.getElementById('soTempPassword').value;
       const { permissions: permissionsOverride, canPublish: canPublishOverride } = readOnboardPermissionsFromUI();
@@ -3323,6 +5007,7 @@
             displayName: name,
             positionId,
             role,
+            accountType,
             temporaryPassword,
                       permissionsOverride,
                       canPublishOverride,
@@ -3337,9 +5022,11 @@
         setSettingsStatus('settingsStaffStatus', 'Staff account created successfully. Password change required on first login.', 'success');
         document.getElementById('settingsStaffForm').reset();
           document.getElementById('soPositionId').value = '';
+          document.getElementById('soAccountType').value = 'teaching';
+          document.getElementById('soAccountType').disabled = false;
           document.getElementById('soPermBody').classList.add('hidden');
           document.getElementById('soPermChevron').style.transform = '';
-          fillOnboardPermissionsFromObj(ROLE_BASELINE.staff.permissions, ROLE_BASELINE.staff.can_publish);
+          applyOnboardDefaultsFromCurrentSelection();
         document.getElementById('soTempPassword').value = generateTemporaryPassword();
         await loadSettingsStaff();
       } catch (err) {
@@ -3401,6 +5088,12 @@
       news:       'News',
       vacancies:  'Vacancies',
       gallery:    'Gallery',
+      reports:    'Teacher Reports',
+      attendance: 'Attendance',
+      assessment: 'Assessment',
+      'parent-comms': 'Parent Communications',
+      audit:      'Audit Log',
+      staff:      'Staff Catalogue',
       settings:   'Settings',
     };
 
@@ -3410,7 +5103,7 @@
 
     function switchSection(sectionId) {
       if (!canAccessSection(sectionId)) {
-        const fallback = ['overview', 'news', 'gallery', 'settings', 'jobs', 'admissions', 'vacancies']
+        const fallback = ['overview', 'news', 'gallery', 'reports', 'attendance', 'assessment', 'parent-comms', 'audit', 'staff', 'settings', 'jobs', 'admissions', 'vacancies']
           .find(s => canAccessSection(s));
         if (!fallback) {
           alert('You do not have access to any dashboard section.');
@@ -3429,6 +5122,10 @@
       if (sectionId === 'news'       && !newsLoaded)       loadNews();
       if (sectionId === 'vacancies'  && !vacanciesLoaded)  loadVacancies();
       if (sectionId === 'gallery'    && !galleryLoaded)    loadGallery();
+      if (sectionId === 'reports'    && !reportsLoaded)    loadReports();
+      if (sectionId === 'attendance' && !attendanceLoaded) loadAttendance();
+      if (sectionId === 'audit'      && !auditLoaded)      loadAudit();
+      if (sectionId === 'staff')                           loadStaffWorkspace();
       if (sectionId === 'settings'   && !settingsLoaded)   loadSettings();
     }
 

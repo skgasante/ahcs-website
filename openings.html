@@ -196,8 +196,6 @@
 
   <script>
     // ─── HAMBURGER ────────────────────────────────────────────────
-    const API_BASE_URL = 'https://ahcs-website-production.up.railway.app';
-
     const hamburger = document.querySelector('.hamburger');
     const navLinks  = document.querySelector('.nav-links');
     const navCta    = document.querySelector('.nav-cta');
@@ -300,12 +298,13 @@
                 cv_file_url: urlData.publicUrl,
                 cv_file_name: cv.name,
                 submitted_at: new Date().toISOString(),
-                status: 'pending',
+                status: 'pending'
               }
             ]);
         })
         .then(({ error: insertErr }) => {
           if (insertErr) throw insertErr;
+
           document.getElementById('jobFormContainer').style.display = 'none';
           document.getElementById('successMessage').classList.add('show');
         })

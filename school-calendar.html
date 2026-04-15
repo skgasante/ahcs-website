@@ -37,6 +37,8 @@
           <li><a href="index.html#admissions">Admissions</a></li>
           <li><a href="openings.html">Vacancies</a></li>
           <li><a href="index.html#contact">Contact</a></li>
+          <li><a href="parent-portal.html" style="color:var(--blue); font-weight:700;">Parent Portal</a></li>
+          <li><a href="admin/index.html" style="color:var(--orange); font-weight:700;">Staff Portal</a></li>
         </ul>
         <a href="index.html#admissions" class="btn btn-primary nav-cta">Apply Now</a>
         <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
@@ -57,18 +59,40 @@
   <!-- ─── CONTENT ───────────────────────────────────────── -->
   <main class="page-content">
     <div class="container" style="max-width:860px;">
-      <div class="info-card">
-        <h2><i class="fa-solid fa-book-open" style="color:var(--blue);margin-right:8px;"></i>Term Dates</h2>
-        <p>Term 1: Coming soon. Term 2: Coming soon. Term 3: Coming soon. Full dates will be published ahead of each new academic year.</p>
+      
+      <!-- Loading state -->
+      <div id="calendarLoading" style="text-align:center;padding:64px 0;color:var(--muted);">
+        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:1.8rem;margin-bottom:12px;display:block;"></i>
+        <p style="font-size:.9rem;">Loading school calendar&hellip;</p>
       </div>
-      <div class="info-card">
-        <h2><i class="fa-solid fa-umbrella-beach" style="color:var(--orange);margin-right:8px;"></i>Holiday Breaks</h2>
-        <p>Summer break, Christmas break, and mid-term holidays will be listed here once the academic calendar is finalised.</p>
+
+      <div id="calendarContent" style="display:none;">
+        <div class="info-card">
+          <h2><i class="fa-solid fa-book-open" style="color:var(--blue);margin-right:8px;"></i>Term Dates</h2>
+          <div id="termDatesList">
+            <p>Full dates will be published ahead of each new academic year.</p>
+          </div>
+        </div>
+        <div class="info-card">
+          <h2><i class="fa-solid fa-umbrella-beach" style="color:var(--orange);margin-right:8px;"></i>Holiday Breaks</h2>
+          <div id="holidaysList">
+            <p>Holiday dates will be listed here once the academic calendar is finalised.</p>
+          </div>
+        </div>
+        <div class="info-card">
+          <h2><i class="fa-solid fa-star" style="color:var(--green);margin-right:8px;"></i>School Events</h2>
+          <div id="eventsList">
+            <p>Important dates for sports days, celebrations, and parent evenings will appear here.</p>
+          </div>
+        </div>
       </div>
-      <div class="info-card">
-        <h2><i class="fa-solid fa-star" style="color:var(--green);margin-right:8px;"></i>School Events</h2>
-        <p>Important dates for sports days, cultural celebrations, assessment weeks, prize-giving, and parent evenings will appear here.</p>
+
+      <!-- Empty state (if no data at all) -->
+      <div id="calendarEmpty" style="display:none;text-align:center;padding:64px 0;color:var(--muted);">
+        <i class="fa-solid fa-calendar-xmark" style="font-size:2rem;margin-bottom:16px;display:block;opacity:.3;"></i>
+        <p style="font-size:.95rem;">The school calendar is currently being updated. Please check back later.</p>
       </div>
+
     </div>
   </main>
 
@@ -124,7 +148,75 @@
     </div>
   </footer>
 
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
   <script>
+    function esc(s) {
+      return String(s || '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    (async () => {
+      const loading = document.getElementById('calendarLoading');
+      const content = document.getElementById('calendarContent');
+      const empty   = document.getElementById('calendarEmpty');
+      
+      const termList = document.getElementById('termDatesList');
+      const holidayList = document.getElementById('holidaysList');
+      const eventList = document.getElementById('eventsList');
+
+      const { data, error } = await supabasePublic
+        .from('calendar_events')
+        .select('*')
+        .eq('status', 'published')
+        .order('event_date', { ascending: true });
+
+      loading.style.display = 'none';
+
+      if (error || !data || data.length === 0) {
+        empty.style.display = 'block';
+        return;
+      }
+
+      const terms = data.filter(e => e.category === 'term');
+      const holidays = data.filter(e => e.category === 'holiday');
+      const events = data.filter(e => e.category === 'event');
+
+      if (terms.length > 0) {
+        termList.innerHTML = terms.map(e => `
+          <div style="margin-bottom:12px; border-bottom:1px solid #f3f4f6; padding-bottom:8px;">
+            <strong style="display:block; color:var(--navy); font-size:.95rem;">${esc(e.title)}</strong>
+            <span style="font-size:.85rem; color:var(--muted);"><i class="fa-regular fa-calendar-check"></i> ${esc(e.event_date_label || e.event_date)}</span>
+          </div>
+        `).join('');
+      }
+
+      if (holidays.length > 0) {
+        holidayList.innerHTML = holidays.map(e => `
+          <div style="margin-bottom:12px; border-bottom:1px solid #f3f4f6; padding-bottom:8px;">
+            <strong style="display:block; color:var(--navy); font-size:.95rem;">${esc(e.title)}</strong>
+            <span style="font-size:.85rem; color:var(--muted);"><i class="fa-solid fa-umbrella-beach"></i> ${esc(e.event_date_label || e.event_date)}</span>
+          </div>
+        `).join('');
+      }
+
+      if (events.length > 0) {
+        eventList.innerHTML = events.map(e => `
+          <div style="margin-bottom:12px; border-bottom:1px solid #f3f4f6; padding-bottom:8px;">
+            <strong style="display:block; color:var(--navy); font-size:.95rem;">${esc(e.title)}</strong>
+            <div style="display:flex; gap:12px; font-size:.85rem; color:var(--muted); margin-top:2px;">
+              <span><i class="fa-regular fa-calendar"></i> ${esc(e.event_date_label || e.event_date)}</span>
+              ${e.location ? `<span><i class="fa-solid fa-location-dot"></i> ${esc(e.location)}</span>` : ''}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      content.style.display = 'block';
+    })();
+
     const hamburger = document.querySelector('.hamburger');
     const navLinks  = document.querySelector('.nav-links');
     const navCta    = document.querySelector('.nav-cta');

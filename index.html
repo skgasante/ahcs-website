@@ -602,6 +602,8 @@
           <li><a href="#admissions">Admissions</a></li>
           <li><a href="#vacancies">Vacancies</a></li>
           <li><a href="#contact">Contact</a></li>
+          <li><a href="parent-portal.html" style="color:var(--blue); font-weight:700;">Parent Portal</a></li>
+          <li><a href="admin/index.html" style="color:var(--orange); font-weight:700;">Staff Portal</a></li>
         </ul>
         <a href="#admissions" class="btn btn-primary nav-cta">Apply Now</a>
         <button class="hamburger" aria-label="Menu">
@@ -1164,7 +1166,6 @@
   </div>
 
   <script>
-    const API_BASE_URL = 'https://ahcs-website-production.up.railway.app';
 
     // ─── ADMISSION FORM SUBMISSION ───────────────────────────────────
     function submitAdmissionForm(e) {
@@ -1175,59 +1176,50 @@
       const btnText = document.getElementById('admissionBtnText');
       const btnLoading = document.getElementById('admissionBtnLoading');
 
-      // Convert FormData to JSON
-      const data = {};
-      for (let [key, value] of formData.entries()) {
-        data[key] = value;
-      }
-
       // Show loading state
       submitBtn.disabled = true;
       btnText.style.display = 'none';
       btnLoading.style.display = 'inline';
 
-      // Submit to backend
-      fetch(`${API_BASE_URL}/api/admissions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Response received:', data); // Debug: log entire response
-        
-        if (data.success) {
-          // Show success modal
+      const payload = {
+        parent_name: String(formData.get('parentName') || '').trim(),
+        phone_number: String(formData.get('phoneNumber') || '').trim(),
+        email: String(formData.get('email') || '').trim(),
+        child_name: String(formData.get('childName') || '').trim(),
+        date_of_birth: String(formData.get('dateOfBirth') || '').trim(),
+        year_group: String(formData.get('yearGroup') || '').trim(),
+        preferred_term: String(formData.get('preferredTerm') || '').trim(),
+        additional_notes: String(formData.get('additionalNotes') || '').trim(),
+        submitted_at: new Date().toISOString(),
+        status: 'pending'
+      };
+
+      supabasePublic
+        .from('admission_enquiries')
+        .insert([payload])
+        .then(({ error }) => {
+          if (error) throw error;
+
           const successModal = document.getElementById('admissionSuccessModal');
           const successText1 = document.getElementById('admissionSuccessText1');
           const successText2 = document.getElementById('admissionSuccessText2');
-          
-          // Split message into paragraphs
-          const messageParts = data.message.split('\n\n');
-          successText1.textContent = messageParts[0] || '';
-          successText2.textContent = messageParts[1] || '';
-          
           const successMessage = document.querySelector('#admissionSuccessModal .success-message');
+
+          successText1.textContent = 'Thank you for your enquiry. We have received your application details.';
+          successText2.textContent = 'Our admissions team will contact you shortly to guide you through the next steps.';
+
           successModal.classList.add('show');
-          if (successMessage) {
-            successMessage.classList.add('show');
-          }
-        } else {
-          alert('Error: ' + data.message);
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while submitting your enquiry. Please try again.');
-      })
-      .finally(() => {
-        // Reset loading state
-        submitBtn.disabled = false;
-        btnText.style.display = 'inline';
-        btnLoading.style.display = 'none';
-      });
+          if (successMessage) successMessage.classList.add('show');
+        })
+        .catch(error => {
+          console.error('Admission submission error:', error);
+          alert('An error occurred while submitting your enquiry. Please try again.');
+        })
+        .finally(() => {
+          submitBtn.disabled = false;
+          btnText.style.display = 'inline';
+          btnLoading.style.display = 'none';
+        });
     }
 
     // ─── ADMISSION SUCCESS MODAL FUNCTIONS ───────────────────────
@@ -1341,12 +1333,13 @@
                 cv_file_url: urlData.publicUrl,
                 cv_file_name: cv.name,
                 submitted_at: new Date().toISOString(),
-                status: 'pending',
+                status: 'pending'
               }
             ]);
         })
         .then(({ error: insertErr }) => {
           if (insertErr) throw insertErr;
+
           const formContainer = document.getElementById('jobFormContainer');
           const successMessage = document.getElementById('successMessage');
           formContainer.style.display = 'none';

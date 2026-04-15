@@ -464,6 +464,39 @@ a   { text-decoration: none; color: inherit; }
 }
 .toolbar-btn:hover { background: var(--off); border-color: #D1D5DB; }
 
+.table-toolbar input[type="text"],
+.table-toolbar input[type="search"] {
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 12px;
+  border: 1.5px solid #D7DEE8;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FCFDFF 100%);
+  color: var(--navy);
+  font-family: var(--font-body);
+  font-size: .84rem;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.table-toolbar input[type="text"]:focus,
+.table-toolbar input[type="search"]:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 4px rgba(15,158,213,.12);
+}
+
+.gallery-toolbar-filters {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 900px) {
+  .gallery-toolbar-filters {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+}
+
 /* ══════════════════════════════════════
    TABLE LOADING / EMPTY
 ══════════════════════════════════════ */
@@ -908,38 +941,49 @@ a   { text-decoration: none; color: inherit; }
 .field-hint { font-weight: 400; color: var(--muted); font-size: .75rem; }
 
 .editor-field input[type="text"],
+.editor-field input[type="email"],
+.editor-field input[type="password"],
+.editor-field input[type="number"],
+.editor-field input[type="date"],
 .editor-field select {
+  min-height: 42px;
   padding: 10px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
+  border: 1.5px solid #D7DEE8;
+  border-radius: 10px;
   font-family: var(--font-body);
   font-size: .9rem;
   color: var(--navy);
-  background: var(--white);
+  background: linear-gradient(180deg, #FFFFFF 0%, #FCFDFF 100%);
   outline: none;
-  transition: border-color .2s, box-shadow .2s;
+  transition: border-color .2s, box-shadow .2s, transform .15s;
 }
 .editor-field input[type="text"]:focus,
+.editor-field input[type="email"]:focus,
+.editor-field input[type="password"]:focus,
+.editor-field input[type="number"]:focus,
+.editor-field input[type="date"]:focus,
 .editor-field select:focus {
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(15,158,213,.1);
+  box-shadow: 0 0 0 4px rgba(15,158,213,.14);
+  transform: translateY(-1px);
 }
 .editor-field textarea {
   padding: 10px 14px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
+  border: 1.5px solid #D7DEE8;
+  border-radius: 10px;
   font-family: var(--font-body);
   font-size: .9rem;
   color: var(--navy);
-  background: var(--white);
+  background: linear-gradient(180deg, #FFFFFF 0%, #FCFDFF 100%);
   resize: vertical;
   outline: none;
   line-height: 1.65;
-  transition: border-color .2s, box-shadow .2s;
+  transition: border-color .2s, box-shadow .2s, transform .15s;
 }
 .editor-field textarea:focus {
   border-color: var(--blue);
-  box-shadow: 0 0 0 3px rgba(15,158,213,.1);
+  box-shadow: 0 0 0 4px rgba(15,158,213,.14);
+  transform: translateY(-1px);
 }
 .editor-field input::placeholder,
 .editor-field textarea::placeholder { color: #B0B8C1; }
@@ -1491,95 +1535,95 @@ a   { text-decoration: none; color: inherit; }
    SETTINGS
 ══════════════════════════════════════ */
 .settings-grid {
-
-  /* ── Staff Onboarding – Permissions Panel ──────────────────────── */
-  .so-perm-toggle-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 2px;
-  }
-  .so-perm-toggle-btn {
-    background: none;
-    border: 1.5px solid var(--border);
-    border-radius: 6px;
-    padding: 4px 10px;
-    font-size: .78rem;
-    font-family: var(--font-body);
-    color: var(--muted);
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    transition: color .2s, border-color .2s;
-  }
-  .so-perm-toggle-btn:hover { color: var(--blue); border-color: var(--blue); }
-  .so-perm-chevron { transition: transform .2s; }
-  .so-perm-body { margin-top: 10px; }
-  .so-perm-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-  .so-perm-section {
-    border: 1.5px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 12px;
-    background: var(--off);
-  }
-  .so-perm-section-name {
-    font-size: .7rem;
-    font-weight: 700;
-    letter-spacing: .07em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 7px;
-  }
-  .so-perm-check-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px 10px;
-  }
-  .so-perm-check-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: .82rem;
-    color: var(--navy);
-    cursor: pointer;
-    user-select: none;
-  }
-  .so-perm-check-item input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    cursor: pointer;
-    accent-color: var(--blue);
-  }
-  .so-perm-publish-row {
-    border-top: 1px solid var(--border);
-    padding-top: 10px;
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px 14px;
-  }
-  .so-perm-pub-label {
-    font-size: .7rem;
-    font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .07em;
-    min-width: 76px;
-  }
-  .so-perm-pub-checks {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px 14px;
-  }
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
+}
+
+/* ── Staff Onboarding – Permissions Panel ──────────────────────── */
+.so-perm-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+.so-perm-toggle-btn {
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: .78rem;
+  font-family: var(--font-body);
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: color .2s, border-color .2s;
+}
+.so-perm-toggle-btn:hover { color: var(--blue); border-color: var(--blue); }
+.so-perm-chevron { transition: transform .2s; }
+.so-perm-body { margin-top: 10px; }
+.so-perm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.so-perm-section {
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--off);
+}
+.so-perm-section-name {
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 7px;
+}
+.so-perm-check-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 10px;
+}
+.so-perm-check-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .82rem;
+  color: var(--navy);
+  cursor: pointer;
+  user-select: none;
+}
+.so-perm-check-item input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  accent-color: var(--blue);
+}
+.so-perm-publish-row {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+.so-perm-pub-label {
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .07em;
+  min-width: 76px;
+}
+.so-perm-pub-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 14px;
 }
 .settings-card {
   background: var(--white);
@@ -1653,6 +1697,11 @@ a   { text-decoration: none; color: inherit; }
 }
 .settings-password-row input {
   flex: 1;
+}
+.settings-password-row .toolbar-btn {
+  min-height: 42px;
+  border-radius: 10px;
+  padding-inline: 14px;
 }
 
 .settings-staff-list {

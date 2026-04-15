@@ -8,131 +8,386 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
   <link rel="stylesheet" href="shared.css" />
   <style>
-    body { background: var(--off); }
-    .page-hero { background: var(--navy); padding: 64px 0 48px; }
-    .page-hero .section-label { display: inline-block; font-family: var(--font-head); font-size: .75rem; letter-spacing: .12em; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; }
-    .page-hero h1 { font-family: var(--font-head); font-size: clamp(2rem,3vw,3rem); color: var(--white); margin-bottom: 12px; }
-    .page-hero p  { color: rgba(255,255,255,.65); max-width: 640px; line-height: 1.75; }
-    .page-content { padding: 56px 0 80px; }
-    .info-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); margin-bottom: 20px; }
-    .info-card h2 { font-family: var(--font-head); font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; }
-    .info-card p  { color: var(--muted); line-height: 1.75; }
+    :root {
+      --p-bg: #F8FAFC;
+      --p-card: #FFFFFF;
+      --p-text: #1E293B;
+      --p-muted: #64748B;
+      --p-border: #E2E8F0;
+      --p-primary: #10B981; /* Success Green */
+      --p-secondary: #3B82F6; /* Info Blue */
+    }
+    body { background: var(--p-bg); color: var(--p-text); }
+    
+    /* Auth Layout */
+    .auth-container { max-width: 420px; margin: 80px auto; padding: 0 20px; }
+    .auth-card { background: var(--p-card); border: 1px solid var(--p-border); border-radius: 16px; padding: 40px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
+    .auth-header { text-align: center; margin-bottom: 32px; }
+    .auth-header h1 { font-family: var(--font-head); font-size: 1.5rem; color: var(--navy); margin-bottom: 8px; }
+    .auth-header p { color: var(--p-muted); font-size: 0.9rem; }
+    
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--navy); }
+    .form-group input { width: 100%; padding: 12px 16px; border: 1px solid var(--p-border); border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s; }
+    .form-group input:focus { outline: none; border-color: var(--p-secondary); }
+    
+    .btn-auth { width: 100%; padding: 14px; background: var(--navy); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; margin-top: 8px; }
+    .btn-auth:hover { opacity: 0.9; }
+    .auth-switch { text-align: center; margin-top: 24px; font-size: 0.85rem; color: var(--p-muted); }
+    .auth-switch a { color: var(--p-secondary); font-weight: 600; text-decoration: none; }
+
+    /* Dashboard Layout */
+    .portal-layout { display: none; min-height: 100vh; flex-direction: column; }
+    .portal-nav { background: var(--white); border-bottom: 1px solid var(--p-border); padding: 16px 0; sticky: top; z-index: 100; }
+    .portal-nav-inner { display: flex; justify-content: space-between; align-items: center; }
+    .portal-user { display: flex; align-items: center; gap: 12px; }
+    .user-avatar { width: 36px; height: 36px; background: var(--navy); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; }
+    
+    .portal-main { flex: 1; padding: 40px 0 80px; }
+    .dashboard-grid { display: grid; grid-template-columns: 1fr 320px; gap: 32px; }
+    @media (max-width: 992px) { .dashboard-grid { grid-template-columns: 1fr; } }
+    
+    .student-card { background: var(--p-card); border: 1px solid var(--p-border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+    .student-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--p-bg); padding-bottom: 16px; }
+    .student-name { font-family: var(--font-head); font-size: 1.15rem; color: var(--navy); font-weight: 700; }
+    .student-class { font-size: 0.85rem; color: var(--p-muted); background: var(--p-bg); padding: 4px 10px; border-radius: 20px; }
+    
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-item { text-align: center; padding: 16px; background: var(--p-bg); border-radius: 8px; }
+    .stat-label { font-size: 0.75rem; color: var(--p-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .stat-value { font-size: 1.1rem; font-weight: 700; color: var(--navy); }
+    
+    .section-title { font-family: var(--font-head); font-size: 0.95rem; font-weight: 700; color: var(--navy); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+    .report-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border: 1px solid var(--p-border); border-radius: 8px; margin-bottom: 10px; transition: background 0.2s; cursor: pointer; }
+    .report-item:hover { background: var(--p-bg); }
+    .report-info h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; }
+    .report-info p { font-size: 0.75rem; color: var(--p-muted); }
+    .btn-download { color: var(--p-secondary); font-size: 1.1rem; }
+
+    .sidebar-card { background: var(--p-card); border: 1px solid var(--p-border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+    .msg-item { padding-bottom: 12px; margin-bottom: 12px; border-bottom: 1px solid var(--p-bg); }
+    .msg-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .msg-date { font-size: 0.7rem; color: var(--p-muted); }
+    .msg-subj { font-size: 0.85rem; font-weight: 600; margin: 2px 0; }
+    .msg-body { font-size: 0.8rem; color: var(--p-muted); line-height: 1.4; }
+
+    .hidden { display: none !important; }
+    .loading-overlay { position: fixed; inset: 0; background: rgba(248,250,252,0.8); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+    .spinner { width: 32px; height: 32px; border: 3px solid var(--p-border); border-top-color: var(--navy); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-  <!-- ─── NAV ─────────────────────────────────────────────── -->
-  <nav class="nav">
-    <div class="container">
-      <div class="nav-inner">
-        <a href="index.html" class="nav-logo">
-          <div class="logo-mark"><span></span><span></span><span></span><span></span></div>
-          <div>Annan House<small>Community School</small></div>
-        </a>
-        <ul class="nav-links">
-          <li><a href="index.html#about">About</a></li>
-          <li><a href="index.html#academics">Academics</a></li>
-          <li><a href="news.html">News</a></li>
-          <li><a href="gallery.html">Gallery</a></li>
-          <li><a href="index.html#admissions">Admissions</a></li>
-          <li><a href="openings.html">Vacancies</a></li>
-          <li><a href="index.html#contact">Contact</a></li>
-        </ul>
-        <a href="index.html#admissions" class="btn btn-primary nav-cta">Apply Now</a>
-        <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  <!-- Loading Overlay -->
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="spinner"></div>
+    <p style="font-size: 0.9rem; color: var(--p-muted);">Updating portal&hellip;</p>
+  </div>
+
+  <!-- ── AUTH SECTION ───────────────────────────────────── -->
+  <div id="authSection" class="auth-container">
+    <div style="text-align: center; margin-bottom: 40px;">
+      <a href="index.html" class="nav-logo" style="display: inline-flex; justify-content: center;">
+        <div class="logo-mark"><span></span><span></span><span></span><span></span></div>
+        <div style="text-align: left;">Annan House<small>Community School</small></div>
+      </a>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginCard" class="auth-card">
+      <div class="auth-header">
+        <h1>Welcome Back</h1>
+        <p>Log in to access your parent dashboard.</p>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="loginEmail" placeholder="e.g. parent@email.com" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPass" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn-auth">Log In</button>
+      </form>
+      <div class="auth-switch">
+        Don't have an account? <a href="#" id="toSignup">Register here</a>
       </div>
     </div>
-  </nav>
 
-  <!-- ─── PAGE HERO ─────────────────────────────────────── -->
-  <section class="page-hero">
-    <div class="container">
-      <p class="section-label"><i class="fa-solid fa-users"></i> Families</p>
-      <h1>Parent Portal</h1>
-      <p>Your hub for attendance, progress reports, and school communications. The portal will go live soon — watch this space.</p>
-    </div>
-  </section>
-  <div class="rainbow-stripe"></div>
-
-  <!-- ─── CONTENT ───────────────────────────────────────── -->
-  <main class="page-content">
-    <div class="container" style="max-width:860px;">
-      <div class="info-card">
-        <h2><i class="fa-solid fa-lock" style="color:var(--blue);margin-right:8px;"></i>Portal Access</h2>
-        <p>Parents will be able to log in to view attendance records, progress reports, and official school announcements once the portal is live.</p>
+    <!-- Signup Form -->
+    <div id="signupCard" class="auth-card hidden">
+      <div class="auth-header">
+        <h1>Portal Registration</h1>
+        <p>Create an account to track your child's progress.</p>
       </div>
-      <div class="info-card">
-        <h2><i class="fa-solid fa-bell" style="color:var(--orange);margin-right:8px;"></i>Student Updates</h2>
-        <p>Important messages and notifications for families will be delivered here, keeping you informed about your child's school life.</p>
-      </div>
-      <div class="info-card">
-        <h2><i class="fa-solid fa-folder-open" style="color:var(--green);margin-right:8px;"></i>Helpful Resources</h2>
-        <p>Links to school policies, downloadable forms, term guides, and parent support materials will be added here when available.</p>
+      <form id="signupForm">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="signupName" placeholder="e.g. John Doe" required />
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="signupEmail" placeholder="e.g. parent@email.com" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="signupPass" placeholder="Min. 6 characters" required minlength="6" />
+        </div>
+        <button type="submit" class="btn-auth">Create Account</button>
+      </form>
+      <div class="auth-switch">
+        Already have an account? <a href="#" id="toLogin">Log in instead</a>
       </div>
     </div>
-  </main>
+  </div>
 
-  <!-- ─── FOOTER ────────────────────────────────────────── -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <div class="footer-logo">
+  <!-- ── PORTAL DASHBOARD ───────────────────────────────── -->
+  <div id="portalSection" class="portal-layout">
+    <nav class="portal-nav">
+      <div class="container">
+        <div class="portal-nav-inner">
+          <a href="index.html" class="nav-logo">
             <div class="logo-mark"><span></span><span></span><span></span><span></span></div>
             <div>Annan House<small>Community School</small></div>
+          </a>
+          <div class="portal-user">
+            <div class="user-avatar" id="userInitial">U</div>
+            <div style="line-height: 1.2;">
+              <div id="userName" style="font-weight: 700; font-size: 0.9rem; color: var(--navy);">Parent Name</div>
+              <a href="#" id="btnLogout" style="font-size: 0.75rem; color: var(--p-muted); text-decoration: none;">Log Out</a>
+            </div>
           </div>
-          <p>Nurturing curious minds and confident learners at the heart of Airport Residential, Accra, since our founding.</p>
-          <div class="social-links">
-            <div class="social-btn"><i class="fa-brands fa-facebook-f"></i></div>
-            <div class="social-btn"><i class="fa-brands fa-instagram"></i></div>
-            <div class="social-btn"><i class="fa-brands fa-x-twitter"></i></div>
-          </div>
-        </div>
-        <div class="footer-col">
-          <h5>School</h5>
-          <ul>
-            <li><a href="index.html#about">About Us</a></li>
-            <li><a href="index.html#academics">Academics</a></li>
-            <li><a href="gallery.html">Gallery</a></li>
-            <li><a href="news.html">News</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h5>Families</h5>
-          <ul>
-            <li><a href="index.html#admissions">Admissions</a></li>
-            <li><a href="school-calendar.html">School Calendar</a></li>
-            <li><a href="parent-portal.html">Parent Portal</a></li>
-            <li><a href="fees-payments.html">Fees &amp; Payments</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h5>Connect</h5>
-          <ul>
-            <li><a href="index.html#contact">Contact Us</a></li>
-            <li><a href="openings.html">Vacancies</a></li>
-            <li><a href="privacy-policy.html">Privacy Policy</a></li>
-            <li><a href="child-safety.html">Child Safety</a></li>
-          </ul>
         </div>
       </div>
-      <div class="rainbow-stripe" style="margin-bottom:24px;"></div>
-      <div class="footer-bottom">
-        <span>&copy; 2026 Annan House Community School. All rights reserved.</span>
-        <span>8 Dr Amilcar Cabral Road, Airport Residential, Accra &middot; GA-085-8565</span>
-      </div>
-    </div>
-  </footer>
+    </nav>
+    <div class="rainbow-stripe"></div>
 
+    <main class="portal-main">
+      <div class="container">
+        <div class="dashboard-grid">
+          
+          <!-- Main Feed -->
+          <div id="studentFeed">
+            <div id="studentsLoading" style="text-align: center; padding: 60px 0; color: var(--p-muted);">
+              <i class="fa-solid fa-circle-notch fa-spin" style="font-size: 1.5rem; margin-bottom: 12px;"></i>
+              <p>Loading student records&hellip;</p>
+            </div>
+            <div id="studentsList"></div>
+            <div id="studentsEmpty" class="hidden" style="text-align: center; padding: 80px 40px; background: var(--white); border-radius: 12px; border: 1px dashed var(--p-border);">
+              <i class="fa-solid fa-child-reaching" style="font-size: 2.5rem; color: var(--p-border); margin-bottom: 20px;"></i>
+              <h3 style="font-family: var(--font-head); color: var(--navy);">No students linked yet</h3>
+              <p style="font-size: 0.9rem; color: var(--p-muted); margin-top: 8px;">Please contact the school office to link your account to your child's records.</p>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div class="portal-sidebar">
+            <div class="sidebar-card">
+              <h3 class="section-title"><i class="fa-solid fa-bell" style="color: var(--orange);"></i> School Notices</h3>
+              <div id="messagesList">
+                <div style="text-align: center; padding: 20px 0; color: var(--p-muted); font-size: 0.85rem;">
+                  No new notifications.
+                </div>
+              </div>
+            </div>
+            
+            <div class="sidebar-card">
+              <h3 class="section-title"><i class="fa-solid fa-calendar" style="color: var(--blue);"></i> Quick Links</h3>
+              <div style="display: grid; gap: 8px;">
+                <a href="school-calendar.html" class="report-item" style="padding: 10px 14px; text-decoration: none; color: inherit;">
+                  <span style="font-size: 0.85rem; font-weight: 500;">View Full Calendar</span>
+                  <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem; color: var(--p-muted);"></i>
+                </a>
+                <a href="fees-payments.html" class="report-item" style="padding: 10px 14px; text-decoration: none; color: inherit;">
+                  <span style="font-size: 0.85rem; font-weight: 500;">Fees & Payments</span>
+                  <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem; color: var(--p-muted);"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+    
+    <footer class="footer" style="background: var(--white); padding: 40px 0;">
+      <div class="container" style="text-align: center; color: var(--p-muted); font-size: 0.85rem;">
+        &copy; 2026 Annan House Community School Parent Portal.
+      </div>
+    </footer>
+  </div>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
   <script>
-    const hamburger = document.querySelector('.hamburger');
-    const navLinks  = document.querySelector('.nav-links');
-    const navCta    = document.querySelector('.nav-cta');
-    hamburger.addEventListener('click', () => {
-      const open = navLinks.style.display === 'flex';
-      navLinks.style.cssText = open ? '' : 'display:flex;flex-direction:column;position:absolute;top:68px;left:0;right:0;background:#fff;padding:16px 24px;border-bottom:1px solid #e5e7eb;gap:4px;z-index:200';
-      navCta.style.display = open ? 'none' : 'inline-flex';
-    });
+    // ── AUTH LOGIC ───────────────────────────────────────
+    const authSection = document.getElementById('authSection');
+    const portalSection = document.getElementById('portalSection');
+    const loginCard = document.getElementById('loginCard');
+    const signupCard = document.getElementById('signupCard');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    document.getElementById('toSignup').onclick = (e) => { e.preventDefault(); loginCard.classList.add('hidden'); signupCard.classList.remove('hidden'); };
+    document.getElementById('toLogin').onclick = (e) => { e.preventDefault(); signupCard.classList.add('hidden'); loginCard.classList.remove('hidden'); };
+
+    async function checkUser() {
+      const { data: { session } } = await supabasePublic.auth.getSession();
+      if (session) {
+        showPortal(session.user);
+      } else {
+        authSection.classList.remove('hidden');
+        portalSection.classList.add('hidden');
+      }
+    }
+
+    async function showPortal(user) {
+      authSection.classList.add('hidden');
+      portalSection.style.display = 'flex';
+      
+      // Get parent profile
+      const { data: profile } = await supabasePublic.from('parents').select('*').eq('id', user.id).single();
+      if (profile) {
+        document.getElementById('userName').textContent = profile.full_name;
+        document.getElementById('userInitial').textContent = profile.full_name.charAt(0);
+      }
+
+      loadDashboardData();
+    }
+
+    // ── DASHBOARD LOGIC ──────────────────────────────────
+    async function loadDashboardData() {
+      const list = document.getElementById('studentsList');
+      const empty = document.getElementById('studentsEmpty');
+      const loader = document.getElementById('studentsLoading');
+
+      // Fetch linked students
+      const { data: links, error: linkErr } = await supabasePublic
+        .from('parent_student_rel')
+        .select('student_id, relationship, students(*)');
+
+      loader.classList.add('hidden');
+
+      if (linkErr || !links || links.length === 0) {
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      list.innerHTML = '';
+      for (const link of links) {
+        const student = link.students;
+        
+        // Fetch last 5 attendance
+        const { data: att } = await supabasePublic
+          .from('student_attendance')
+          .select('*')
+          .eq('student_id', student.id)
+          .order('date', { ascending: false })
+          .limit(5);
+
+        // Fetch reports
+        const { data: reports } = await supabasePublic
+          .from('student_reports')
+          .select('*')
+          .eq('student_id', student.id)
+          .order('published_at', { ascending: false });
+
+        const presentCount = att ? att.filter(a => a.status === 'present').length : 0;
+        const attRate = att && att.length > 0 ? Math.round((presentCount / att.length) * 100) : 'N/A';
+
+        const sCard = document.createElement('div');
+        sCard.className = 'student-card';
+        sCard.innerHTML = `
+          <div class="student-header">
+            <div>
+              <h2 class="student-name">${student.first_name} ${student.last_name}</h2>
+              <span class="student-class">${student.class_name || 'Class TBD'}</span>
+            </div>
+            <div style="font-size: 0.75rem; color: var(--p-muted); text-align: right;">
+              Status: <span style="color: var(--p-primary); font-weight: 700;">${student.status.toUpperCase()}</span>
+            </div>
+          </div>
+          
+          <div class="stats-row">
+            <div class="stat-item">
+              <div class="stat-label">Recent Attendance</div>
+              <div class="stat-value">${attRate}${attRate !== 'N/A' ? '%' : ''}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Reports</div>
+              <div class="stat-value">${reports ? reports.length : 0}</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Relationship</div>
+              <div class="stat-value">${link.relationship}</div>
+            </div>
+          </div>
+
+          <div class="section-title"><i class="fa-solid fa-file-lines" style="color: var(--p-secondary);"></i> Progress Reports</div>
+          <div id="reports-${student.id}">
+            ${reports && reports.length > 0 ? reports.map(r => `
+              <div class="report-item" onclick="window.open('${r.file_url}', '_blank')">
+                <div class="report-info">
+                  <h4>${r.title}</h4>
+                  <p>Published: ${new Date(r.published_at).toLocaleDateString()}</p>
+                </div>
+                <i class="fa-solid fa-circle-arrow-down btn-download"></i>
+              </div>
+            `).join('') : '<p style="font-size: 0.8rem; color: var(--p-muted); padding: 10px;">No reports published yet.</p>'}
+          </div>
+        `;
+        list.appendChild(sCard);
+      }
+    }
+
+    // ── EVENT LISTENERS ──────────────────────────────────
+    document.getElementById('loginForm').onsubmit = async (e) => {
+      e.preventDefault();
+      loadingOverlay.classList.remove('hidden');
+      const email = document.getElementById('loginEmail').value;
+      const pass = document.getElementById('loginPass').value;
+      
+      const { data, error } = await supabasePublic.auth.signInWithPassword({ email, password: pass });
+      loadingOverlay.classList.add('hidden');
+      
+      if (error) alert(error.message);
+      else showPortal(data.user);
+    };
+
+    document.getElementById('signupForm').onsubmit = async (e) => {
+      e.preventDefault();
+      loadingOverlay.classList.remove('hidden');
+      const name = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const pass = document.getElementById('signupPass').value;
+
+      const { data, error } = await supabasePublic.auth.signUp({ 
+        email, 
+        password: pass,
+        options: { data: { full_name: name } }
+      });
+
+      if (error) {
+        alert(error.message);
+        loadingOverlay.classList.add('hidden');
+      } else {
+        // Create parent profile
+        await supabasePublic.from('parents').insert([{ id: data.user.id, full_name: name }]);
+        alert('Registration successful! Please check your email for verification.');
+        loadingOverlay.classList.add('hidden');
+        location.reload();
+      }
+    };
+
+    document.getElementById('btnLogout').onclick = async (e) => {
+      e.preventDefault();
+      await supabasePublic.auth.signOut();
+      location.reload();
+    };
+
+    checkUser();
   </script>
 </body>
 </html>
