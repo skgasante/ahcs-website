@@ -1138,10 +1138,14 @@
             <div class="article-editor-card">
               <form id="studentForm" novalidate>
                 <input type="hidden" id="sfId" />
-                <div class="editor-row-2">
+                <div class="editor-row-3">
                   <div class="editor-field">
                     <label for="sfFirstName">First Name <span class="field-req">*</span></label>
                     <input type="text" id="sfFirstName" required />
+                  </div>
+                  <div class="editor-field">
+                    <label for="sfOtherNames">Other Names</label>
+                    <input type="text" id="sfOtherNames" placeholder="Middle names" />
                   </div>
                   <div class="editor-field">
                     <label for="sfLastName">Last Name <span class="field-req">*</span></label>
@@ -1150,8 +1154,11 @@
                 </div>
                 <div class="editor-row-2">
                   <div class="editor-field">
-                    <label for="sfCode">Student Code (Optional)</label>
-                    <input type="text" id="sfCode" placeholder="e.g. AHCS-2026-001" />
+                    <label for="sfCode">Student ID <span class="field-req">*</span></label>
+                    <div style="display:flex; gap:8px;">
+                      <input type="text" id="sfCode" placeholder="AHCS-2026-001" required />
+                      <button type="button" class="toolbar-btn" id="btnGenStudentId" style="white-space:nowrap;">Gen ID</button>
+                    </div>
                   </div>
                   <div class="editor-field">
                     <label for="sfDOB">Date of Birth</label>
