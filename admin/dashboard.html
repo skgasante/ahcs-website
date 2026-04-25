@@ -4865,6 +4865,7 @@
       if (sectionId === 'reports') return hasPermission('reports', 'view');
       if (sectionId === 'attendance') return hasPermission('reports', 'view');
       if (sectionId === 'assessment') return hasPermission('reports', 'view');
+      if (sectionId === 'academic') return hasPermission('reports', 'view');
       if (sectionId === 'parent-comms') return hasPermission('reports', 'view');
       if (sectionId === 'audit') return hasPermission('settings', 'manage_roles') || hasPermission('settings', 'manage_staff');
       if (sectionId === 'staff') return hasPermission('settings', 'manage_staff');
@@ -5560,6 +5561,7 @@
       reports:    'Teacher Reports',
       attendance: 'Attendance',
       assessment: 'Assessment',
+      academic:   'Academic & Grades',
       'parent-comms': 'Parent Communications',
       audit:      'Audit Log',
       staff:      'Staff Catalogue',
@@ -5602,6 +5604,11 @@
       if (sectionId === 'site-content') loadSiteContent();
       if (sectionId === 'contact-messages' && !contactMessagesLoaded) loadContactMessages();
       if (sectionId === 'students' && !studentsLoaded) loadStudents();
+      if (sectionId === 'academic' && !academicLoaded) {
+        academicLoaded = true;
+        loadAcademicTerms();
+        loadAcademicSubjects();
+      }
     }
 
     loadUser();
