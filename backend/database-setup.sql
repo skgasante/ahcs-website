@@ -1854,3 +1854,64 @@ ALTER TABLE parent_student_links ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY " Admin access to parent_profiles\ ON parent_profiles FOR ALL USING (EXISTS (SELECT 1 FROM admin_profiles WHERE id = auth.uid() AND role IN ('admin', 'superadmin')));
 CREATE POLICY \Admin access to parent_student_links\ ON parent_student_links FOR ALL USING (EXISTS (SELECT 1 FROM admin_profiles WHERE id = auth.uid() AND role IN ('admin', 'superadmin')));
+
+-- ================================================================
+-- Phase 3: Academic Engine - Report Cards
+-- ================================================================
+
+-- Add term type to academic_sessions
+ALTER TABLE academic_sessions ADD COLUMN IF NOT EXISTS term TEXT;
+ALTER TABLE academic_sessions ADD COLUMN IF NOT EXISTS academic_year TEXT;
+ALTER TABLE academic_sessions ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+
+-- Report Cards (one per student per term)
+CREATE TABLE IF NOT EXISTS report_cards (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  student_id UUID NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+  session_id UUID NOT NULL REFERENCES academic_sessions(id),
+  class_name TEXT NOT NULL,
+  teacher_remarks TEXT,
+  headteacher_remarks TEXT,
+  status TEXT NOT NULL DEFAULT 'draft',
+  submitted_by UUID REFERENCES auth.users(id),
+  approved_by UUID REFERENCES auth.users(id),
+  published_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(student_id, session_id)
+);
+
+-- Report Card Grades (one per subject per report card)
+CREATE TABLE IF NOT EXISTS report_card_grades (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  report_card_id UUID NOT NULL REFERENCES report_cards(id) ON DELETE CASCADE,
+  subject_id UUID NOT NULL REFERENCES subjects(id),
+  class_score DECIMAL,
+  exam_score DECIMAL,
+  total_score DECIMAL,
+  grade TEXT,
+  remarks TEXT,
+  UNIQUE(report_card_id, subject_id)
+);
+
+ALTER TABLE report_cards ENABLE ROW LEVEL SECURITY;
+ALTER TABLE report_card_grades ENABLE ROW LEVEL SECURITY;
+
+-- Policies: Authenticated users with reports permission can read/write
+CREATE POLICY " Authenticated read report_cards\ ON report_cards FOR SELECT TO authenticated USING (true);
+CREATE POLICY \Staff write report_cards\ ON report_cards FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY \Staff update report_cards\ ON report_cards FOR UPDATE TO authenticated USING (true);
+
+CREATE POLICY \Authenticated read report_card_grades\ ON report_card_grades FOR SELECT TO authenticated USING (true);
+CREATE POLICY \Staff write report_card_grades\ ON report_card_grades FOR INSERT TO authenticated WITH CHECK (true);
+CREATE POLICY \Staff update report_card_grades\ ON report_card_grades FOR UPDATE TO authenticated USING (true);
+
+-- Also allow public read on academic_sessions and subjects for staff portal
+CREATE POLICY \Authenticated read academic_sessions\ ON academic_sessions FOR SELECT TO authenticated USING (true);
+CREATE POLICY \Admin write academic_sessions\ ON academic_sessions FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM admin_profiles WHERE id = auth.uid() AND role IN ('admin', 'superadmin')));
+
+CREATE POLICY \Authenticated read subjects\ ON subjects FOR SELECT TO authenticated USING (true);
+CREATE POLICY \Admin write subjects\ ON subjects FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM admin_profiles WHERE id = auth.uid() AND role IN ('admin', 'superadmin')));
+
+CREATE POLICY \Authenticated read class_subject_assignments\ ON class_subject_assignments FOR SELECT TO authenticated USING (true);
+CREATE POLICY \Admin write class_subject_assignments\ ON class_subject_assignments FOR ALL TO authenticated USING (EXISTS (SELECT 1 FROM admin_profiles WHERE id = auth.uid() AND role IN ('admin', 'superadmin')));

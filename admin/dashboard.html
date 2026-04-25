@@ -1257,61 +1257,302 @@
 
         <!-- ── Academic & Grades ────────────────────────── -->
         <section class="section-panel" id="section-academic">
-          <div class="section-header section-header-flex">
-            <div>
-              <h2>Academic Performance</h2>
-              <p>Manage subjects, academic sessions, and enter student results.</p>
-            </div>
-            <div class="toolbar-actions" style="display:flex; gap:10px;">
-              <button class="toolbar-btn" id="btnManageSubjects"><i class="fa-solid fa-tags"></i> Subjects</button>
-              <button class="toolbar-btn" id="btnManageSessions"><i class="fa-solid fa-clock"></i> Sessions</button>
+
+          <!-- ── Tab Bar ── -->
+          <div class="academic-tabs">
+            <button class="ac-tab active" data-ac-tab="terms">Terms & Subjects</button>
+            <button class="ac-tab" data-ac-tab="grading">Grading Workspace</button>
+            <button class="ac-tab" data-ac-tab="review">Report Review</button>
+            <button class="ac-tab" data-ac-tab="preview">Report Card Preview</button>
+          </div>
+
+          <!-- ═══ TAB 1: Terms & Subjects (Admin Only) ═══ -->
+          <div class="ac-tab-panel active" id="acTab-terms">
+            <div class="settings-grid" style="margin-top:20px;">
+
+              <!-- Term Manager Card -->
+              <div class="settings-card">
+                <div class="settings-card-head">
+                  <h3><i class="fa-solid fa-calendar-days"></i> Academic Terms</h3>
+                  <p>Create and manage terms/sessions.</p>
+                </div>
+                <form id="termForm" class="settings-form" novalidate>
+                  <div class="editor-row-2">
+                    <div class="editor-field">
+                      <label>Term Name <span class="field-req">*</span></label>
+                      <input type="text" id="termName" placeholder="e.g. First Term" required />
+                    </div>
+                    <div class="editor-field">
+                      <label>Academic Year <span class="field-req">*</span></label>
+                      <input type="text" id="termYear" placeholder="e.g. 2025/2026" required />
+                    </div>
+                  </div>
+                  <div class="editor-row-2">
+                    <div class="editor-field">
+                      <label>Start Date</label>
+                      <input type="date" id="termStart" />
+                    </div>
+                    <div class="editor-field">
+                      <label>End Date</label>
+                      <input type="date" id="termEnd" />
+                    </div>
+                  </div>
+                  <div class="editor-btns" style="margin-top:12px;">
+                    <button type="submit" class="btn-editor-save" id="btnSaveTerm">
+                      <span class="btn-label">Create Term</span>
+                      <div class="btn-spinner hidden"></div>
+                    </button>
+                  </div>
+                  <div class="settings-inline-status" id="termStatus"></div>
+                </form>
+
+                <!-- Existing Terms List -->
+                <div id="termsList" style="margin-top:20px;"></div>
+              </div>
+
+              <!-- Subject Manager Card -->
+              <div class="settings-card">
+                <div class="settings-card-head">
+                  <h3><i class="fa-solid fa-book-open"></i> Subjects</h3>
+                  <p>Define subjects and assign them to classes.</p>
+                </div>
+                <form id="subjectForm" class="settings-form" novalidate>
+                  <div class="editor-row-2">
+                    <div class="editor-field">
+                      <label>Subject Name <span class="field-req">*</span></label>
+                      <input type="text" id="subjName" placeholder="e.g. Mathematics" required />
+                    </div>
+                    <div class="editor-field">
+                      <label>Subject Code</label>
+                      <input type="text" id="subjCode" placeholder="e.g. MATH" />
+                    </div>
+                  </div>
+                  <div class="editor-btns" style="margin-top:12px;">
+                    <button type="submit" class="btn-editor-save" id="btnSaveSubject">
+                      <span class="btn-label">Add Subject</span>
+                      <div class="btn-spinner hidden"></div>
+                    </button>
+                  </div>
+                  <div class="settings-inline-status" id="subjectStatus"></div>
+                </form>
+                <div id="subjectsList" style="margin-top:20px;"></div>
+
+                <!-- Assign Subject to Class -->
+                <div style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px;">
+                  <h4 style="margin-bottom:12px;"><i class="fa-solid fa-link"></i> Assign Subject to Class</h4>
+                  <div class="editor-row-3">
+                    <div class="editor-field">
+                      <label>Subject</label>
+                      <select id="assignSubject"></select>
+                    </div>
+                    <div class="editor-field">
+                      <label>Class</label>
+                      <select id="assignClass">
+                        <option value="">Select Class...</option>
+                        <option value="Creche">Creche</option>
+                        <option value="Nursery">Nursery</option>
+                        <option value="KG 1">KG 1</option>
+                        <option value="KG 2">KG 2</option>
+                        <option value="Primary 1">Primary 1</option>
+                        <option value="Primary 2">Primary 2</option>
+                        <option value="Primary 3">Primary 3</option>
+                        <option value="Primary 4">Primary 4</option>
+                        <option value="Primary 5">Primary 5</option>
+                        <option value="Primary 6">Primary 6</option>
+                        <option value="JHS 1">JHS 1</option>
+                        <option value="JHS 2">JHS 2</option>
+                        <option value="JHS 3">JHS 3</option>
+                      </select>
+                    </div>
+                    <div class="editor-field">
+                      <label>Term</label>
+                      <select id="assignTerm"></select>
+                    </div>
+                  </div>
+                  <button class="btn-editor-save" id="btnAssignSubject" style="margin-top:10px;">
+                    <span class="btn-label">Assign</span>
+                    <div class="btn-spinner hidden"></div>
+                  </button>
+                  <div class="settings-inline-status" id="assignStatus"></div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="academic-controls-card">
-            <div class="editor-row-3">
-              <div class="editor-field">
-                <label>Academic Session</label>
-                <select id="acSessionSelect"><option value="">Select Session...</option></select>
+          <!-- ═══ TAB 2: Grading Workspace (Teacher) ═══ -->
+          <div class="ac-tab-panel" id="acTab-grading">
+            <div class="section-header">
+              <h3>Teacher Grading Workspace</h3>
+              <p>Select a class and term, then enter scores and remarks for each student.</p>
+            </div>
+            <div class="academic-controls-card">
+              <div class="editor-row-2">
+                <div class="editor-field">
+                  <label>Academic Term</label>
+                  <select id="grTermSelect"><option value="">Select Term...</option></select>
+                </div>
+                <div class="editor-field">
+                  <label>Class</label>
+                  <select id="grClassSelect">
+                    <option value="">Select Class...</option>
+                    <option value="Creche">Creche</option>
+                    <option value="Nursery">Nursery</option>
+                    <option value="KG 1">KG 1</option>
+                    <option value="KG 2">KG 2</option>
+                    <option value="Primary 1">Primary 1</option>
+                    <option value="Primary 2">Primary 2</option>
+                    <option value="Primary 3">Primary 3</option>
+                    <option value="Primary 4">Primary 4</option>
+                    <option value="Primary 5">Primary 5</option>
+                    <option value="Primary 6">Primary 6</option>
+                    <option value="JHS 1">JHS 1</option>
+                    <option value="JHS 2">JHS 2</option>
+                    <option value="JHS 3">JHS 3</option>
+                  </select>
+                </div>
               </div>
-              <div class="editor-field">
-                <label>Class</label>
-                <select id="acClassSelect"><option value="">Select Class...</option></select>
-              </div>
-              <div class="editor-field">
-                <label>Subject</label>
-                <select id="acSubjectSelect"><option value="">Select Subject...</option></select>
+              <div style="text-align:right; margin-top:12px;">
+                <button class="btn-primary-action" id="btnLoadGrading" style="padding:10px 24px;">
+                  <i class="fa-solid fa-list-check"></i> Load Students
+                </button>
               </div>
             </div>
-            <div style="text-align:right; margin-top:10px;">
-              <button class="btn-primary-action" id="btnLoadGradeBook" style="padding:10px 24px;">
-                <i class="fa-solid fa-list-check"></i> Load Grade Book
-              </button>
+
+            <div id="gradingWorkspace" class="hidden" style="margin-top:30px;">
+              <div class="table-loading hidden" id="gradingLoading">
+                <div class="tbl-spinner"></div>
+                <span>Loading&hellip;</span>
+              </div>
+              <div id="gradingCards"></div>
             </div>
           </div>
 
-          <div id="gradeBookView" class="hidden" style="margin-top:30px;">
-            <div class="section-header section-header-flex">
-              <h3 id="gradeBookTitle">Grade Book</h3>
-              <button class="btn-primary-action" id="btnSaveAllGrades" style="background:var(--p-primary);border-color:var(--p-primary);">
-                <i class="fa-solid fa-floppy-disk"></i> Save All Changes
-              </button>
+          <!-- ═══ TAB 3: Report Review (Headteacher) ═══ -->
+          <div class="ac-tab-panel" id="acTab-review">
+            <div class="section-header">
+              <h3>Headteacher Report Review</h3>
+              <p>Review submitted reports, add your remarks, and approve for publication.</p>
             </div>
-            <div class="table-wrap">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Student</th>
-                    <th>Assessment Type</th>
-                    <th>Score</th>
-                    <th>Max</th>
-                    <th>Comments</th>
-                  </tr>
-                </thead>
-                <tbody id="gradeBookTbody"></tbody>
-              </table>
+            <div class="academic-controls-card">
+              <div class="editor-row-2">
+                <div class="editor-field">
+                  <label>Academic Term</label>
+                  <select id="rvTermSelect"><option value="">Select Term...</option></select>
+                </div>
+                <div class="editor-field">
+                  <label>Filter by Status</label>
+                  <select id="rvStatusFilter">
+                    <option value="pending_review">Pending Review</option>
+                    <option value="approved">Approved</option>
+                    <option value="published">Published</option>
+                    <option value="">All</option>
+                  </select>
+                </div>
+              </div>
+              <div style="text-align:right; margin-top:12px;">
+                <button class="btn-primary-action" id="btnLoadReview" style="padding:10px 24px;">
+                  <i class="fa-solid fa-search"></i> Load Reports
+                </button>
+              </div>
+            </div>
+            <div id="reviewWorkspace" class="hidden" style="margin-top:30px;">
+              <div class="table-loading hidden" id="reviewLoading">
+                <div class="tbl-spinner"></div>
+                <span>Loading reports&hellip;</span>
+              </div>
+              <div class="table-wrap hidden" id="reviewTableWrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Class</th>
+                      <th>Status</th>
+                      <th>Teacher Remarks</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="reviewTbody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Headteacher Review Editor (shown inline) -->
+            <div id="htReviewEditor" class="hidden" style="margin-top:24px;">
+              <div class="article-editor-card">
+                <h3 id="htReviewTitle" style="margin-bottom:16px;"></h3>
+                <div class="editor-field">
+                  <label>Teacher's Remarks (Read-Only)</label>
+                  <textarea id="htTeacherRemarks" rows="4" readonly style="background:var(--bg-secondary);"></textarea>
+                </div>
+                <div class="editor-field" style="margin-top:16px;">
+                  <label>Headteacher's Remarks <span class="field-req">*</span></label>
+                  <textarea id="htHeadRemarks" rows="4" placeholder="Write your final assessment and remarks here..."></textarea>
+                </div>
+                <div class="editor-btns" style="margin-top:16px;">
+                  <button class="btn-editor-cancel" id="btnCancelReview">Cancel</button>
+                  <button class="btn-editor-save" id="btnApproveReport" style="background:var(--green);border-color:var(--green);">
+                    <span class="btn-label"><i class="fa-solid fa-check"></i> Approve Report</span>
+                    <div class="btn-spinner hidden"></div>
+                  </button>
+                </div>
+                <div class="settings-inline-status" id="reviewStatus"></div>
+              </div>
             </div>
           </div>
+
+          <!-- ═══ TAB 4: Report Card Preview ═══ -->
+          <div class="ac-tab-panel" id="acTab-preview">
+            <div class="section-header">
+              <h3>Report Card Preview</h3>
+              <p>Select a student to preview their full report card.</p>
+            </div>
+            <div class="academic-controls-card">
+              <div class="editor-row-3">
+                <div class="editor-field">
+                  <label>Academic Term</label>
+                  <select id="pvTermSelect"><option value="">Select Term...</option></select>
+                </div>
+                <div class="editor-field">
+                  <label>Class</label>
+                  <select id="pvClassSelect">
+                    <option value="">Select Class...</option>
+                    <option value="Creche">Creche</option>
+                    <option value="Nursery">Nursery</option>
+                    <option value="KG 1">KG 1</option>
+                    <option value="KG 2">KG 2</option>
+                    <option value="Primary 1">Primary 1</option>
+                    <option value="Primary 2">Primary 2</option>
+                    <option value="Primary 3">Primary 3</option>
+                    <option value="Primary 4">Primary 4</option>
+                    <option value="Primary 5">Primary 5</option>
+                    <option value="Primary 6">Primary 6</option>
+                    <option value="JHS 1">JHS 1</option>
+                    <option value="JHS 2">JHS 2</option>
+                    <option value="JHS 3">JHS 3</option>
+                  </select>
+                </div>
+                <div class="editor-field">
+                  <label>Student</label>
+                  <select id="pvStudentSelect"><option value="">Select Student...</option></select>
+                </div>
+              </div>
+              <div style="text-align:right; margin-top:12px;">
+                <button class="btn-primary-action" id="btnLoadPreview" style="padding:10px 24px;">
+                  <i class="fa-solid fa-eye"></i> View Report Card
+                </button>
+              </div>
+            </div>
+
+            <!-- The Report Card Itself -->
+            <div id="reportCardContainer" class="hidden" style="margin-top:30px;">
+              <div class="report-card-actions" style="display:flex; gap:12px; margin-bottom:20px; justify-content:flex-end;">
+                <button class="toolbar-btn" id="btnPrintReport"><i class="fa-solid fa-print"></i> Print</button>
+                <button class="toolbar-btn" id="btnEmailReport" style="background:var(--blue);color:#fff;border-color:var(--blue);"><i class="fa-solid fa-envelope"></i> Email to Parent</button>
+              </div>
+              <div id="reportCardContent" class="report-card"></div>
+            </div>
+          </div>
+
         </section>
 
         <!-- ── Teacher Reports ─────────────────────────────── -->
@@ -5551,6 +5792,461 @@
     }
 
     document.getElementById('refreshContact')?.addEventListener('click', loadContactMessages);
+
+    // ═══════════════════════════════════════════════════════
+    // ACADEMIC ENGINE
+    // ═══════════════════════════════════════════════════════
+
+    // -- Tab Switching --
+    document.querySelectorAll('.ac-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.ac-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.ac-tab-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(`acTab-${tab.dataset.acTab}`)?.classList.add('active');
+      });
+    });
+
+    // -- Shared Data --
+    let acTerms = [];
+    let acSubjects = [];
+
+    async function loadAcademicTerms() {
+      const { data } = await supabaseClient.from('academic_sessions').select('*').order('created_at', { ascending: false });
+      acTerms = data || [];
+      // Populate all term selects
+      const html = '<option value="">Select Term...</option>' + acTerms.map(t =>
+        `<option value="${t.id}">${esc(t.name)} — ${esc(t.academic_year || '')}</option>`
+      ).join('');
+      ['grTermSelect', 'rvTermSelect', 'pvTermSelect', 'assignTerm'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = html;
+      });
+      renderTermsList();
+    }
+
+    async function loadAcademicSubjects() {
+      const { data } = await supabaseClient.from('subjects').select('*').order('name');
+      acSubjects = data || [];
+      const html = '<option value="">Select Subject...</option>' + acSubjects.map(s =>
+        `<option value="${s.id}">${esc(s.name)} ${s.code ? '(' + esc(s.code) + ')' : ''}</option>`
+      ).join('');
+      const el = document.getElementById('assignSubject');
+      if (el) el.innerHTML = html;
+      renderSubjectsList();
+    }
+
+    function renderTermsList() {
+      const el = document.getElementById('termsList');
+      if (!el) return;
+      if (!acTerms.length) { el.innerHTML = '<p class="img-list-empty">No terms created yet.</p>'; return; }
+      el.innerHTML = acTerms.map(t => `
+        <div class="settings-session-item" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div>
+            <strong>${esc(t.name)}</strong> — ${esc(t.academic_year || '')}
+            ${t.is_current ? '<span class="status-badge badge-green" style="margin-left:8px;">Active</span>' : ''}
+          </div>
+          <button class="toolbar-btn" onclick="setActiveTerm('${t.id}')" style="font-size:.75rem;">Set Active</button>
+        </div>
+      `).join('');
+    }
+
+    function renderSubjectsList() {
+      const el = document.getElementById('subjectsList');
+      if (!el) return;
+      if (!acSubjects.length) { el.innerHTML = '<p class="img-list-empty">No subjects created yet.</p>'; return; }
+      el.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:8px;">' + acSubjects.map(s =>
+        `<span class="year-pill">${esc(s.name)} ${s.code ? '(' + esc(s.code) + ')' : ''}</span>`
+      ).join('') + '</div>';
+    }
+
+    async function setActiveTerm(termId) {
+      await supabaseClient.from('academic_sessions').update({ is_current: false }).neq('id', termId);
+      await supabaseClient.from('academic_sessions').update({ is_current: true }).eq('id', termId);
+      await loadAcademicTerms();
+    }
+
+    // -- Term Form --
+    document.getElementById('termForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnSaveTerm');
+      setButtonLoading(btn, true);
+      const { error } = await supabaseClient.from('academic_sessions').insert([{
+        name: document.getElementById('termName').value.trim(),
+        academic_year: document.getElementById('termYear').value.trim(),
+        start_date: document.getElementById('termStart').value || null,
+        end_date: document.getElementById('termEnd').value || null,
+        is_current: acTerms.length === 0
+      }]);
+      setButtonLoading(btn, false);
+      if (error) { setSettingsStatus('termStatus', 'Failed: ' + error.message, 'error'); return; }
+      setSettingsStatus('termStatus', 'Term created successfully.', 'success');
+      document.getElementById('termForm').reset();
+      await loadAcademicTerms();
+    });
+
+    // -- Subject Form --
+    document.getElementById('subjectForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('btnSaveSubject');
+      setButtonLoading(btn, true);
+      const { error } = await supabaseClient.from('subjects').insert([{
+        name: document.getElementById('subjName').value.trim(),
+        code: document.getElementById('subjCode').value.trim() || null
+      }]);
+      setButtonLoading(btn, false);
+      if (error) { setSettingsStatus('subjectStatus', 'Failed: ' + error.message, 'error'); return; }
+      setSettingsStatus('subjectStatus', 'Subject added.', 'success');
+      document.getElementById('subjectForm').reset();
+      await loadAcademicSubjects();
+    });
+
+    // -- Assign Subject to Class --
+    document.getElementById('btnAssignSubject')?.addEventListener('click', async () => {
+      const btn = document.getElementById('btnAssignSubject');
+      const subjectId = document.getElementById('assignSubject').value;
+      const className = document.getElementById('assignClass').value;
+      const sessionId = document.getElementById('assignTerm').value;
+      if (!subjectId || !className || !sessionId) { setSettingsStatus('assignStatus', 'All fields are required.', 'error'); return; }
+      setButtonLoading(btn, true);
+      const { error } = await supabaseClient.from('class_subject_assignments').insert([{
+        subject_id: subjectId, class_name: className, session_id: sessionId
+      }]);
+      setButtonLoading(btn, false);
+      if (error) { setSettingsStatus('assignStatus', 'Failed: ' + error.message, 'error'); return; }
+      setSettingsStatus('assignStatus', 'Subject assigned to class.', 'success');
+    });
+
+    // -- Grading Workspace --
+    document.getElementById('btnLoadGrading')?.addEventListener('click', async () => {
+      const termId = document.getElementById('grTermSelect').value;
+      const className = document.getElementById('grClassSelect').value;
+      if (!termId || !className) { alert('Please select a term and class.'); return; }
+
+      show('gradingWorkspace');
+      show('gradingLoading');
+
+      // Fetch subjects for this class/term
+      const { data: assignments } = await supabaseClient
+        .from('class_subject_assignments')
+        .select('subject_id, subjects(id, name, code)')
+        .eq('class_name', className)
+        .eq('session_id', termId);
+
+      const subjects = (assignments || []).map(a => a.subjects).filter(Boolean);
+
+      // Fetch students in this class
+      const { data: students } = await supabaseClient
+        .from('students')
+        .select('*')
+        .eq('class_name', className)
+        .eq('status', 'active')
+        .order('last_name');
+
+      // Fetch existing report cards
+      const { data: existingCards } = await supabaseClient
+        .from('report_cards')
+        .select('*, grades:report_card_grades(*)')
+        .eq('session_id', termId)
+        .eq('class_name', className);
+
+      hide('gradingLoading');
+
+      const container = document.getElementById('gradingCards');
+      if (!students?.length) { container.innerHTML = '<p class="img-list-empty">No active students in this class.</p>'; return; }
+      if (!subjects.length) { container.innerHTML = '<p class="img-list-empty">No subjects assigned to this class for this term. Go to "Terms & Subjects" to assign.</p>'; return; }
+
+      container.innerHTML = students.map(s => {
+        const existing = existingCards?.find(c => c.student_id === s.id);
+        const existingGrades = existing?.grades || [];
+        return `
+          <div class="grading-student-card" data-student-id="${s.id}" data-report-id="${existing?.id || ''}">
+            <div class="grading-student-head">
+              <h4>${esc(s.first_name)} ${esc(s.last_name)}</h4>
+              <span class="year-pill">${esc(s.school_id || s.id.slice(0, 8))}</span>
+            </div>
+            <div class="grading-scores-grid">
+              ${subjects.map(sub => {
+                const g = existingGrades.find(eg => eg.subject_id === sub.id);
+                return `
+                  <div class="grading-score-item" data-subject-id="${sub.id}">
+                    <label>${esc(sub.name)}</label>
+                    <div class="grading-score-inputs">
+                      <input type="number" min="0" max="100" placeholder="Class" title="Class Score" class="gr-class-score" value="${g?.class_score ?? ''}" />
+                      <input type="number" min="0" max="100" placeholder="Exam" title="Exam Score" class="gr-exam-score" value="${g?.exam_score ?? ''}" />
+                    </div>
+                  </div>`;
+              }).join('')}
+            </div>
+            <div class="grading-remarks">
+              <label>Class Teacher Remarks</label>
+              <textarea class="gr-teacher-remarks" placeholder="Comment on the student's progress, conduct, and areas for improvement...">${existing?.teacher_remarks || ''}</textarea>
+            </div>
+            <div class="grading-actions">
+              <button class="btn-editor-save gr-save-btn" style="min-width:180px;" data-student-id="${s.id}">
+                <span class="btn-label"><i class="fa-solid fa-floppy-disk"></i> Save & Submit</span>
+                <div class="btn-spinner hidden"></div>
+              </button>
+            </div>
+          </div>`;
+      }).join('');
+
+      // Attach save handlers
+      container.querySelectorAll('.gr-save-btn').forEach(btn => {
+        btn.addEventListener('click', () => saveStudentGrades(btn, termId, className));
+      });
+    });
+
+    async function saveStudentGrades(btn, termId, className) {
+      const card = btn.closest('.grading-student-card');
+      const studentId = card.dataset.studentId;
+      let reportId = card.dataset.reportId;
+      setButtonLoading(btn, true);
+
+      try {
+        const teacherRemarks = card.querySelector('.gr-teacher-remarks').value.trim();
+
+        // Upsert Report Card
+        if (!reportId) {
+          const { data: newCard, error: rcErr } = await supabaseClient
+            .from('report_cards')
+            .insert([{ student_id: studentId, session_id: termId, class_name: className, teacher_remarks: teacherRemarks, status: 'pending_review' }])
+            .select().single();
+          if (rcErr) throw rcErr;
+          reportId = newCard.id;
+          card.dataset.reportId = reportId;
+        } else {
+          await supabaseClient.from('report_cards')
+            .update({ teacher_remarks: teacherRemarks, status: 'pending_review', updated_at: new Date().toISOString() })
+            .eq('id', reportId);
+        }
+
+        // Save Grades
+        const scoreItems = card.querySelectorAll('.grading-score-item');
+        for (const item of scoreItems) {
+          const subjectId = item.dataset.subjectId;
+          const classScore = parseFloat(item.querySelector('.gr-class-score').value) || null;
+          const examScore = parseFloat(item.querySelector('.gr-exam-score').value) || null;
+          const totalScore = (classScore || 0) + (examScore || 0);
+          const grade = calculateGrade(totalScore);
+
+          await supabaseClient.from('report_card_grades').upsert({
+            report_card_id: reportId,
+            subject_id: subjectId,
+            class_score: classScore,
+            exam_score: examScore,
+            total_score: totalScore,
+            grade: grade
+          }, { onConflict: 'report_card_id,subject_id' });
+        }
+
+        alert('Grades saved and submitted for review!');
+      } catch (err) {
+        alert('Error saving: ' + err.message);
+      } finally {
+        setButtonLoading(btn, false);
+      }
+    }
+
+    function calculateGrade(total) {
+      if (total >= 80) return 'A';
+      if (total >= 70) return 'B';
+      if (total >= 60) return 'C';
+      if (total >= 50) return 'D';
+      if (total >= 40) return 'E';
+      return 'F';
+    }
+
+    function gradeColorClass(grade) {
+      if (grade === 'A') return 'rc-grade-a';
+      if (grade === 'B') return 'rc-grade-b';
+      if (grade === 'C') return 'rc-grade-c';
+      if (grade === 'D' || grade === 'E') return 'rc-grade-d';
+      return 'rc-grade-f';
+    }
+
+    // -- Headteacher Review --
+    let currentReviewReportId = null;
+
+    document.getElementById('btnLoadReview')?.addEventListener('click', async () => {
+      const termId = document.getElementById('rvTermSelect').value;
+      const statusFilter = document.getElementById('rvStatusFilter').value;
+      if (!termId) { alert('Please select a term.'); return; }
+
+      show('reviewWorkspace');
+      show('reviewLoading');
+      hide('reviewTableWrap');
+
+      let query = supabaseClient.from('report_cards')
+        .select('*, student:students(first_name, last_name, school_id)')
+        .eq('session_id', termId);
+      if (statusFilter) query = query.eq('status', statusFilter);
+
+      const { data, error } = await query.order('updated_at', { ascending: false });
+      hide('reviewLoading');
+
+      if (error || !data?.length) {
+        document.getElementById('reviewTbody').innerHTML = '';
+        hide('reviewTableWrap');
+        return;
+      }
+
+      show('reviewTableWrap');
+      document.getElementById('reviewTbody').innerHTML = data.map(r => `
+        <tr>
+          <td><strong>${esc(r.student?.first_name || '')} ${esc(r.student?.last_name || '')}</strong></td>
+          <td>${esc(r.class_name)}</td>
+          <td><span class="status-pill status-${r.status}">${r.status.replace('_', ' ')}</span></td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.teacher_remarks || '—')}</td>
+          <td>
+            <button class="btn-view" onclick="openHeadteacherReview('${r.id}', '${esc(r.student?.first_name || '')} ${esc(r.student?.last_name || '')}', \`${(r.teacher_remarks || '').replace(/`/g, "'")}\`)">
+              <i class="fa-solid fa-pen"></i> Review
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    });
+
+    window.openHeadteacherReview = function(reportId, studentName, teacherRemarks) {
+      currentReviewReportId = reportId;
+      document.getElementById('htReviewTitle').textContent = `Review: ${studentName}`;
+      document.getElementById('htTeacherRemarks').value = teacherRemarks;
+      document.getElementById('htHeadRemarks').value = '';
+      show('htReviewEditor');
+      document.getElementById('htReviewEditor').scrollIntoView({ behavior: 'smooth' });
+    };
+
+    document.getElementById('btnCancelReview')?.addEventListener('click', () => {
+      hide('htReviewEditor');
+      currentReviewReportId = null;
+    });
+
+    document.getElementById('btnApproveReport')?.addEventListener('click', async () => {
+      if (!currentReviewReportId) return;
+      const btn = document.getElementById('btnApproveReport');
+      const headRemarks = document.getElementById('htHeadRemarks').value.trim();
+      if (!headRemarks) { setSettingsStatus('reviewStatus', 'Headteacher remarks are required.', 'error'); return; }
+
+      setButtonLoading(btn, true);
+      const { error } = await supabaseClient.from('report_cards').update({
+        headteacher_remarks: headRemarks,
+        status: 'approved',
+        approved_by: (await supabaseClient.auth.getUser()).data.user?.id,
+        updated_at: new Date().toISOString()
+      }).eq('id', currentReviewReportId);
+
+      setButtonLoading(btn, false);
+      if (error) { setSettingsStatus('reviewStatus', 'Failed: ' + error.message, 'error'); return; }
+      setSettingsStatus('reviewStatus', 'Report approved!', 'success');
+      hide('htReviewEditor');
+      document.getElementById('btnLoadReview').click();
+    });
+
+    // -- Report Card Preview --
+    document.getElementById('pvClassSelect')?.addEventListener('change', async () => {
+      const className = document.getElementById('pvClassSelect').value;
+      if (!className) return;
+      const { data } = await supabaseClient.from('students').select('id, first_name, last_name, school_id')
+        .eq('class_name', className).eq('status', 'active').order('last_name');
+      document.getElementById('pvStudentSelect').innerHTML = '<option value="">Select Student...</option>' +
+        (data || []).map(s => `<option value="${s.id}">${esc(s.first_name)} ${esc(s.last_name)} (${esc(s.school_id || '')})</option>`).join('');
+    });
+
+    document.getElementById('btnLoadPreview')?.addEventListener('click', async () => {
+      const termId = document.getElementById('pvTermSelect').value;
+      const studentId = document.getElementById('pvStudentSelect').value;
+      if (!termId || !studentId) { alert('Select a term and student.'); return; }
+
+      const { data: rc } = await supabaseClient.from('report_cards')
+        .select('*, student:students(*), grades:report_card_grades(*, subject:subjects(name, code)), session:academic_sessions(name, academic_year)')
+        .eq('session_id', termId).eq('student_id', studentId).maybeSingle();
+
+      if (!rc) { alert('No report card found for this student/term.'); return; }
+
+      const grades = rc.grades || [];
+      const student = rc.student || {};
+      const session = rc.session || {};
+      const totalAll = grades.reduce((a, g) => a + (g.total_score || 0), 0);
+      const avg = grades.length ? (totalAll / grades.length).toFixed(1) : '—';
+
+      document.getElementById('reportCardContent').innerHTML = `
+        <div class="rc-header">
+          <div class="rc-logo">AHCS</div>
+          <div class="rc-header-text">
+            <h1>Annan House Community School</h1>
+            <p>Airport Residential Area, Accra &bull; Cambridge International Curriculum</p>
+            <div class="rc-subtitle">End of Term Report Card</div>
+          </div>
+        </div>
+        <div class="rc-info-bar">
+          <div class="rc-info-item"><div class="rc-info-label">Student Name</div><div class="rc-info-value">${esc(student.first_name)} ${esc(student.last_name)}</div></div>
+          <div class="rc-info-item"><div class="rc-info-label">Student ID</div><div class="rc-info-value">${esc(student.school_id || '—')}</div></div>
+          <div class="rc-info-item"><div class="rc-info-label">Class</div><div class="rc-info-value">${esc(rc.class_name)}</div></div>
+          <div class="rc-info-item"><div class="rc-info-label">Term</div><div class="rc-info-value">${esc(session.name)} ${esc(session.academic_year || '')}</div></div>
+        </div>
+        <table class="rc-grades-table">
+          <thead><tr><th>Subject</th><th>Class Score</th><th>Exam Score</th><th>Total</th><th>Grade</th></tr></thead>
+          <tbody>
+            ${grades.map(g => `
+              <tr>
+                <td><strong>${esc(g.subject?.name || '—')}</strong></td>
+                <td>${g.class_score ?? '—'}</td>
+                <td>${g.exam_score ?? '—'}</td>
+                <td><strong>${g.total_score ?? '—'}</strong></td>
+                <td><span class="rc-grade-cell ${gradeColorClass(g.grade)}">${g.grade || '—'}</span></td>
+              </tr>
+            `).join('')}
+            <tr style="background:#F1F5F9;font-weight:700;">
+              <td colspan="3" style="text-align:right;">Average Score</td>
+              <td><strong>${avg}</strong></td>
+              <td><span class="rc-grade-cell ${gradeColorClass(calculateGrade(parseFloat(avg) || 0))}">${calculateGrade(parseFloat(avg) || 0)}</span></td>
+            </tr>
+          </tbody>
+        </table>
+        ${rc.teacher_remarks ? `
+          <div class="rc-remarks-section">
+            <h3><i class="fa-solid fa-chalkboard-user"></i> Class Teacher's Remarks</h3>
+            <div class="rc-remarks-text">${esc(rc.teacher_remarks)}</div>
+          </div>` : ''}
+        ${rc.headteacher_remarks ? `
+          <div class="rc-remarks-section">
+            <h3><i class="fa-solid fa-user-tie"></i> Headteacher's Remarks</h3>
+            <div class="rc-remarks-text">${esc(rc.headteacher_remarks)}</div>
+          </div>` : ''}
+        <div class="rc-footer">
+          <div class="rc-signature">
+            <div class="rc-sig-line"></div>
+            <div class="rc-sig-label">Class Teacher</div>
+          </div>
+          <div style="text-align:center;font-size:.72rem;color:#9CA3AF;">Generated ${new Date().toLocaleDateString('en-GB')}</div>
+          <div class="rc-signature">
+            <div class="rc-sig-line"></div>
+            <div class="rc-sig-label">Headteacher</div>
+          </div>
+        </div>
+      `;
+      show('reportCardContainer');
+      document.getElementById('reportCardContainer').scrollIntoView({ behavior: 'smooth' });
+    });
+
+    document.getElementById('btnPrintReport')?.addEventListener('click', () => window.print());
+
+    // Load academic data when section is opened
+    const origSwitchForAcademic = switchSection;
+    // We will just call loadAcademicTerms/Subjects on first visit
+    let academicLoaded = false;
+    const _origSwitch = switchSection;
+
+    // Patch: load academic data on first visit
+    document.querySelectorAll('.nav-item[data-section="academic"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!academicLoaded) {
+          academicLoaded = true;
+          loadAcademicTerms();
+          loadAcademicSubjects();
+        }
+      });
+    });
 
     // ═══════════════════════════════════════════════════════
     // STUDENT RECORDS
