@@ -49,9 +49,9 @@ const NON_TEACHING_EMPTY_PUBLISH = {
 
 router.post('/create', requireAuth, requirePermission('settings', 'manage_staff', 'Only staff managers can create accounts.'), async (req, res) => {
   try {
-    const {
       email,
       displayName,
+      schoolId,
       positionId,
       role = 'staff',
       accountType = 'teaching',
@@ -109,10 +109,10 @@ router.post('/create', requireAuth, requirePermission('settings', 'manage_staff'
     const userId = createdAuth.user.id;
     const nowIso = new Date().toISOString();
 
-    const staffProfilePayload = {
       id: userId,
       email: normalizedEmail,
       display_name: String(displayName || '').trim() || null,
+      school_id: String(schoolId || '').trim() || null,
       role: safeRole,
       staff_type: safeRole === 'staff' ? safeAccountType : 'teaching',
       position_id: positionId || null,
@@ -153,6 +153,7 @@ router.post('/create', requireAuth, requirePermission('settings', 'manage_staff'
           id: userId,
           email: normalizedEmail,
           display_name: String(displayName || '').trim() || null,
+          school_id: String(schoolId || '').trim() || null,
           role: 'admin',
           preferences: ADMIN_DEFAULT_PREFERENCES,
           permissions: ADMIN_DEFAULT_PERMISSIONS,

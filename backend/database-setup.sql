@@ -1766,3 +1766,32 @@ ALTER TABLE class_subject_assignments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE student_grades ENABLE ROW LEVEL SECURITY;
 
 -- (Policies included in the previous block for brevity)
+
+-- Site Content (Dynamic legal/info pages)
+CREATE TABLE IF NOT EXISTS site_content (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE site_content ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read access to site_content" ON site_content;
+CREATE POLICY "Allow public read access to site_content" ON site_content
+  FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow admin write access to site_content" ON site_content;
+CREATE POLICY "Allow admin write access to site_content" ON site_content
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM admin_profiles WHERE id = auth.uid() AND role IN ('admin', 'superadmin')
+    )
+  );
+
+-- Migration: Add school_id column to profiles
+ALTER TABLE admin_profiles ADD COLUMN IF NOT EXISTS school_id TEXT UNIQUE;
+ALTER TABLE staff_profiles ADD COLUMN IF NOT EXISTS school_id TEXT UNIQUE;
+
+-- Create a helper function to get the next school ID number (optional, but good for reference)
+-- For now, we will handle generation in the application logic.

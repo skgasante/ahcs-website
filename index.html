@@ -602,8 +602,7 @@
           <li><a href="#admissions">Admissions</a></li>
           <li><a href="#vacancies">Vacancies</a></li>
           <li><a href="#contact">Contact</a></li>
-          <li><a href="parent-portal.html" style="color:var(--blue); font-weight:700;">Parent Portal</a></li>
-          <li><a href="admin/index.html" style="color:var(--orange); font-weight:700;">Staff Portal</a></li>
+          <li><a href="admin/index.html">Staff Portal</a></li>
         </ul>
         <a href="#admissions" class="btn btn-primary nav-cta">Apply Now</a>
         <button class="hamburger" aria-label="Menu">
@@ -649,22 +648,22 @@
         </div>
 
         <div class="hero-visual">
-          <div class="hero-card">
+          <div class="hero-card clickable" onclick="openInfoModal('academic')">
             <div class="icon"><i class="fa-solid fa-book-open"></i></div>
             <h4>Academic Excellence</h4>
             <p>A rich, broad curriculum from Nursery through Junior High</p>
           </div>
-          <div class="hero-card">
+          <div class="hero-card clickable" onclick="openInfoModal('arts')">
             <div class="icon"><i class="fa-solid fa-palette"></i></div>
             <h4>Arts & Creativity</h4>
             <p>Music, drama, visual arts, and hands-on creative projects</p>
           </div>
-          <div class="hero-card">
+          <div class="hero-card clickable" onclick="openInfoModal('community')">
             <div class="icon"><i class="fa-solid fa-handshake"></i></div>
             <h4>Community Values</h4>
             <p>Respect, integrity, and a genuine sense of belonging</p>
           </div>
-          <div class="hero-card">
+          <div class="hero-card clickable" onclick="openInfoModal('sports')">
             <div class="icon"><i class="fa-solid fa-futbol"></i></div>
             <h4>Sports & Wellbeing</h4>
             <p>Physical education, team sports, and healthy development</p>
@@ -1167,6 +1166,67 @@
 
   <script>
 
+// ─── INFO MODAL FOR HERO CARDS ─────────────────────────────
+function openInfoModal(type) {
+  const modal = document.getElementById('infoModal');
+  const header = document.getElementById('infoModalHeader');
+  const body = document.getElementById('infoModalBody');
+  let title = '';
+  let content = '';
+  let icon = '';
+  let color = '';
+  if (type === 'academic') {
+    title = 'Academic Excellence';
+    icon = '<i class="fa-solid fa-book-open"></i>';
+    color = 'var(--blue)';
+    content = `<p>Our academic programme is built on the Cambridge International Curriculum, ensuring a rich, broad, and rigorous education from Nursery through Junior High. We focus on critical thinking, creativity, and a love for lifelong learning. Our teachers are passionate, highly qualified, and dedicated to every child’s success.</p>
+    <ul style="margin-top:12px;line-height:1.7;">
+      <li>Personalised learning pathways</li>
+      <li>Small class sizes for individual attention</li>
+      <li>Continuous assessment and feedback</li>
+      <li>Support for all learning styles</li>
+    </ul>`;
+  } else if (type === 'arts') {
+    title = 'Arts & Creativity';
+    icon = '<i class="fa-solid fa-palette"></i>';
+    color = 'var(--orange)';
+    content = `<p>We believe every child is an artist. Our arts programme includes music, drama, visual arts, and hands-on creative projects. Students are encouraged to express themselves, build confidence, and discover new talents in a supportive environment.</p>
+    <ul style="margin-top:12px;line-height:1.7;">
+      <li>Music and drama performances</li>
+      <li>Art exhibitions and creative workshops</li>
+      <li>Opportunities for public speaking and debate</li>
+    </ul>`;
+  } else if (type === 'community') {
+    title = 'Community Values';
+    icon = '<i class="fa-solid fa-handshake"></i>';
+    color = 'var(--green)';
+    content = `<p>Respect, integrity, and a genuine sense of belonging are at the heart of our school. We foster a warm, inclusive community where every child is valued and supported. Our values are woven into daily life, assemblies, and special events.</p>
+    <ul style="margin-top:12px;line-height:1.7;">
+      <li>Character education and leadership</li>
+      <li>Service learning and outreach</li>
+      <li>Celebration of diversity</li>
+    </ul>`;
+  } else if (type === 'sports') {
+    title = 'Sports & Wellbeing';
+    icon = '<i class="fa-solid fa-futbol"></i>';
+    color = 'var(--purple)';
+    content = `<p>Physical education, team sports, and healthy development are central to our philosophy. We offer a wide range of activities to help students stay active, build teamwork, and develop lifelong healthy habits.</p>
+    <ul style="margin-top:12px;line-height:1.7;">
+      <li>PE lessons and after-school clubs</li>
+      <li>Team sports and friendly competitions</li>
+      <li>Focus on mental and emotional wellbeing</li>
+    </ul>`;
+  }
+  header.innerHTML = icon + ' ' + title;
+  header.style.color = color;
+  body.innerHTML = content;
+  modal.classList.add('show');
+}
+
+function closeInfoModal() {
+  document.getElementById('infoModal').classList.remove('show');
+}
+
     // ─── ADMISSION FORM SUBMISSION ───────────────────────────────────
     function submitAdmissionForm(e) {
       e.preventDefault();
@@ -1450,6 +1510,68 @@
       }
     });
   </script>
+<script>
+// ─── INFO MODAL FOR HERO CARDS ─────────────────────────────
+function openInfoModal(type) {
+  const modal = document.getElementById('infoModal');
+  const header = document.getElementById('infoModalHeader');
+  const body = document.getElementById('infoModalBody');
+  let title = '';
+  let content = '';
+  let icon = '';
+  let color = '';
+  if (type === 'academic') {
+    title = 'Academic Excellence';
+    icon = '<i class="fa-solid fa-book-open"></i>';
+    color = 'var(--blue)';
+    content = `<p>Our academic programme is built on the Cambridge International Curriculum, ensuring a rich, broad, and rigorous education from Nursery through Junior High. We focus on critical thinking, creativity, and a love for lifelong learning. Our teachers are passionate, highly qualified, and dedicated to every child’s success.</p>
+    <ul style="margin-top:12px;line-height:1.7;">
+      <li>Personalised learning pathways</li>
+      <li>Small class sizes for individual attention</li>
+      <li>Continuous assessment and feedback</li>
+      <li>Support for all learning styles</li>
+    </ul>`;
+  } else if (type === 'arts') {
+    title = 'Arts & Creativity';
+    icon = '<i class="fa-solid fa-palette"></i>';
+    color = 'var(--orange)';
+    content = `<p>We believe every child is an artist. Our arts programme includes music, drama, visual arts, and hands-on creative projects. Students are encouraged to express themselves, build confidence, and discover new talents in a supportive environment.</p>
+    <ul style="margin-top:12px;line-height:1.7;">
+      <li>Music and drama performances</li>
+      <li>Art exhibitions and creative workshops</li>
+      <li>Opportunities for public speaking and debate</li>
+    </ul>`;
+  } else if (type === 'community') {
+    title = 'Community Values';
+    icon = '<i class="fa-solid fa-handshake"></i>';
+    color = 'var(--green)';
+    content = `<p>Respect, integrity, and a genuine sense of belonging are at the heart of our school. We foster a warm, inclusive community where every child is valued and supported. Our values are woven into daily life, assemblies, and special events.</p>
+    <ul style="margin-top:12px;line-height:1.7;">
+      <li>Character education and leadership</li>
+      <li>Service learning and outreach</li>
+      <li>Celebration of diversity</li>
+    </ul>`;
+  } else if (type === 'sports') {
+    title = 'Sports & Wellbeing';
+    icon = '<i class="fa-solid fa-futbol"></i>';
+    color = 'var(--purple)';
+    content = `<p>Physical education, team sports, and healthy development are central to our philosophy. We offer a wide range of activities to help students stay active, build teamwork, and develop lifelong healthy habits.</p>
+    <ul style="margin-top:12px;line-height:1.7;">
+      <li>PE lessons and after-school clubs</li>
+      <li>Team sports and friendly competitions</li>
+      <li>Focus on mental and emotional wellbeing</li>
+    </ul>`;
+  }
+  header.innerHTML = icon + ' ' + title;
+  header.style.color = color;
+  body.innerHTML = content;
+  modal.classList.add('show');
+}
+
+function closeInfoModal() {
+  document.getElementById('infoModal').classList.remove('show');
+}
+</script>
 
   <!-- Supabase: latest news on homepage -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

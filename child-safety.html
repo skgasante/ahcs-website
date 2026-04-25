@@ -56,18 +56,10 @@
 
   <!-- ─── CONTENT ───────────────────────────────────────── -->
   <main class="page-content">
-    <div class="container" style="max-width:860px;">
-      <div class="info-card">
-        <h2><i class="fa-solid fa-shield-halved" style="color:var(--blue);margin-right:8px;"></i>Safeguarding</h2>
-        <p>Details about child protection procedures, staff DBS checks, designated safeguarding leads, and how to report concerns will be outlined here.</p>
-      </div>
-      <div class="info-card">
-        <h2><i class="fa-solid fa-heart" style="color:var(--orange);margin-right:8px;"></i>Student Wellbeing</h2>
-        <p>Resources covering emotional wellbeing, anti-bullying policies, mental health support, and our positive school culture will be shared in this section.</p>
-      </div>
-      <div class="info-card">
-        <h2><i class="fa-solid fa-handshake-angle" style="color:var(--green);margin-right:8px;"></i>Parent Guidance</h2>
-        <p>Guidance for families on school safety expectations, secure pick-up procedures, and how to raise concerns with school leadership.</p>
+    <div class="container" style="max-width:860px;" id="dynamicContent">
+      <div style="text-align:center;padding:48px 0;">
+        <i class="fa-solid fa-circle-notch fa-spin" style="font-size:2rem;color:var(--blue);margin-bottom:16px;"></i>
+        <p>Loading information&hellip;</p>
       </div>
     </div>
   </main>
@@ -124,6 +116,8 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-client.js"></script>
   <script>
     const hamburger = document.querySelector('.hamburger');
     const navLinks  = document.querySelector('.nav-links');
@@ -133,6 +127,34 @@
       navLinks.style.cssText = open ? '' : 'display:flex;flex-direction:column;position:absolute;top:68px;left:0;right:0;background:#fff;padding:16px 24px;border-bottom:1px solid #e5e7eb;gap:4px;z-index:200';
       navCta.style.display = open ? 'none' : 'inline-flex';
     });
+
+    async function fetchContent() {
+      const container = document.getElementById('dynamicContent');
+      try {
+        const { data, error } = await supabasePublic
+          .from('site_content')
+          .select('*')
+          .eq('id', 'child-safety')
+          .maybeSingle();
+
+        if (error) throw error;
+
+        if (data && data.content) {
+          container.innerHTML = `<div class="info-card dynamic-body">${data.content}</div>`;
+        } else {
+          container.innerHTML = `
+            <div class="info-card" style="text-align:center;padding:48px 24px;">
+              <i class="fa-solid fa-circle-info" style="font-size:2rem;color:var(--muted);margin-bottom:16px;"></i>
+              <p style="margin:0;font-style:italic;">No information available at the moment. Please check back later.</p>
+            </div>
+          `;
+        }
+      } catch (err) {
+        console.error('Error fetching content:', err);
+        container.innerHTML = '<p style="text-align:center;color:var(--red);padding:48px 0;">Failed to load content. Please try again later.</p>';
+      }
+    }
+    fetchContent();
   </script>
 </body>
 </html>

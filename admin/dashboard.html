@@ -73,6 +73,10 @@
           <i class="fa-solid fa-file-invoice-dollar"></i>
           Fees & Billing
         </button>
+        <button class="nav-item" data-section="site-content">
+          <i class="fa-solid fa-file-signature"></i>
+          Site Content
+        </button>
         <button class="nav-item" data-section="students">
           <i class="fa-solid fa-graduation-cap"></i>
           Student Records
@@ -1560,6 +1564,43 @@
           </div>
         </section>
 
+        <!-- ── Site Content (Dynamic CMS) ────────────────── -->
+        <section class="section-panel" id="section-site-content">
+          <div class="section-header">
+            <h2>Site Content</h2>
+            <p>Manage the content of legal and informational pages.</p>
+          </div>
+          <div class="article-editor-card">
+            <form id="siteContentForm" novalidate>
+              <div class="editor-field">
+                <label for="scPageSelect">Select Page to Edit</label>
+                <select id="scPageSelect">
+                  <option value="child-safety">Child Safety</option>
+                  <option value="privacy-policy">Privacy Policy</option>
+                  <option value="fees-payments">Fees & Payments</option>
+                </select>
+              </div>
+              <div class="editor-field">
+                <label for="scTitle">Page Title</label>
+                <input type="text" id="scTitle" placeholder="e.g. Child Safety Policy" required />
+              </div>
+              <div class="editor-field">
+                <label for="scContent">Page Content (Markdown/HTML supported)</label>
+                <textarea id="scContent" rows="20" placeholder="Enter page content here..." required></textarea>
+              </div>
+              <div class="editor-actions">
+                <div class="editor-error hidden" id="siteContentError"></div>
+                <div class="editor-btns">
+                  <button type="submit" class="btn-editor-save" id="btnSaveSiteContent">
+                    <span class="btn-label">Save Changes</span>
+                    <div class="btn-spinner hidden"></div>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </section>
+
         <!-- ── Staff Catalogue ─────────────────────────────── -->
         <section class="section-panel" id="section-staff">
           <div class="section-header">
@@ -1587,11 +1628,13 @@
 
                 <div class="editor-row-2">
                   <div class="editor-field">
-                    <label for="soPositionTitle">Position / Job Title</label>
-                    <input type="text" id="soPositionTitle" list="soPositionSuggestions"
-                      placeholder="e.g. Class Teacher" autocomplete="off" />
-                    <datalist id="soPositionSuggestions"></datalist>
-                    <input type="hidden" id="soPositionId" />
+                    <label for="soSchoolId">School ID</label>
+                    <div class="settings-password-row">
+                      <input type="text" id="soSchoolId" placeholder="e.g. AHCSt001" required />
+                      <button type="button" class="toolbar-btn" id="btnSuggestSchoolId">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Suggest
+                      </button>
+                    </div>
                   </div>
                   <div class="editor-field">
                     <label for="soRole">Account Role</label>
@@ -1604,13 +1647,19 @@
 
                 <div class="editor-row-2">
                   <div class="editor-field">
+                    <label for="soPositionTitle">Position / Job Title</label>
+                    <input type="text" id="soPositionTitle" list="soPositionSuggestions"
+                      placeholder="e.g. Class Teacher" autocomplete="off" />
+                    <datalist id="soPositionSuggestions"></datalist>
+                    <input type="hidden" id="soPositionId" />
+                  </div>
+                  <div class="editor-field">
                     <label for="soAccountType">Account Type</label>
                     <select id="soAccountType">
                       <option value="teaching">Teaching</option>
                       <option value="non_teaching">Non-Teaching</option>
                     </select>
                   </div>
-                  <div class="editor-field"></div>
                 </div>
 
                 <div class="editor-field">
@@ -3953,6 +4002,7 @@
           fees:       { view: true, manage: true, record_payment: true, notify: true },
           reports:    { view: true, submit: true, review: true, approve: true },
           settings:   { own: true, manage_staff: true, manage_roles: true },
+          'site-content': { view: true, edit: true },
         },
         can_publish: { news: true, gallery: true, calendar: true, vacancies: true, reports: true },
       },
@@ -3965,6 +4015,7 @@
           calendar:   { view: true, create: true, edit: true, publish: true, delete: true },
           reports:    { view: true, submit: false, review: true, approve: true },
           settings:   { own: true, manage_staff: true, manage_roles: false },
+          'site-content': { view: true, edit: true },
         },
         can_publish: { news: true, gallery: true, calendar: true, vacancies: true, reports: true },
       },
@@ -4033,6 +4084,9 @@
       ]},
       { key: 'settings', label: 'Settings', actions: [
         { key: 'manage_staff', label: 'Manage Staff' }, { key: 'manage_roles', label: 'Manage Roles' },
+      ]},
+      { key: 'site-content', label: 'Site Content', actions: [
+        { key: 'view', label: 'View' }, { key: 'edit', label: 'Edit' },
       ]},
     ];
     const ONBOARD_PUBLISH_AREAS = ['news', 'gallery', 'calendar', 'vacancies', 'reports'];
@@ -4330,6 +4384,7 @@
       fillStaffOverrideEditor(row.permissions_override || {}, row.can_publish_override || {});
       setSettingsStatus('staffOverrideStatus', '');
       show('staffOverrideCard');
+      document.getElementById('staffOverrideCard')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     async function saveStaffOverrideEditor() {
@@ -4437,6 +4492,7 @@
       if (sectionId === 'audit') return hasPermission('settings', 'manage_roles') || hasPermission('settings', 'manage_staff');
       if (sectionId === 'staff') return hasPermission('settings', 'manage_staff');
       if (sectionId === 'settings') return hasPermission('settings', 'own');
+      if (sectionId === 'site-content') return hasPermission('site-content', 'view');
       return false;
     }
 
@@ -4654,6 +4710,9 @@
         permissions: resolved.permissions,
         canPublish: resolved.canPublish,
       };
+      
+      const roleLabel = document.querySelector('.user-role');
+      if (roleLabel) roleLabel.textContent = ROLE_LABELS[resolved.role] || 'Staff';
 
       applyNavigationAuthorization();
       applyActionAuthorization();
@@ -4721,6 +4780,28 @@
       document.getElementById('ssUserId').textContent = user.id || '—';
       writeSettingsPreferencesToUI(profile?.preferences);
     }
+
+    async function suggestSchoolId() {
+      const role = document.getElementById('soRole').value;
+      const prefix = role === 'admin' ? 'AHCSa' : 'AHCSt';
+      
+      const { count, error } = await supabaseClient
+        .from('staff_profiles')
+        .select('*', { count: 'exact', head: true });
+        
+      if (error) {
+        console.error('Error fetching staff count:', error);
+        return;
+      }
+      
+      const nextNum = (count || 0) + 1;
+      const schoolId = `${prefix}${String(nextNum).padStart(3, '0')}`;
+      document.getElementById('soSchoolId').value = schoolId;
+      document.getElementById('soTempPassword').value = schoolId;
+    }
+
+    document.getElementById('btnSuggestSchoolId')?.addEventListener('click', suggestSchoolId);
+    document.getElementById('soRole')?.addEventListener('change', suggestSchoolId);
 
     async function loadStaffWorkspace() {
       if (!hasPermission('settings', 'manage_staff')) return;
@@ -4981,14 +5062,15 @@
 
       const name = document.getElementById('soName').value.trim();
       const email = document.getElementById('soEmail').value.trim().toLowerCase();
+      const schoolId = document.getElementById('soSchoolId').value.trim();
       const role = document.getElementById('soRole').value;
       const accountType = document.getElementById('soAccountType').value;
       const positionId = document.getElementById('soPositionId').value || null;
       const temporaryPassword = document.getElementById('soTempPassword').value;
       const { permissions: permissionsOverride, canPublish: canPublishOverride } = readOnboardPermissionsFromUI();
 
-      if (!name || !email || !temporaryPassword) {
-        setSettingsStatus('settingsStaffStatus', 'Name, email, and temporary password are required.', 'error');
+      if (!name || !email || !schoolId || !temporaryPassword) {
+        setSettingsStatus('settingsStaffStatus', 'Name, email, School ID, and temporary password are required.', 'error');
         return;
       }
 
@@ -5012,12 +5094,13 @@
           body: JSON.stringify({
             email,
             displayName: name,
+            schoolId,
             positionId,
             role,
             accountType,
             temporaryPassword,
-                      permissionsOverride,
-                      canPublishOverride,
+            permissionsOverride,
+            canPublishOverride,
           }),
         });
 
@@ -5102,6 +5185,7 @@
       audit:      'Audit Log',
       staff:      'Staff Catalogue',
       settings:   'Settings',
+      'site-content': 'Site Content',
     };
 
     const navItems    = document.querySelectorAll('.nav-item[data-section]');
@@ -5134,6 +5218,7 @@
       if (sectionId === 'audit'      && !auditLoaded)      loadAudit();
       if (sectionId === 'staff')                           loadStaffWorkspace();
       if (sectionId === 'settings'   && !settingsLoaded)   loadSettings();
+      if (sectionId === 'site-content') loadSiteContent();
     }
 
     loadUser();
@@ -5147,6 +5232,83 @@
     });
 
     navItems.forEach(btn => btn.addEventListener('click', () => switchSection(btn.dataset.section)));
+
+    // ═══════════════════════════════════════════════════════
+    // SITE CONTENT (DYNAMIC CMS)
+    // ═══════════════════════════════════════════════════════
+    async function loadSiteContent() {
+      const pageId = document.getElementById('scPageSelect').value;
+      const titleInp = document.getElementById('scTitle');
+      const contentInp = document.getElementById('scContent');
+      const errEl = document.getElementById('siteContentError');
+
+      errEl.textContent = '';
+      errEl.classList.add('hidden');
+      
+      const { data, error } = await supabaseClient
+        .from('site_content')
+        .select('*')
+        .eq('id', pageId)
+        .maybeSingle();
+
+      if (error) {
+        errEl.textContent = 'Failed to load content: ' + error.message;
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (data) {
+        titleInp.value = data.title || '';
+        contentInp.value = data.content || '';
+      } else {
+        titleInp.value = '';
+        contentInp.value = '';
+      }
+    }
+
+    document.getElementById('scPageSelect')?.addEventListener('change', loadSiteContent);
+
+    document.getElementById('siteContentForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const pageId = document.getElementById('scPageSelect').value;
+      const title = document.getElementById('scTitle').value.trim();
+      const content = document.getElementById('scContent').value.trim();
+      const btn = document.getElementById('btnSaveSiteContent');
+      const errEl = document.getElementById('siteContentError');
+
+      if (!title) {
+        errEl.textContent = 'Title is required.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      if (!hasPermission('site-content', 'edit')) {
+        errEl.textContent = 'You do not have permission to edit site content.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+
+      setButtonLoading(btn, true);
+      errEl.classList.add('hidden');
+
+      const { error } = await supabaseClient
+        .from('site_content')
+        .upsert({
+          id: pageId,
+          title,
+          content,
+          updated_at: new Date().toISOString()
+        });
+
+      setButtonLoading(btn, false);
+
+      if (error) {
+        errEl.textContent = 'Save failed: ' + error.message;
+        errEl.classList.remove('hidden');
+      } else {
+        alert('Changes saved successfully.');
+      }
+    });
 
     // ═══════════════════════════════════════════════════════
     // MOBILE SIDEBAR

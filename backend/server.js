@@ -7,6 +7,10 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Serve static files from the project root (one level up)
+const path = require('path');
+app.use(express.static(path.join(__dirname, '..')));
+
 // Middleware
 const allowedOrigins = [
   'https://ahcs-website.netlify.app',
