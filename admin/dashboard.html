@@ -360,7 +360,7 @@
                   <th>Child Name</th>
                   <th>Year Group</th>
                   <th>Status</th>
-                  <th></th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody id="admTbody"></tbody>
@@ -1140,6 +1140,7 @@
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="studentSearchInput" placeholder="Search by name or code..." />
               </div>
+              <span class="record-count" id="studentsCount"></span>
               <button class="toolbar-btn" id="refreshStudents">
                 <i class="fa-solid fa-rotate-right"></i> Refresh
               </button>
@@ -1836,6 +1837,88 @@
     </div>
   </div>
 
+  <!-- ─── ONBOARDING MODAL ───────────────────────────────────── -->
+  <div class="modal-overlay" id="onboardModal">
+    <div class="modal-card modal-card-wide">
+      <div class="modal-head">
+        <div>
+          <h3>Convert Enquiry to Student</h3>
+          <p>Create official school records and parent credentials.</p>
+        </div>
+        <button class="modal-close" id="closeOnboardModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="onboardForm">
+          <input type="hidden" id="obEnquiryId" />
+          <div class="editor-row-2">
+            <div class="editor-field">
+              <label>Student Full Name</label>
+              <input type="text" id="obStudentName" readonly />
+            </div>
+            <div class="editor-field">
+              <label>Parent / Guardian Name</label>
+              <input type="text" id="obParentName" readonly />
+            </div>
+          </div>
+          <div class="editor-row-2">
+            <div class="editor-field">
+              <label>Parent Email</label>
+              <input type="email" id="obParentEmail" readonly />
+            </div>
+            <div class="editor-field">
+              <label>Assigned Class <span class="field-req">*</span></label>
+              <select id="obClass" required>
+                <option value="">Select Class...</option>
+                <option value="Creche">Creche</option>
+                <option value="Nursery">Nursery</option>
+                <option value="KG 1">KG 1</option>
+                <option value="KG 2">KG 2</option>
+                <option value="Primary 1">Primary 1</option>
+                <option value="Primary 2">Primary 2</option>
+                <option value="Primary 3">Primary 3</option>
+                <option value="Primary 4">Primary 4</option>
+                <option value="Primary 5">Primary 5</option>
+                <option value="Primary 6">Primary 6</option>
+                <option value="JHS 1">JHS 1</option>
+                <option value="JHS 2">JHS 2</option>
+                <option value="JHS 3">JHS 3</option>
+              </select>
+            </div>
+          </div>
+          <div class="onboard-id-preview" style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:16px;">
+            <div class="id-preview-item">
+              <label>Student ID (Suggested)</label>
+              <div class="settings-password-row">
+                <input type="text" id="obStudentId" placeholder="Generating..." required />
+                <button type="button" class="toolbar-btn" id="btnRefreshStudentId"><i class="fa-solid fa-rotate"></i></button>
+              </div>
+            </div>
+            <div class="id-preview-item">
+              <label>Parent ID (Suggested)</label>
+              <div class="settings-password-row">
+                <input type="text" id="obParentId" placeholder="Generating..." required />
+                <button type="button" class="toolbar-btn" id="btnRefreshParentId"><i class="fa-solid fa-rotate"></i></button>
+              </div>
+            </div>
+          </div>
+          <p class="field-hint" style="margin-top: 12px; color: var(--blue);">
+            <i class="fa-solid fa-circle-info"></i> Official records will be created in the <strong>Student Records</strong> section. A portal account will be created for the parent using the generated Parent ID as the default password.
+          </p>
+          <div class="editor-actions" style="margin-top:24px;">
+            <div id="onboardError" class="editor-error hidden"></div>
+            <div class="editor-btns">
+              <button type="button" class="btn-editor-cancel" id="btnCancelOnboard">Cancel</button>
+              <button type="submit" class="btn-editor-save" id="btnSubmitOnboard">
+                <span class="btn-label">Confirm Enrolment</span>
+                <div class="btn-spinner hidden"></div>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Admin Supabase config -->
@@ -2080,14 +2163,22 @@
           <td>${esc(r.child_name)}</td>
           <td><span class="year-pill">${esc(r.year_group)}</span></td>
           <td>${statusBadge(r.status)}</td>
-          <td><button class="btn-view" data-id="${r.id}"><i class="fa-solid fa-eye"></i> View</button></td>
+          <td>
+            <div style="display:flex; gap:8px;">
+              <button class="btn-view" data-id="${r.id}" title="View Details"><i class="fa-solid fa-eye"></i></button>
+              <button class="btn-view btn-promote" data-id="${r.id}" title="Promote to Student" style="background:var(--blue); border-color:var(--blue);"><i class="fa-solid fa-graduation-cap"></i></button>
+            </div>
+          </td>
         </tr>
       `).join('');
 
       show('admTableWrap');
 
-      tbody.querySelectorAll('.btn-view').forEach(btn => {
+      tbody.querySelectorAll('.btn-view:not(.btn-promote)').forEach(btn => {
         btn.addEventListener('click', () => openAdmissionDrawer(+btn.dataset.id));
+      });
+      tbody.querySelectorAll('.btn-promote').forEach(btn => {
+        btn.addEventListener('click', () => openOnboardModal(+btn.dataset.id));
       });
     }
 
@@ -4539,6 +4630,7 @@
       if (sectionId === 'settings') return hasPermission('settings', 'own');
       if (sectionId === 'site-content') return hasPermission('site-content', 'view');
       if (sectionId === 'contact-messages') return hasPermission('admissions', 'view');
+      if (sectionId === 'students') return hasPermission('admissions', 'view');
       return false;
     }
 
@@ -5233,6 +5325,7 @@
       settings:   'Settings',
       'site-content': 'Site Content',
       'contact-messages': 'Contact Messages',
+      students:   'Student Records',
     };
 
     const navItems    = document.querySelectorAll('.nav-item[data-section]');
@@ -5267,6 +5360,7 @@
       if (sectionId === 'settings'   && !settingsLoaded)   loadSettings();
       if (sectionId === 'site-content') loadSiteContent();
       if (sectionId === 'contact-messages' && !contactMessagesLoaded) loadContactMessages();
+      if (sectionId === 'students' && !studentsLoaded) loadStudents();
     }
 
     loadUser();
@@ -5457,6 +5551,153 @@
     }
 
     document.getElementById('refreshContact')?.addEventListener('click', loadContactMessages);
+
+    // ═══════════════════════════════════════════════════════
+    // STUDENT RECORDS
+    // ═══════════════════════════════════════════════════════
+    let studentsLoaded = false;
+    async function loadStudents() {
+      const loadingEl = document.getElementById('studentsLoading');
+      const tableWrap = document.getElementById('studentsTableWrap');
+      const emptyEl = document.getElementById('studentsEmpty');
+      const tbody = document.getElementById('studentsTbody');
+      const countEl = document.getElementById('studentsCount');
+
+      show('studentsLoading');
+      hide('studentsTableWrap');
+      hide('studentsEmpty');
+
+      const { data, error } = await supabaseClient
+        .from('students')
+        .select(`
+          *,
+          links:parent_student_links(
+            parent:parent_profiles(display_name)
+          )
+        `)
+        .order('last_name', { ascending: true });
+
+      hide('studentsLoading');
+      studentsLoaded = true;
+
+      if (error) {
+        console.error('Fetch students error:', error);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        show('studentsEmpty');
+        countEl.textContent = '0 students';
+        return;
+      }
+
+      countEl.textContent = `${data.length} student${data.length === 1 ? '' : 's'}`;
+      show('studentsTableWrap');
+
+      tbody.innerHTML = data.map(s => {
+        const parents = (s.links || []).map(l => l.parent?.display_name).filter(Boolean).join(', ');
+        return `
+          <tr>
+            <td><strong>${esc(s.school_id || '—')}</strong></td>
+            <td>${esc(s.first_name)} ${esc(s.last_name)}</td>
+            <td>${esc(s.class_name)}</td>
+            <td><span class="status-pill status-${s.status}">${s.status}</span></td>
+            <td>${esc(parents || 'No parent linked')}</td>
+            <td>
+              <button class="btn-icon" onclick="alert('Detailed student editing coming in Phase 3')" title="Edit Record">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    document.getElementById('refreshStudents')?.addEventListener('click', loadStudents);
+
+    // ═══════════════════════════════════════════════════════
+    // STUDENT ONBOARDING
+    // ═══════════════════════════════════════════════════════
+    async function openOnboardModal(id) {
+      const r = admissionsData.find(x => x.id === id);
+      if (!r) return;
+
+      document.getElementById('obEnquiryId').value = r.id;
+      document.getElementById('obStudentName').value = r.child_name;
+      document.getElementById('obParentName').value = r.parent_name;
+      document.getElementById('obParentEmail').value = r.email;
+      document.getElementById('obClass').value = r.year_group; // Pre-fill with year group from enquiry
+
+      await generateOnboardIds();
+      show('onboardModal');
+    }
+
+    async function generateOnboardIds() {
+      // For now, we generate locally based on current count + random
+      // In a real production system, this should be done on the backend to avoid collisions
+      const studentId = 'AHCSs' + Math.floor(100 + Math.random() * 899);
+      const parentId = 'AHCSp' + Math.floor(100 + Math.random() * 899);
+      
+      document.getElementById('obStudentId').value = studentId;
+      document.getElementById('obParentId').value = parentId;
+    }
+
+    document.getElementById('btnRefreshStudentId').addEventListener('click', () => {
+      document.getElementById('obStudentId').value = 'AHCSs' + Math.floor(100 + Math.random() * 899);
+    });
+    document.getElementById('btnRefreshParentId').addEventListener('click', () => {
+      document.getElementById('obParentId').value = 'AHCSp' + Math.floor(100 + Math.random() * 899);
+    });
+
+    document.getElementById('closeOnboardModal').addEventListener('click', () => hide('onboardModal'));
+    document.getElementById('btnCancelOnboard').addEventListener('click', () => hide('onboardModal'));
+
+    document.getElementById('onboardForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errEl = document.getElementById('onboardError');
+      const btn = document.getElementById('btnSubmitOnboard');
+      
+      errEl.textContent = '';
+      errEl.classList.add('hidden');
+      setButtonLoading(btn, true);
+
+      const payload = {
+        enquiryId: document.getElementById('obEnquiryId').value,
+        studentName: document.getElementById('obStudentName').value,
+        parentName: document.getElementById('obParentName').value,
+        parentEmail: document.getElementById('obParentEmail').value,
+        assignedClass: document.getElementById('obClass').value,
+        studentId: document.getElementById('obStudentId').value,
+        parentId: document.getElementById('obParentId').value
+      };
+
+      try {
+        const { data: sessionData } = await supabaseClient.auth.getSession();
+        const token = sessionData?.session?.access_token;
+        
+        // Call the backend onboarding route
+        const response = await fetch(`${ADMIN_API_BASE_URL}/api/onboard/student`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.success) throw new Error(result.message || 'Onboarding failed');
+
+        alert('Student successfully enrolled! Parent portal account created.');
+        hide('onboardModal');
+        loadAdmissions(); // Refresh table
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove('hidden');
+      } finally {
+        setButtonLoading(btn, false);
+      }
+    });
 
     sidebarOverlay.addEventListener('click', closeSidebar);
 

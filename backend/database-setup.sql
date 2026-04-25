@@ -1835,3 +1835,22 @@ ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow admin read access to audit_logs" ON audit_logs FOR SELECT USING (
   EXISTS (SELECT 1 FROM admin_profiles WHERE id = auth.uid() AND role IN ('admin', 'superadmin'))
 );
+
+-- Migration: Add school_id to students and parent_profiles
+ALTER TABLE students ADD COLUMN IF NOT EXISTS school_id TEXT UNIQUE;
+ALTER TABLE parent_profiles ADD COLUMN IF NOT EXISTS school_id TEXT UNIQUE;
+
+-- Junction table for Parent-Student relationship
+CREATE TABLE IF NOT EXISTS parent_student_links (
+  parent_id UUID REFERENCES parent_profiles(id) ON DELETE CASCADE,
+  student_id UUID REFERENCES students(id) ON DELETE CASCADE,
+  relationship TEXT, -- Parent, Guardian, etc.
+  PRIMARY KEY (parent_id, student_id)
+);
+
+-- RLS for Onboarding
+ALTER TABLE parent_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE parent_student_links ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY " Admin access to parent_profiles\ ON parent_profiles FOR ALL USING (EXISTS (SELECT 1 FROM admin_profiles WHERE id = auth.uid() AND role IN ('admin', 'superadmin')));
+CREATE POLICY \Admin access to parent_student_links\ ON parent_student_links FOR ALL USING (EXISTS (SELECT 1 FROM admin_profiles WHERE id = auth.uid() AND role IN ('admin', 'superadmin')));

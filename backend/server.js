@@ -56,6 +56,7 @@ app.use('/api/staff', require('./routes/staff'));
 app.use('/api/reports', require('./routes/reports'));
 app.use('/api/attendance', require('./routes/attendance'));
 app.use('/api/admin/emergency', require('./routes/admin-emergency'));
+app.use('/api/onboard', require('./routes/onboarding'));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
