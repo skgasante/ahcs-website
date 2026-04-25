@@ -1795,3 +1795,43 @@ ALTER TABLE staff_profiles ADD COLUMN IF NOT EXISTS school_id TEXT UNIQUE;
 
 -- Create a helper function to get the next school ID number (optional, but good for reference)
 -- For now, we will handle generation in the application logic.
+
+-- Contact Messages
+CREATE TABLE IF NOT EXISTS contact_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  subject TEXT,
+  message TEXT NOT NULL,
+  submitted_at TIMESTAMPTZ DEFAULT NOW(),
+  status TEXT DEFAULT 'unread'
+);
+
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow public insert to contact_messages" ON contact_messages FOR INSERT WITH CHECK (true);
+CREATE POLICY "Allow admin read access to contact_messages" ON contact_messages FOR SELECT USING (
+  EXISTS (SELECT 1 FROM admin_profiles WHERE id = auth.uid() AND role IN ('admin', 'superadmin'))
+);
+
+-- Seed initial Site Content IDs
+INSERT INTO site_content (id, title, content)
+VALUES 
+  ('about_us', 'About Annan House', 'Nurturing curious minds and confident learners at the heart of Airport Residential, Accra.'),
+  ('academics', 'Our Academic Program', 'We offer a rich, balanced curriculum that fosters critical thinking and creativity.')
+ON CONFLICT (id) DO NOTHING;
+
+-- Audit Logs
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  admin_id UUID REFERENCES auth.users(id),
+  action TEXT NOT NULL,
+  target_table TEXT,
+  target_id TEXT,
+  details JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow admin read access to audit_logs" ON audit_logs FOR SELECT USING (
+  EXISTS (SELECT 1 FROM admin_profiles WHERE id = auth.uid() AND role IN ('admin', 'superadmin'))
+);

@@ -48,6 +48,10 @@
           <i class="fa-solid fa-briefcase"></i>
           Job Applications
         </button>
+        <button class="nav-item" data-section="contact-messages">
+          <i class="fa-solid fa-envelope"></i>
+          Contact Messages
+        </button>
 
         <div class="nav-section-label">Content</div>
 
@@ -400,6 +404,45 @@
                 </tr>
               </thead>
               <tbody id="jobTbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ── Contact Messages ─────────────────────────────── -->
+        <section class="section-panel" id="section-contact-messages">
+          <div class="section-header">
+            <h2>Contact Messages</h2>
+            <p>Direct enquiries submitted through the "Contact Us" form.</p>
+          </div>
+
+          <div class="table-toolbar">
+            <span class="record-count" id="contactCount"></span>
+            <button class="toolbar-btn" id="refreshContact">
+              <i class="fa-solid fa-rotate-right"></i> Refresh
+            </button>
+          </div>
+
+          <div class="table-loading" id="contactLoading">
+            <div class="tbl-spinner"></div>
+            <span>Loading messages&hellip;</span>
+          </div>
+          <div class="table-empty hidden" id="contactEmpty">
+            <i class="fa-solid fa-inbox"></i>
+            <p>No contact messages found.</p>
+          </div>
+          <div class="table-wrap hidden" id="contactTableWrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Subject</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="contactTbody"></tbody>
             </table>
           </div>
         </section>
@@ -1575,6 +1618,8 @@
               <div class="editor-field">
                 <label for="scPageSelect">Select Page to Edit</label>
                 <select id="scPageSelect">
+                  <option value="about_us">Home Page: About Us</option>
+                  <option value="academics">Home Page: Academics</option>
                   <option value="child-safety">Child Safety</option>
                   <option value="privacy-policy">Privacy Policy</option>
                   <option value="fees-payments">Fees & Payments</option>
@@ -4493,6 +4538,7 @@
       if (sectionId === 'staff') return hasPermission('settings', 'manage_staff');
       if (sectionId === 'settings') return hasPermission('settings', 'own');
       if (sectionId === 'site-content') return hasPermission('site-content', 'view');
+      if (sectionId === 'contact-messages') return hasPermission('admissions', 'view');
       return false;
     }
 
@@ -5186,6 +5232,7 @@
       staff:      'Staff Catalogue',
       settings:   'Settings',
       'site-content': 'Site Content',
+      'contact-messages': 'Contact Messages',
     };
 
     const navItems    = document.querySelectorAll('.nav-item[data-section]');
@@ -5219,6 +5266,7 @@
       if (sectionId === 'staff')                           loadStaffWorkspace();
       if (sectionId === 'settings'   && !settingsLoaded)   loadSettings();
       if (sectionId === 'site-content') loadSiteContent();
+      if (sectionId === 'contact-messages' && !contactMessagesLoaded) loadContactMessages();
     }
 
     loadUser();
@@ -5331,6 +5379,85 @@
     hamburgerBtn.addEventListener('click', () => {
       sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
     });
+    // ═══════════════════════════════════════════════════════
+    // CONTACT MESSAGES
+    // ═══════════════════════════════════════════════════════
+    let contactMessagesLoaded = false;
+    async function loadContactMessages() {
+      const loadingEl = document.getElementById('contactLoading');
+      const emptyEl = document.getElementById('contactEmpty');
+      const tableWrap = document.getElementById('contactTableWrap');
+      const tbody = document.getElementById('contactTbody');
+      const countEl = document.getElementById('contactCount');
+
+      loadingEl.classList.remove('hidden');
+      emptyEl.classList.add('hidden');
+      tableWrap.classList.add('hidden');
+      tbody.innerHTML = '';
+
+      const { data, error } = await supabaseClient
+        .from('contact_messages')
+        .select('*')
+        .order('submitted_at', { ascending: false });
+
+      loadingEl.classList.add('hidden');
+      contactMessagesLoaded = true;
+
+      if (error) {
+        console.error('Fetch contact messages error:', error);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        emptyEl.classList.remove('hidden');
+        countEl.textContent = '0 messages';
+        return;
+      }
+
+      countEl.textContent = `${data.length} message${data.length === 1 ? '' : 's'}`;
+      tableWrap.classList.remove('hidden');
+
+      tbody.innerHTML = data.map(m => `
+        <tr class="${m.status === 'unread' ? 'row-unread' : ''}">
+          <td><div class="tbl-date-cell">${new Date(m.submitted_at).toLocaleDateString()}</div></td>
+          <td><strong>${esc(m.full_name)}</strong></td>
+          <td><a href="mailto:${m.email}">${esc(m.email)}</a></td>
+          <td>${esc(m.subject || 'No Subject')}</td>
+          <td><span class="status-pill status-${m.status}">${m.status}</span></td>
+          <td>
+            <button class="btn-view" onclick="viewContactMessageDetail('${m.id}')" title="View Details">
+              <i class="fa-solid fa-eye"></i> View
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function viewContactMessageDetail(id) {
+      const { data, error } = await supabaseClient
+        .from('contact_messages')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (error || !data) {
+        alert('Could not load message details.');
+        return;
+      }
+
+      alert(`Message from ${data.full_name}:\n\nSubject: ${data.subject || '(No Subject)'}\n\n${data.message}`);
+
+      if (data.status === 'unread') {
+        await supabaseClient
+          .from('contact_messages')
+          .update({ status: 'read' })
+          .eq('id', id);
+        loadContactMessages();
+      }
+    }
+
+    document.getElementById('refreshContact')?.addEventListener('click', loadContactMessages);
+
     sidebarOverlay.addEventListener('click', closeSidebar);
 
     // ═══════════════════════════════════════════════════════
